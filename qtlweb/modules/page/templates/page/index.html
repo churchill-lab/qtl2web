@@ -409,6 +409,7 @@
     <script src="{{ url_for('static', filename='vendor/dynatables-0.3.1/jquery.dynatable.js') }}"></script>
     <script src="{{ url_for('static', filename='vendor/bootstrap-hardskilled-extend-select-1.1.4/js/select.min.js') }}"></script>
     <script src="{{ url_for('static', filename='vendor/bootstrap-switch-3.3.4/js/bootstrap-switch.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/utilities.js') }}"></script>
 
     <script>
 
@@ -435,15 +436,16 @@
         });
         {% endif %}
     }
-function appendExportButton(mytext, myfunction){
-  let defaultButtons = Highcharts.getOptions().exporting.buttons; // get default Highchart Export buttons
-  let myButtons = $.extend(true, {}, defaultButtons);
-  myButtons.contextButton.menuItems.push({
-    text: mytext,
-    onclick: myfunction
-  });
-  return {buttons: myButtons};
-}
+
+    function appendExportButton(mytext, myfunction){
+      let defaultButtons = Highcharts.getOptions().exporting.buttons; // get default Highchart Export buttons
+      let myButtons = $.extend(true, {}, defaultButtons);
+      myButtons.contextButton.menuItems.push({
+        text: mytext,
+        onclick: myfunction
+      });
+      return {buttons: myButtons};
+    }
 
     // Extended disable function
     jQuery.fn.extend({
@@ -489,203 +491,6 @@ function appendExportButton(mytext, myfunction){
             console.error(description, textStatus);
             callback(errorThrown, null);
         });
-    }
-
-    /**
-     * Simple compare function.
-     * @param {object} a - first object
-     * @param {number} a.x - first number
-     * @param {object} b - second object
-     * @param {number} b.x - second number
-     * @return {number} 0 if equal, 1 if a.x > b.x, -1 if a.x < b.x
-     */
-    function compareX(a, b) {
-        if (a.x  < b.x)
-            return -1;
-        if (a.x > b.x)
-            return 1;
-        return 0;
-    }
-
-    /**
-     * Format Mbp to two decimal places.
-     * @param {number} Mbp - the number to round
-     * @return {string} Mbp formatted to two decimal places
-     */
-    function formatMbp(Mbp) {
-        return Number(Mbp).toFixed(2);
-    }
-
-    /**
-     * Get a random integer between min and max.
-     * @param {number} minn - the number to round
-     * @param {number} maxx - the number to round
-     * @return {number} a number between minn and maxx
-     */
-    function getRandomInt(minn, maxx) {
-        minn = Math.ceil(minn);
-        maxx = Math.floor(maxx);
-        return Math.floor(Math.random() * (maxx - minn + 1)) + minn;
-    }
-
-
-
-    // Adapted from:
-    // https://stackoverflow.com/questions/15298912/javascript-generating-combinations-from-n-arrays-with-m-elements
-    function permutateArrays(arraysToCombine) {
-        let divisors = [];
-        for (let i = arraysToCombine.length - 1; i >= 0; i--) {
-            divisors[i] = divisors[i + 1]
-                ? divisors[i + 1] * arraysToCombine[i + 1].length
-                : 1;
-        }
-
-        function getPermutation(n, arraysToCombine) {
-            let result = [];
-            let curArray;
-            for (let i = 0; i < arraysToCombine.length; i++) {
-                curArray = arraysToCombine[i];
-                result.push(
-                    curArray[Math.floor(n / divisors[i]) % curArray.length]
-                );
-            }
-            return result;
-        }
-
-        let numPerms = arraysToCombine[0].length;
-        for (let i = 1; i < arraysToCombine.length; i++) {
-            numPerms *= arraysToCombine[i].length;
-        }
-
-        let combinations = [];
-        for (let i = 0; i < numPerms; i++) {
-            combinations.push(getPermutation(i, arraysToCombine));
-        }
-        return combinations;
-    }
-
-    //because .sort() doesn't sort numbers correctly
-    function numSort(a, b) {
-        return a - b;
-    }
-
-    //get the mean of an array of numbers
-    function mean(data) {
-        let len = data.length;
-        let sum = 0;
-        for(let i = 0; i < len; i++) {
-            sum += parseFloat(data[i]);
-        }
-        return (sum / len);
-    }
-
-    //get any percentile from an array
-    function getPercentile(data, percentile) {
-        data.sort(numSort);
-        let index = (percentile/100) * data.length;
-        let result;
-        if (Math.floor(index) === index) {
-             result = (data[(index-1)] + data[index])/2;
-        }
-        else {
-            result = data[Math.floor(index)];
-        }
-        return result;
-    }
-
-    //wrap the percentile calls in one method
-    function getBoxValues(data) {
-        let filteredData = [];
-
-        $.each(data, function(idx, elem) {
-            if (!isNaN(elem)) {
-                filteredData.push(elem);
-            }
-        });
-
-
-        return {low: Math.min.apply(Math,filteredData),
-                q1: getPercentile(filteredData, 25),
-                median: getPercentile(filteredData, 50),
-                q3: getPercentile(filteredData, 75),
-                high: Math.max.apply(Math,filteredData)};
-    }
-
-
-    /**************************************************************************
-     **
-     ** LAYOUT ALGORITHMS
-     **
-     *************************************************************************/
-
-    /**
-     * If the slot has space or not
-     * @param {Object} feature - the feature to check
-     * @param {number} feature.position_start - the strat position
-     * @param {number} feature.end - the end position
-     * @param {Array} featuresInSlot - an array of features in this slot
-     * @return {boolean} true if slot has space for the feature
-     */
-    function slotHasSpace(feature, featuresInSlot, spacing) {
-        if (!featuresInSlot) {
-            return true;
-        }
-
-        for (let i = 0; i < featuresInSlot.length; i++) {
-            let subject = featuresInSlot[i];
-
-
-            if (((feature.position_start - spacing <= subject.position_start) && (feature.max_end + spacing >= subject.position_start)) ||
-                ((feature.position_start - spacing >= subject.position_start) && (feature.position_start - spacing <= subject.max_end))) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Sort the features by the slot.
-     * @param {Array} features - an array of features in this slot
-     * @return {Array} the sorted slots
-     */
-    function sortFeaturesBySlot(features) {
-        let slots = [];
-        for (let i = 0; i < features.length; i++) {
-            let feature = features[i];
-            if (!slots[feature.slot]) {
-                slots[feature.slot] = [];
-            }
-            slots[feature.slot].push(feature);
-        }
-        return slots;
-    }
-
-    /**
-     * Determine where each feature should be located.
-     * @param {Array} features - an array of features
-     */
-    function layoutFeatures(features, spacing=0) {
-        let allocated = [];
-        let remaining = features;
-        let neededSlots = 0;
-
-        for (let i = 0; i < remaining.length; i++) {
-            let featuresBySlot = sortFeaturesBySlot(allocated);
-            let current = remaining[i];
-            let slot = 0;
-            while (true) {
-                if (slotHasSpace(current, featuresBySlot[slot], spacing)) {
-                    current.slot = slot;
-                    allocated.push(current);
-                    if (slot > neededSlots) {
-                        neededSlots = slot;
-                    }
-                    break;
-                }
-                slot++;
-            }
-        }
     }
 
     QTL = function() {
@@ -748,7 +553,6 @@ function appendExportButton(mytext, myfunction){
                             });
 
                         } else if (ds.dataType === 'protein') {
-
                             $.each(ds.annotations.ids, function(index, element) {
                                 if (!(element.gene_id in ds.gene_ids)) {
                                     ds.gene_ids[element.gene_id] = {'id': element.gene_id, 'protein_ids':[]}
@@ -781,7 +585,6 @@ function appendExportButton(mytext, myfunction){
                     }
 
                     console.log('g.dataSetID=', g.dataSetID);
-                    console.log('dataSet=', g.dataSets[g.dataSetID]);
 
                     if (data.result.dataSets.length === 1) {
                         // just show a menu item
@@ -4711,7 +4514,6 @@ function appendExportButton(mytext, myfunction){
 
             resetSecondaryPlots();
 
-
             $.ajax({
                 type: 'POST',
                 url: '{{ url_for('api.api_submit', _external=True) }}',
@@ -4913,11 +4715,6 @@ function appendExportButton(mytext, myfunction){
                 });
             }
         }
-
-        function shiftSNPWindow(shiftAmount) {
-
-        }
-
 
         /**
          * Perform gene search.
