@@ -25,7 +25,6 @@ function compareX(a, b) {
  * @return {string} Mbp formatted to two decimal places
  */
 function formatMbp(Mbp) {
-    compareX()
     return Number(Mbp).toFixed(2);
 }
 
