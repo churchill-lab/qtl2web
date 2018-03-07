@@ -1,0 +1,28 @@
+Flask==0.10.1
+
+# Application server for both development and production.
+gunicorn==19.4.5
+
+# Testing and static analysis.
+pytest==2.9.1
+pytest-cov==2.2.1
+flake8==2.5.4
+
+# CLI.
+Click==6.4
+
+# Data and workers.
+redis==2.10.5
+celery==4.1.0
+flower==0.9.2
+
+# Extensions.
+#flask-debugtoolbar==0.10.0
+Flask-Compress==1.4.0
+
+# Others.
+requests==2.18.4
+requests-cache==0.4.13
+psutil==5.4.3
+
+

@@ -1,0 +1,197 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}TEST{% endblock %}
+{% block meta_description %}{% endblock %}
+{% block head %}
+<style>
+.table-responsive .highlight pre {
+    white-space: normal
+}
+
+.bd-table th small,
+.responsive-utilities th small {
+    display: block;
+    font-weight: 400;
+    color: #999
+}
+
+.responsive-utilities tbody th {
+    font-weight: 400
+}
+
+.responsive-utilities td {
+    text-align: center
+}
+
+.responsive-utilities .is-visible {
+    color: #468847;
+    background-color: #dff0d8!important
+}
+
+.responsive-utilities .is-hidden {
+    color: #ccc;
+    background-color: #f9f9f9!important
+}
+
+.responsive-utilities-test {
+    margin-top: .25rem
+}
+
+.responsive-utilities-test .col-6 {
+    margin-top: .5rem;
+    margin-bottom: .5rem
+}
+
+.responsive-utilities-test span {
+    display: block;
+    padding: 1rem .5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.1;
+    text-align: center;
+    border-radius: .25rem
+}
+
+.hidden-on .col-6>.not-visible,
+.visible-on .col-6>.not-visible {
+    color: #999;
+    border: 1px solid #ddd
+}
+
+.hidden-on .col-6 .visible,
+.visible-on .col-6 .visible {
+    color: #468847;
+    background-color: #dff0d8;
+    border: 1px solid #d6e9c6
+}
+
+@media (max-width:575px) {
+    .hidden-xs-only {
+        display: none!important
+    }
+}
+
+@media (min-width:576px) and (max-width:767px) {
+    .hidden-sm-only {
+        display: none!important
+    }
+}
+
+@media (min-width:768px) and (max-width:991px) {
+    .hidden-md-only {
+        display: none!important
+    }
+}
+
+@media (min-width:992px) and (max-width:1199px) {
+    .hidden-lg-only {
+        display: none!important
+    }
+}
+
+@media (min-width:1200px) {
+    .hidden-xl-only {
+        display: none!important
+    }
+}
+
+</style>
+
+{% endblock %}
+
+{% block body %}
+<body>
+<div class="container">
+
+    <h2 id="test-cases">Test cases</h2>
+
+    <p>Resize your browser or load on different devices to test the responsive utility classes.</p>
+
+    <p>Green checkmarks indicate the element <strong>is visible</strong> in your current viewport.</p>
+
+<div class="p-1 d-block bg-success">visible from  (1px) to xl ∞</div>
+<div class="p-1 d-none d-sm-block bg-success">visible from sm (576px) to xl ∞</div>
+<div class="p-1 d-none d-md-block bg-success">visible from md (768px) to xl ∞</div>
+<div class="p-1 d-none d-lg-block bg-success">visible from lg (992px) to xl ∞</div>
+<div class="p-1 d-none d-xl-block bg-success">visible from xl (1200px) to ∞</div>
+<div class="p-1 d-sm-none bg-danger">NOT visible from sm (576px) to xl ∞</div>
+<div class="p-1 d-md-none bg-danger">NOT visible from md (768px) to xl ∞</div>
+<div class="p-1 d-lg-none bg-danger">NOT visible from lg (992px) to xl ∞</div>
+<div class="p-1 d-xl-none bg-danger">NOT visible from xl (1200px) to ∞</div>
+
+
+    <hr />
+
+
+<div class="row responsive-utilities-test visible-on">
+  <div class="col-6 col-sm-3">
+    <span class="d-sm-none visible">&#10004; Visible on extra small</span>
+    <span class="d-none d-sm-block not-visible">Extra small</span>
+  </div>
+  <div class="col-6 col-sm-3">
+    <span class="d-md-none visible">&#10004; Visible on small or narrower</span>
+    <span class="d-none d-md-block not-visible">Small or narrower</span>
+  </div>
+  <div class="col-6 col-sm-3">
+    <span class="d-lg-none visible">&#10004; Visible on medium or narrower</span>
+    <span class="d-none d-lg-block not-visible">Medium or narrower</span>
+  </div>
+  <div class="col-6 col-sm-3">
+    <span class="d-xl-none visible">&#10004; Visible on large or narrower</span>
+    <span class="d-none d-xl-block not-visible">Large or narrower</span>
+  </div>
+</div>
+
+    <hr>
+
+    <div class="row responsive-utilities-test visible-on">
+      <div class="col-6 col-sm-3">
+        <span class="d-none d-sm-block visible">&#10004; Visible on SM+</span>
+        <span class="d-sm-none not-visible">SM+</span>
+      </div>
+      <div class="col-6 col-sm-3">
+        <span class="d-none d-md-block visible">&#10004; Visible on MD+</span>
+        <span class="d-md-none not-visible">MD+</span>
+      </div>
+      <div class="col-6 col-sm-3">
+        <span class="d-none d-lg-block visible">&#10004; Visible on LG+</span>
+        <span class="d-lg-none not-visible">LG+</span>
+      </div>
+      <div class="col-6 col-sm-3">
+        <span class="d-none d-xl-block visible">&#10004; Visible XL+</span>
+        <span class="d-xl-none not-visible">XL+</span>
+      </div>
+    </div>
+
+</div>
+
+    <hr>
+
+<div class="row">
+    <div class="col-3">
+      <div class="card">
+        <h4 class="card-header bg-primary">bs4-alpha</h4>
+        <div class="card-body">
+          <h4 class="card-title">hola</h4>
+          <p class="card-text">hi</p>
+          <p class="card-text">
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-9">
+      <div class="card">
+        <h4 class="card-header bg-primary">bs4-beta</h4>
+        <div class="card-body">
+          <h4 class="card-title">title</h4>
+          <p class="card-text">lskdslkjdlsjdl</i></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</body>
+{% endblock %}

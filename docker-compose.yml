@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+
+  website:
+    build: .
+    command: >
+      gunicorn -c "python:config.gunicorn" --reload "qtlweb.app:create_app()"
+    env_file:
+      - '.env'
+    volumes:
+      - '.:/app/qtlweb'
+    ports:
+      - '9000:9000'
+
+  redis:
+    image: 'redis:3.0-alpine'
+    command: redis-server
+    volumes:
+      - 'redis:/var/lib/redis/data'
+    ports:
+      - '6379:6379'
+
+  celery:
+    build: .
+    command: celery worker -l info -A qtlweb.modules.api.tasks
+    env_file:
+      - '.env'
+    volumes:
+      - '.:/app/qtlweb'
+
+  flower:
+    build: .
+    command: flower -A qtlweb.modules.api.tasks --port=5555
+    env_file:
+      - '.env'
+    volumes:
+      - '.:/app/qtlweb'
+    ports:
+      - '5555:5555'
+
+
+volumes:
+  redis:
+
+networks:
+  default:
+    external:
+      name: proj1_test
