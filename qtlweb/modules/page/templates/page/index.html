@@ -891,14 +891,36 @@
         }
 
         function exportLODPeaks(id, peaks) {
-            alert('NOT DONE, phenotypes, mRNA, protein all diff download')
-            let csvContent = `"id","position","alleles","csq","lod"\n`;
+            let csvContent = '';
 
-            $.each(snps, function(k, v) {
-                let pos = v.x / 1000000.0;
-                let line = `"${v['id']}",${pos},"${v['alleles']}","${v['csq']}",${v['lod']}\n`;
-                csvContent += line;
-            });
+            if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
+                csvContent = '"gene_id","symbol","gene_chrom","gene_mid","marker_id","marker_chrom","marker_position","lod"\n';
+                // [marker_id, chrom, position, gene_id, symbol, gene_chrom, gene_mid, lod
+                //     0         1       2        3       4         5          6        7
+                // ["1_100007442","1",100.0074,"ENSMUSG00000028028","Alpk1","3",127.7255,6.1147]
+                $.each(peaks, function(k, v) {
+                    let line = `"${v[3]}","${v[4]}","${v[5]}",${v[6]},"${v[0]}","${v[1]}",${v[2]},"${v[7]}"\n`;
+                    csvContent += line;
+                });
+            } else if (g.dataSets[g.dataSetID].dataType === 'protein') {
+                csvContent = '"protein_id","gene_id","symbol","gene_chrom","gene_mid","marker_id","marker_chrom","marker_position","lod"\n';
+                // [marker_id, chrom, position, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
+                //     0         1       2          3          4        5         6        7        8
+                // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
+                $.each(peaks, function(k, v) {
+                    let line = `"${v[3]}","${v[4]}","${v[5]}","${v[6]}",${v[7]},"${v[0]}","${v[1]}",${v[2]},"${v[8]}"\n`;
+                    csvContent += line;
+                });
+
+            } else if (g.dataSets[g.dataSetID].dataType === 'phenotype') {
+                csvContent = '"marker_id","marker_chrom","marker_position","phenotype","lod"\n';
+                // ["5_137006393","5",137.0064,"MEcyan","MEcyan","MEcyan",9.1161],[
+                //       0         1     2        3        4        5        6
+                $.each(peaks, function(k, v) {
+                    let line = `"${v[0]}","${v[1]}",${v[2]},"${v[4]}",${v[6]}\n`;
+                    csvContent += line;
+                });
+            }
 
             downloadCSV(csvContent, `${id}_LODPEAKS.csv`, 'text/csv;encoding:utf-8');
         }
@@ -961,10 +983,8 @@
 
             g.LOD = null;
 
-
-
             let exporting = appendExportButton('Download CSV', function() {
-                exportLODPeaks(currentID, snps, geneData);
+                exportLODPeaks(g.dataSets[g.dataSetID].displayName, g.lodPeaks);
             });
             exporting.filename = g.dataSets[g.dataSetID].displayName + '_PEAKS';
 
@@ -3246,7 +3266,7 @@
                                             </div>`);
                     */
 
-                    $('#searchPheno').html('<input type="text" id="searchTermPheno" name="searchTermPheno" class="form-control" placeholder="Please enter a phenotype...">');
+                    $('#searchPheno').html('<input type="text" id="searchTermPheno" name="searchTermPheno" class="form-control" placeholder="Please enter a phenotype to filter results...">');
 
                     // build the phenotypes table
                     $('#searchPhenoResultsDiv').html(`<table id="phenotypesTable" class="table table-striped table-hover table-sm table-bordered">
