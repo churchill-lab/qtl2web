@@ -437,17 +437,30 @@
         {% endif %}
     }
 
+    /**
+     * Add a button to the Highcharts export menu.
+     * @param {string} mytext - title for button
+     * @param {function} myfunction - function to call
+     * @return {Object} buttons for highchart export
+     */
     function appendExportButton(mytext, myfunction){
-      let defaultButtons = Highcharts.getOptions().exporting.buttons; // get default Highchart Export buttons
-      let myButtons = $.extend(true, {}, defaultButtons);
-      myButtons.contextButton.menuItems.push({
-        text: mytext,
-        onclick: myfunction
-      });
-      return {buttons: myButtons};
+        // get default Highchart Export buttons
+        let defaultButtons = Highcharts.getOptions().exporting.buttons;
+        let myButtons = $.extend(true, {}, defaultButtons);
+
+        myButtons.contextButton.menuItems.push({
+            text: mytext,
+            onclick: myfunction
+        });
+
+        return {
+            buttons: myButtons
+        };
     }
 
-    // Extended disable function
+    /**
+     *  Extended disable function
+     */
     jQuery.fn.extend({
         disable: function(state) {
             return this.each(function() {
@@ -513,17 +526,30 @@
             g.secondaryPlotChromosome = null;
             g.secondaryPlotLocation = null;
 
+            //
+            g.geneID = null;
+            g.proteinID = null;
+            g.phenotypeID = null;
+            g.ensimpl = null;
+            g.LOD = null;
+            g.lodPeaks = null;
+            g.chartPeaks = null;
+            g.phenoDynaTable = null;
+            g.expressionData = null;
+            g.searchTable = null;
+            g.orderCount = null;
+            g.currentGene = null;
+            g.fact = null;
 
             d3.queue()
                 .defer(downloadDataSets)
                 .await(function(error, data) {
-                    console.log('-------------------------------------------------');
                     console.log('dataSetsData=', data);
 
-                    // TODO: make sure this redirects appropriately behind proxy
                     if (error) {
                         console.error(error);
                         {% if not debug -%}
+                        // ?debug=1 will prevent forwarding on error
                         window.location = '{{ url_for('page.error') }}';
                         {%- endif %}
                         return;
@@ -532,6 +558,7 @@
                     if ((data.result === undefined) || (data.result.dataSets.length === 0)) {
                         console.error('data=', data);
                         {% if not debug -%}
+                        // ?debug=1 will prevent forwarding on error
                         window.location = '{{ url_for('page.error') }}';
                         {%- endif %}
                         return;
@@ -540,6 +567,8 @@
                     g.dataSets = {};
                     g.numMarkers = data.result.numMarkers;
                     g.ensemblVersion = data.result.ensemblVersion;
+
+                    console.log(data.result.dataSets);
 
                     $.each(data.result.dataSets, function(dsi, ds) {
                         ds.gene_ids = {};
@@ -555,7 +584,10 @@
                         } else if (ds.dataType === 'protein') {
                             $.each(ds.annotations.ids, function(index, element) {
                                 if (!(element.gene_id in ds.gene_ids)) {
-                                    ds.gene_ids[element.gene_id] = {'id': element.gene_id, 'protein_ids':[]}
+                                    ds.gene_ids[element.gene_id] = {
+                                        'id': element.gene_id,
+                                        'protein_ids':[]
+                                    }
                                 }
                                 ds.protein_ids[element.protein_id] = element.gene_id;
                                 ds.gene_ids[element.gene_id]['protein_ids'].push(element.protein_id);
@@ -584,8 +616,6 @@
                         g.dataSetID = data.result.dataSets[0].id;
                     }
 
-                    console.log('g.dataSetID=', g.dataSetID);
-
                     if (data.result.dataSets.length === 1) {
                         // just show a menu item
                         let html = `<ul class="navbar-nav navbar-dark mr-auto">
@@ -597,7 +627,6 @@
                         $('#dataSetSelectMenu').append(html);
                     } else if (data.result.dataSets.length > 1) {
                         // show multiple menu items
-
                         let html = `<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerQTL" aria-controls="navbarTogglerQTL" aria-expanded="false" aria-label="Toggle navigation">
                                         <span class="navbar-toggler-icon"></span>
                                     </button>
@@ -611,40 +640,11 @@
 
                         html += '</select></div>';
                         $('#dataSetSelectMenu').append(html);
-
                         $('#datasetSelect').extendSelect();
                         $('#datasetSelect').on('change', function () {
                             let selected = $(this).find(':selected').val();
                             switchDataSet(selected);
                         });
-
-                        /*
-
-                        let html = `<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerQTL" aria-controls="navbarTogglerQTL" aria-expanded="false" aria-label="Toggle navigation">
-                                        <span class="navbar-toggler-icon"></span>
-                                    </button>
-                                    <div class="collapse navbar-dark navbar-collapse" id="navbarTogglerQTL">
-                                        <ul class="navbar-nav navbar-dark mr-auto" id=" >">
-                                            <li class="nav-item dropdown">
-                                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    ${g.dataSets[g.dataSetID].displayName}
-                                                </a>
-                                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">`;
-
-                        for (let d in data.result.dataSets) {
-                            html += '<a class="dropdown-item" dataSetID="' + data.result.dataSets[d].id + '">' + data.result.dataSets[d].displayName + '</a>';
-                        }
-
-                        html += '</div></li></ul></div>';
-
-                        $('#dataSetSelectMenu').append(html);
-
-                        // handle the selction and change the name of the menu item
-                        $('#dataSetSelectMenu a.dropdown-item').on('click', function(evt) {
-                            $('#navbarDropdown').text(evt.target.text);
-                            switchDataSet(evt.target.getAttribute('dataSetID'));
-                        });
-                        */
                     }
 
                     configureCovarFactors();
@@ -676,7 +676,6 @@
                             g.chromosomes = {'idx': [], 'chr': {}};
 
                             let configChromosomes = {{ config.CHROMOSOMES|safe }};
-
                             let start = 1;
                             let end = 0;
 
@@ -698,39 +697,7 @@
 
                             g.chromosomes['totalLength'] = end;
 
-                            console.log(g.chromosomes);
-
                             setDataSet(g.dataSetID, true, lodPeaks.result);
-
-                            /*
-                            // TODO: this logic is flawed, and do we really want to plot on graph selected?
-                            $('#secondaryPlots a[data-toggle="tab"]').on('show.bs.tab', function (e) {
-                                let plot = e.currentTarget.id;
-                                let currentID = null;
-
-                                if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
-                                    currentID = g.geneID;
-                                } else if (g.dataSets[g.dataSetID].dataType === 'protein') {
-                                } else if (g.dataSets[g.dataSetID].dataType === 'phenotype') {
-                                    currentID = g.phenotypeID;
-                                } else {
-                                    // TODO: handle error
-                                    console.error('MAJOR PROBLEM');
-                                }
-
-
-                                if ((plot === 'navPlotMediation') && (g.chartMediation === null)) {
-                                    generateSecondaryPlot(plot, currentID, g.secondaryPlotMarkerID, g.secondaryPlotChromosome, g.secondaryPlotLocation);
-                                } else if ((plot === 'navPlotEffect') && (g.chartEffect === null)) {
-                                    generateSecondaryPlot(plot, currentID, g.secondaryPlotMarkerID, g.secondaryPlotChromosome, g.secondaryPlotLocation);
-                                } else if ((plot === 'navPlotSNPs') && (g.chartSNPAssoc === null)) {
-                                    generateSecondaryPlot(plot, currentID, g.secondaryPlotMarkerID, g.secondaryPlotChromosome, g.secondaryPlotLocation);
-                                } else {
-                                    // TODO: handle error
-                                    console.error('unknown secondary plot');
-                                }
-                            });
-                            */
 
                             window.loading_screen.finish();
                         });
@@ -891,14 +858,35 @@
         }
 
         function exportLODPeaks(id, peaks) {
-            alert('NOT DONE, phenotypes, mRNA, protein all diff download')
-            let csvContent = `"id","position","alleles","csq","lod"\n`;
+            let csvContent = '';
 
-            $.each(snps, function(k, v) {
-                let pos = v.x / 1000000.0;
-                let line = `"${v['id']}",${pos},"${v['alleles']}","${v['csq']}",${v['lod']}\n`;
-                csvContent += line;
-            });
+            if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
+                csvContent = '"gene_id","symbol","gene_chrom","gene_mid","marker_id","marker_chrom","marker_position","lod"\n';
+                // [marker_id, chrom, position, gene_id, symbol, gene_chrom, gene_mid, lod
+                //     0         1       2        3       4         5          6        7
+                // ["1_100007442","1",100.0074,"ENSMUSG00000028028","Alpk1","3",127.7255,6.1147]
+                $.each(peaks, function(k, v) {
+                    let line = `"${v[3]}","${v[4]}","${v[5]}",${v[6]},"${v[0]}","${v[1]}",${v[2]},"${v[7]}"\n`;
+                    csvContent += line;
+                });
+            } else if (g.dataSets[g.dataSetID].dataType === 'protein') {
+                csvContent = '"protein_id","gene_id","symbol","gene_chrom","gene_mid","marker_id","marker_chrom","marker_position","lod"\n';
+                // [marker_id, chrom, position, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
+                //     0         1       2          3          4        5         6        7        8
+                // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
+                $.each(peaks, function(k, v) {
+                    let line = `"${v[3]}","${v[4]}","${v[5]}","${v[6]}",${v[7]},"${v[0]}","${v[1]}",${v[2]},"${v[8]}"\n`;
+                    csvContent += line;
+                });
+            } else if (g.dataSets[g.dataSetID].dataType === 'phenotype') {
+                csvContent = '"marker_id","marker_chrom","marker_position","phenotype","lod"\n';
+                // ["5_137006393","5",137.0064,"MEcyan","MEcyan","MEcyan",9.1161],[
+                //       0         1     2        3        4        5        6
+                $.each(peaks, function(k, v) {
+                    let line = `"${v[0]}","${v[1]}",${v[2]},"${v[4]}",${v[6]}\n`;
+                    csvContent += line;
+                });
+            }
 
             downloadCSV(csvContent, `${id}_LODPEAKS.csv`, 'text/csv;encoding:utf-8');
         }
@@ -934,13 +922,13 @@
                                  }
                 });
 
-                yPlotLines.push({value: value.start,
-                                 color: '#eeeeee',
-                                 width: 2,
-                                 label: {
-                                     text: value.chromosome,
-                                     //align:'right'
-                                 }
+                yPlotLines.push({
+                    value: value.start,
+                    color: '#eeeeee',
+                    width: 2,
+                    label: {
+                        text: value.chromosome,
+                    }
                 });
             });
 
@@ -961,10 +949,8 @@
 
             g.LOD = null;
 
-
-
             let exporting = appendExportButton('Download CSV', function() {
-                exportLODPeaks(currentID, snps, geneData);
+                exportLODPeaks(g.dataSets[g.dataSetID].displayName, g.lodPeaks);
             });
             exporting.filename = g.dataSets[g.dataSetID].displayName + '_PEAKS';
 
@@ -1084,6 +1070,7 @@
                 });
 
                 series = [{
+                    data: data,
                     // When a series contains a data array that is
                     // longer than this, only one dimensional arrays
                     // of numbers, or two dimensional arrays with
@@ -1097,7 +1084,6 @@
                     //boostThreshold: 0,
                     //fillOpacity: 0.1,
                     //color: 'rgba(223, 83, 83, 0.5)',
-                    data: data
                 }];
 
                 legend = {
@@ -1174,7 +1160,6 @@
                         let ticks = ticksStartVals.slice(yAxisStart, yAxisEnd);
                         return ticks;
                     }
-
                 };
 
                 clickFunction = function (event) {
@@ -1184,7 +1169,6 @@
                 tooltip = {
                     followPointer: false,
                     formatter: function (a) {
-                        //console.log('tooltip', a);
                         return `LOD: ${this.point.lod}<br>Gene ID: ${this.point.geneID}<br>Symbol: ${this.point.geneSymbol}<br>Gene Location: ${this.point.geneChr.chromosome}:${this.point.genePos}<br>Marker ID: ${this.point.markerID}<br>Marker Location: ${this.point.markerChr.chromosome}:${this.point.markerPos}`;
                     }
                 };
@@ -1220,7 +1204,6 @@
                             geneSymbol: element[5]
                         });
 
-
                         minLOD = Math.min(minLOD, element[8]);
                         maxLOD = Math.max(maxLOD, element[8]);
                     }
@@ -1235,9 +1218,6 @@
                 maxLOD = Math.ceil(maxLOD / 10) * 10;
 
                 let currentLOD = minLOD;
-
-
-                console.log('minLOD=', minLOD, 'maxLOD=', maxLOD)
 
                 html = html + `
                     <div class="form-group row">
@@ -1406,7 +1386,6 @@
                 tooltip = {
                     followPointer: false,
                     formatter: function (a) {
-                        console.log('tooltip', a);
                         return `LOD: ${this.point.lod}<br>Protein ID: ${this.point.proteinID}<br>Gene ID: ${this.point.geneID}<br>Symbol: ${this.point.geneSymbol}<br>Gene Location: ${this.point.geneChr.chromosome}:${this.point.genePos}<br>Marker ID: ${this.point.markerID}<br>Marker Location: ${this.point.markerChr.chromosome}:${this.point.markerPos}`;
                     }
                 };
@@ -1465,17 +1444,17 @@
                 $.each(seriesData, function(index, element) {
                     console.log(index, element);
                     series.push({
-                        turboThreshold: 0,
                         data: element,
                         name: index,
-                        //color: 'rgba(223, 83, 83, .5)',
+                        turboThreshold: 0,
                     })
                 });
 
-                legend = { layout: 'horizontal',
+                legend = {
                     align: 'center',
+                    floating: false,
+                    layout: 'horizontal',
                     verticalAlign: 'bottom',
-                    floating: false
                 };
 
                 xAxis = {
@@ -1530,29 +1509,19 @@
             }
 
             g.chartPeaks = Highcharts.chart('plotLodPeaks', {
-                chart: {
-                    zoomType: 'xy',
-                    type: 'scatter'
-                },
-
                 boost: {
-                    enabled: true,
-                    useGPUTranslations: true,
-                    //usePreAllocated: true,
                     debug: {
                         showSkipSummary: true
-                    }
+                    },
+                    enabled: true,
+                    useGPUTranslations: true,
                 },
-
-                title: {
-                    text: 'LOD Peaks'
+                chart: {
+                    type: 'scatter',
+                    zoomType: 'xy',
                 },
-                subtitle: {
-                    text: ''
-                },
-                xAxis: xAxis,
-                yAxis: yAxis,
-
+                exporting: exporting,
+                legend: legend,
                 plotOptions: {
                     scatter: {
                         marker: {
@@ -1572,13 +1541,11 @@
                             }
                         }
                     },
-
                     series: {
                         point: {
                             events: {
                                 click: clickFunction,
                                 mouseOver: function(evt) {
-                                    //console.log(evt);
                                     if(this.series.halo) {
                                         this.series.halo.attr({
                                            'class': 'highcharts-tracker'
@@ -1589,59 +1556,50 @@
                         }
                     }
                 },
-
-                legend: legend,
-
                 series: series,
-
+                subtitle: {
+                    text: ''
+                },
+                title: {
+                    text: 'LOD Peaks'
+                },
                 tooltip: tooltip,
-
-                exporting: exporting,
+                xAxis: xAxis,
+                yAxis: yAxis,
             });
 
-            console.log(tooltip);
-
-
-            if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
-                // TODO: fix hack
-                // this hack is awful and needs to be fixed
-                // this is the only way I could get the tooltips to appear
-                // without manually moving the slider
-                // I'm guessing it has something to do with canvas vs svg
+            // TODO: fix hack
+            // this hack is awful and needs to be fixed
+            // this is the only way I could get the tooltips to appear
+            // without manually moving the slider
+            // I'm guessing it has something to do with canvas vs svg
+            setTimeout(function () {
+                console.log('updatingPeaks 1');
+                updatePeaks(maxLOD);
                 setTimeout(function () {
-                    updatePeaks(maxLOD);
-                    setTimeout(function () {
-                        updatePeaks(minLOD);
-                    }, 500);
-                }, 500);
-            }
-
-            /*
-            try {
-
-            } catch(error) {
-
-            }
-            */
+                    console.log('updatingPeaks 2');
+                    updatePeaks(minLOD);
+                }, 250);
+            }, 250);
         }
 
         function startTask() {
             g.runningTask = true;
             swal({
-                  title: 'Processing...',
-                  allowOutsideClick: false,
-                  allowEnterKey: false,
-                  allowEscapeKey: false,
-                  html: $('#ap').html(),
-                  showConfirmButton: false,
-                  showCancelButton: false,
-                  showCloseButton: true,
-                  buttonsStyling: false,
-                  cancelButtonClass: 'btn btn-danger',
-                  width: '20rem',
-                  onClose: function() {
+                allowEnterKey: false,
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                buttonsStyling: false,
+                cancelButtonClass: 'btn btn-danger',
+                html: $('#ap').html(),
+                showConfirmButton: false,
+                showCancelButton: false,
+                showCloseButton: true,
+                title: 'Processing...',
+                width: '20rem',
+                onClose: function() {
                       console.log('onClose', this);
-                  }
+                }
             }).then((result) => {
                 console.log('then called');
                 // result.dismiss can be 'cancel', 'overlay',
@@ -1675,7 +1633,6 @@
             downloadData(dataSetsURL, 'dataSets', callback);
         }
 
-
         function getTextEnd(text, chart, s) {
             let G_ELEM = document.getElementById('getTheFontSize');
             let J_ELEM = $('#getTheFontSize');
@@ -1693,15 +1650,11 @@
             let genes = [];
             $.each(geneData.matches, function(index, value) {
                 if (value.symbol !== null) {
-
-
                     value.text_end = getTextEnd(value.symbol, chart, value.position_start);
                     value.max_end = Math.max(value.position_end, value.text_end);
                     value.id = value.ensembl_id;
 
                     console.log('Loop=', value.symbol, value.position_start, value.position_end, value.text_end, value.max_end);
-
-
                     genes.push(value);
                 }
             });
@@ -1767,20 +1720,12 @@
             if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
                 plotTitle = `${g.geneID} (${g.currentGene.gene[g.geneID].symbol})`;
                 currentID = g.geneID;
-
             } else if (g.dataSets[g.dataSetID].dataType === 'protein') {
                 plotTitle = `${g.proteinID} (${g.currentGene.gene[g.geneID].symbol})`;
                 currentID = g.proteinID;
             } else if (g.dataSets[g.dataSetID].dataType === 'phenotype') {
-                // pheno
                 plotTitle = g.phenotypeID;
                 currentID = g.phenotypeID;
-                /*
-                currentID = g.phenotypeID;
-                if (currentID !== g.phenotypes[currentID].short_name) {
-                    xAxisTitle += (' (' + g.phenotypes[currentID].short_name + ')');
-                }
-                */
             } else {
                 // TODO: handle error
                 console.error('MAJOR PROBLEM');
@@ -1836,13 +1781,12 @@
                 }
 
                 snps.push({
-                    id: element[0],
                     alleles: element[3],
+                    csq: element[6],
+                    id: element[0],
                     lod: element[10],
-                    // NOTE: since chart is inverted we are manipulating
                     x: element[2] * 1000000,
                     y: 1.0 * element[10],
-                    csq: element[6],
                 });
 
                 minn = Math.min(minn, element[2] * 1000000.0);
@@ -1880,16 +1824,15 @@
                 yAxis: 'genesBottom',
                 type: 'xrange',
                 dataLabels: {
-                    enabled: true,
-                    inside: true,
-                    allowOverlap: true,
                     align: 'left',
+                    allowOverlap: true,
                     defer: false,
-                    padding: 0,
+                    enabled: true,
                     formatter: function() {
-                        //console.log(this);
                         return this.point.symbol;
-                    }
+                    },
+                    inside: true,
+                    padding: 0,
                 },
                 //boostThreshold: 0,
                 /* When a series contains a data array that is longer than this,
@@ -1927,26 +1870,6 @@
                     }
                 },
 
-
-                /*
-                Currently, boost module does not plot inverted charts correctly.
-                Until this fix we need to disable the boost module.
-
-                https://github.com/highcharts/highcharts/issues/4608
-
-                 */
-                /*
-                boost: {
-                    enabled: false,
-                    //useGPUTranslations: false,
-                    //usePreAllocated: true,
-                    debug: {
-                        showSkipSummary: true
-                    }
-                },
-                */
-
-
                 title: {
                     text: plotTitle,
                 },
@@ -1968,8 +1891,7 @@
                     }
                 }],
 
-                yAxis: [
-                    {
+                yAxis: [{
                         id: 'snpTop',
                         title: {
                             text: 'LOD'
@@ -1983,9 +1905,7 @@
                                 return this.value;
                             }
                         }
-                    },
-
-                    {
+                    }, {
                         id: 'genesBottom',
                         reverse: true,
                         min: -12,
@@ -1999,7 +1919,6 @@
                         top: '51%',
                         height: '49%',
                     }
-
                 ],
 
                 plotOptions: {
@@ -2019,10 +1938,10 @@
                     },
 
                     xrange: {
-                        colors: ['#7cb5ec'],
                         borderWidth: 1,
                         borderColor: 'black',
                         colorByPoint: true,
+                        colors: ['#7cb5ec'],
                         dataLabels: {
                             style: {
                                 color: 'white'
@@ -2082,7 +2001,6 @@
 
         /**
          * Start downloading snp
-         *
          */
         function generateSNPAssocPlot(id, chromosome, location) {
             // TODO: windowSize needs to be figured out
@@ -2091,15 +2009,8 @@
             let minPos = Math.max(newLocation - windowSize, 0);
             let maxPos = newLocation + windowSize;
 
-            console.log('id=', id);
-            console.log('chromosome=', chromosome);
-            console.log('location=', location);
-            console.log('minPos=', minPos);
-            console.log('maxPos=', maxPos);
-
             let snpAssocURL = `{{ config.API_R_BASE }}/snpassoc?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&location=${newLocation}&windowSize=${windowSize}`;
             let genesURL = `http://churchill-lab.jax.org/ensimpl/api/search?species=${g.speciesID}&version=${g.ensemblVersion}&term=${chromosome}:${minPos}-${maxPos}`;
-
 
             {% if config.API_R_NUM_CORES %}
             snpAssocURL += '&nCores={{ config.API_R_NUM_CORES }}';
@@ -2107,7 +2018,6 @@
 
             let submitData = {
                 urls:[{
-                    url_id: 'snpAssoc',
                     url_id: 'snpAssoc',
                     url: snpAssocURL
                 }, {
@@ -2148,7 +2058,7 @@
          *
          * @param {string} groupID - the group identifier of the task
          */
-       function updateSNPAssocData(groupID, id, chromosome, location) {
+        function updateSNPAssocData(groupID, id, chromosome, location) {
             // send GET request to status URL
             console.log('updateSNPAssocData');
             console.log(groupID);
@@ -2323,25 +2233,25 @@
 
             $.each(strainInfo, function(key, value) {
                 let s = {
-                    type: 'line',
-                    turboThreshold: 0,
-                    showInLegend: true,
-                    data: value['data'],
-                    name: value['name'],
                     color: value['color'],
+                    data: value['data'],
                     lineWidth: 0.5,
-                    yAxis:'axisEffect',
-                    stack: 0,
                     marker: {
                         symbol: 'circle',
                     },
+                    name: value['name'],
+                    showInLegend: true,
+                    stack: 0,
                     tooltip: {
                         shared: false,
                         headerFormat:'<b>{series.name}</b>',
                         pointFormatter: function() {
                             return '<br>Effect: ' + this.y + '<br>Position: ' +  (this.x/1000000);
                         }
-                    }
+                    },
+                    turboThreshold: 0,
+                    type: 'line',
+                    yAxis:'axisEffect',
                 };
                 series.push(s);
             });
@@ -2350,23 +2260,14 @@
             let currentID = '';
 
             if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
-                // plotTitle = g.geneID + ' (' + g.currentGene.gene[g.geneID].symbol + ')';
                 plotTitle = `${g.geneID} (${g.currentGene.gene[g.geneID].symbol})`;
                 currentID = g.geneID;
-
             } else if (g.dataSets[g.dataSetID].dataType === 'protein') {
                 plotTitle = `${g.proteinID} (${g.currentGene.gene[g.geneID].symbol})`;
                 currentID = g.proteinID;
             } else if (g.dataSets[g.dataSetID].dataType === 'phenotype') {
-                // pheno
                 plotTitle = g.phenotypeID;
                 currentID = g.phenotypeID;
-                /*
-                currentID = g.phenotypeID;
-                if (currentID !== g.phenotypes[currentID].short_name) {
-                    xAxisTitle += (' (' + g.phenotypes[currentID].short_name + ')');
-                }
-                */
             } else {
                 // TODO: handle error
                 console.error('MAJOR PROBLEM');
@@ -2387,25 +2288,23 @@
                 }
             });
 
-
             series.push({
-                data: lodData,
-                // TODO: what should this value be
-                turboThreshold: 1000000,
-                yAxis:'axisLOD',
-                stack: 0,
-                name: 'LOD',
                 animation: false,
-                showInLegend: false,
                 color: '#000000',
+                data: lodData,
                 lineWidth: 0.5,
+                name: 'LOD',
+                showInLegend: false,
+                stack: 0,
                 tooltip: {
                     shared: false,
                     headerFormat: '',
                     pointFormatter: function() {
                         return '<br>LOD: ' + this.y + '<br>Position: ' +  (this.x/1000000);
                     }
-                }
+                },
+                turboThreshold: 1000000, // TODO: what should this value be
+                yAxis:'axisLOD',
             });
 
             let lodTickVals = null;
@@ -2431,79 +2330,22 @@
             exporting.filename = currentID + '_EFFECT';
 
             g.chartEffect = Highcharts.chart({
-                title: {
-                    text: plotTitle,
-                },
                 boost: {
                     useGPUTranslations: true
                 },
-                subtitle: {
-                    text: 'Chromosome ' + chromosome,
-                    verticalAlign: 'bottom',
-                },
-
                 chart: {
                     renderTo: 'plotEffect',
                     zoomType: 'x'
                 },
-
-                xAxis: {
-                    lineWidth: 0.5,
-                    gridLineWidth: 1,
-                    crosshair: true,
-                },
-
+                exporting: exporting,
                 legend: {
-                    layout: 'vertical',
                     align: 'right',
+                    backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF',
+                    floating: false,
+                    layout: 'vertical',
                     verticalAlign: 'top',
                     y: 100,
-                    floating: false,
-                    backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
                 },
-
-                yAxis: [{
-                    id: 'axisEffect',
-                    title: {
-                        text: 'EFFECT'
-                    },
-                    offset: 0,
-                    height: '70%',
-                    maxPadding: 0,
-                    labels: {
-                        formatter: function() {
-                            if (this.isFirst) {
-                                return '';
-                            }
-                            return this.value;
-                        }
-                    },
-                }, {
-                    id: 'axisLOD',
-                    title: {
-                        text: 'LOD'
-                    },
-                    offset: 0,
-                    height: '30%',
-                    top: '70%',
-                    maxPadding: 0,
-                    tickPositions: lodTickVals,
-                    labels: {
-                        formatter: function() {
-                            if (this.isLast) {
-                                return '';
-                            }
-                            return this.value;
-                        }
-                    },
-                    plotLines: [{
-                        value: lodMaxTick,
-                        color: 'black',
-                        zIndex: 5,
-                        width: 2
-                    }]
-                }],
-
                 responsive: {
                     rules: [{
                         condition: {
@@ -2512,17 +2354,67 @@
                         chartOptions: {
                             legend: {
                                 align: 'center',
+                                layout: 'horizontal',
                                 verticalAlign: 'top',
                                 y: 0,
-                                layout: 'horizontal'
                             },
                         }
                     }]
                 },
-
-                series:series,
-
-                exporting: exporting,
+                series: series,
+                subtitle: {
+                    text: 'Chromosome ' + chromosome,
+                    verticalAlign: 'bottom',
+                },
+                title: {
+                    text: plotTitle,
+                },
+                xAxis: {
+                    crosshair: true,
+                    gridLineWidth: 1,
+                    lineWidth: 0.5,
+                },
+                yAxis: [{
+                    height: '70%',
+                    id: 'axisEffect',
+                    labels: {
+                        formatter: function() {
+                            if (this.isFirst) {
+                                return '';
+                            }
+                            return this.value;
+                        }
+                    },
+                    maxPadding: 0,
+                    offset: 0,
+                    title: {
+                        text: 'EFFECT'
+                    },
+                }, {
+                    height: '30%',
+                    id: 'axisLOD',
+                    labels: {
+                        formatter: function() {
+                            if (this.isLast) {
+                                return '';
+                            }
+                            return this.value;
+                        }
+                    },
+                    maxPadding: 0,
+                    offset: 0,
+                    plotLines: [{
+                        value: lodMaxTick,
+                        color: 'black',
+                        zIndex: 5,
+                        width: 2
+                    }],
+                    tickPositions: lodTickVals,
+                    title: {
+                        text: 'LOD'
+                    },
+                    top: '70%',
+                }],
             });
         }
 
@@ -2564,11 +2456,11 @@
                         element.y = element[4];
 
                         newData.push({
-                            gene_id: element[0],
-                            symbol: element[1],
                             chr: element[2],
-                            pos: element[3],
+                            gene_id: element[0],
                             LOD: element[4],
+                            pos: element[3],
+                            symbol: element[1],
                             x: chr.start + (element[3] * 1000000.0),
                             y: element[4]
                         });
@@ -2586,12 +2478,12 @@
                         element.y = element[5];
 
                         newData.push({
-                            protein_id: element[0],
-                            gene_id: element[1],
-                            symbol: element[2],
                             chr: element[3],
-                            pos: element[4],
+                            gene_id: element[1],
+                            protein_id: element[0],
                             LOD: element[5],
+                            pos: element[4],
+                            symbol: element[2],
                             x: chr.start + (element[4] * 1000000.0),
                             y: element[5]
                         });
@@ -2641,20 +2533,12 @@
             if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
                 plotTitle = `${g.geneID} (${g.currentGene.gene[g.geneID].symbol})`;
                 currentID = g.geneID;
-
             } else if (g.dataSets[g.dataSetID].dataType === 'protein') {
                 plotTitle = `${g.proteinID} (${g.currentGene.gene[g.geneID].symbol})`;
                 currentID = g.proteinID;
             } else if (g.dataSets[g.dataSetID].dataType === 'phenotype') {
-                // pheno
                 plotTitle = g.phenotypeID;
                 currentID = g.phenotypeID;
-                /*
-                currentID = g.phenotypeID;
-                if (currentID !== g.phenotypes[currentID].short_name) {
-                    xAxisTitle += (' (' + g.phenotypes[currentID].short_name + ')');
-                }
-                */
             } else {
                 // TODO: handle error
                 console.error('MAJOR PROBLEM');
@@ -2667,14 +2551,45 @@
 
             g.chartMediation = Highcharts.chart({
                 chart: {
+                    renderTo: 'plotMediation',
                     zoomType: 'x',
-                    renderTo: 'plotMediation'
                 },
-
+                exporting: exporting,
+                plotOptions: {
+                    scatter: {
+                        marker: {
+                            radius: 5,
+                            states: {
+                                hover: {
+                                    enabled: true,
+                                    lineColor: 'rgb(100,100,100)'
+                                }
+                            }
+                        },
+                        states: {
+                            hover: {
+                                marker: {
+                                    enabled: false
+                                }
+                            }
+                        },
+                    }
+                },
+                series: [{
+                    data: newData,
+                    downsample: {
+                        threshold: 0 // 0 disables downsampling
+                    },
+                    marker: {
+                          radius: 2
+                    },
+                    showInLegend: false,
+                    turboThreshold: 0,
+                    type: 'scatter',
+                }],
                 title: {
                     text: plotTitle,
                 },
-
                 tooltip: {
                     useHTML: true,
                     formatter: function () {
@@ -2701,63 +2616,22 @@
                         };
                     },
                 },
-
-
-
                 xAxis: {
-                    opposite: true,
                     gridLineWidth: 0,
                     labels: {
                         formatter: function () {
                             return chromosomeAxisText[this.value];
                         }
                     },
-                    tickPositions: chromosomeAxisVals,
+                    opposite: true,
                     plotBands: chromosomeBands,
+                    tickPositions: chromosomeAxisVals,
                 },
-
                 yAxis: {
                     title: {
                         text: 'LOD'
                     }
                 },
-
-                plotOptions: {
-                    scatter: {
-                        marker: {
-                            radius: 5,
-                            states: {
-                                hover: {
-                                    enabled: true,
-                                    lineColor: 'rgb(100,100,100)'
-                                }
-                            }
-                        },
-                        states: {
-                            hover: {
-                                marker: {
-                                    enabled: false
-                                }
-                            }
-                        },
-                    }
-                },
-
-                series: [{
-                    type: 'scatter',
-                    turboThreshold: 0,
-                    showInLegend: false,
-                    downsample: {
-                        threshold: 0 // 0 disables downsampling
-                    },
-                    data: newData,
-                    //color: 'rgba(223, 83, 83, .5)',
-                    marker: {
-                          radius: 2
-                    }
-                }],
-
-                exporting: exporting,
             });
         }
 
@@ -3019,8 +2893,6 @@
             }
         }
 
-
-
         /**
          * Start downloading LOD Peaks for the dataset.
          *
@@ -3146,7 +3018,6 @@
                             </div>
                         </div>`;
 
-
             $('#divWelcomeMesage').html(html);
             $('#divItemInfo').addClass('invisible').removeClass('visible');
             $('#divLOD').addClass('invisible').removeClass('visible');
@@ -3155,7 +3026,6 @@
             $('#div_current_item_information_body').html('');
 
             configureCovarFactors();
-
 
             // submitLODPeaks calls setDataSet
             submitLODPeaks(dataSetID);
@@ -3246,7 +3116,7 @@
                                             </div>`);
                     */
 
-                    $('#searchPheno').html('<input type="text" id="searchTermPheno" name="searchTermPheno" class="form-control" placeholder="Please enter a phenotype...">');
+                    $('#searchPheno').html('<input type="text" id="searchTermPheno" name="searchTermPheno" class="form-control" placeholder="Please enter a phenotype to filter results...">');
 
                     // build the phenotypes table
                     $('#searchPhenoResultsDiv').html(`<table id="phenotypesTable" class="table table-striped table-hover table-sm table-bordered">
@@ -3264,10 +3134,7 @@
                         console.log(a,b);
                         // TODO: flush out sort function and maybe also not allow NO sort
                         return 0;//direction > 0 ? comparison : -comparison;
-                    };
-
-                    let q = {};
-                    q['category'] = 'All';
+                    }
 
                     g.phenoDynaTable = $('#phenotypesTable')
                         .bind('dynatable:init', function(e, dynatable) {
@@ -3277,34 +3144,25 @@
                                     return true;
                                 }
                             };
-                            //dynatable.sorts.functions["phenoAndCategory"] = phenoSort;
                         }).dynatable({
+                            dataset: {
+                                records: newPhenotypes,
+                            },
                             features: {
                                 paginate: false,
+                                pushState: false,
                                 recordCount: true,
                                 sort: true,
                                 search: false,
-                                pushState: false,
                             },
-
+                            inputs: {
+                                recordCountPlacement: 'before',
+                            },
                             writers: {
                                 _rowWriter: function(rowIndex, record, columns, cellWriter) {
                                     return `<tr><td><span class="font-weight-bold"><a href="#" phenotypeid="${record.Phenotype}">${record.Phenotype}</a></span><br><span class="font-italic">${record.category}</span><br><span class="font-weight-light">${record.desc}</span></td></tr>`;
                                 }
                             },
-
-                            inputs: {
-                                recordCountPlacement: 'before',
-                            },
-
-                            dataset: {
-                                records: newPhenotypes,
-                                /*
-                                sortTypes: {
-                                    Phenotype: 'phenoAndCategory'
-                                }
-                                */
-                            }
                         }).data('dynatable');
 
                     // build the category select, if more than 1 category
@@ -4027,10 +3885,13 @@
             exporting.filename = currentID + '_LOD';
 
             g.chartLOD = Highcharts.chart({
-                title: {
-                    text: xAxisTitle
+                boost: {
+                    debug: {
+                        showSkipSummary: true
+                    },
+                    enabled: true,
+                    useGPUTranslations: true,
                 },
-
                 chart: {
                     alignTicks: false,
                     renderTo: 'lodPlotChart',
@@ -4054,28 +3915,42 @@
                         }
                     }
                 },
+                exporting: exporting,
+                plotOptions: {
+                    series: {
+                        findNearestPointBy: 'xy',
+                        cursor: 'pointer',
+                        events: {
+                            click: function(event) {
+                                let plot = $('#secondaryPlotTabs').find('.active').attr('id');
+                                let markerID = event.point.id;
+                                let chromosome = event.point.chr;
+                                let location = event.point.chrPos;
 
+                                g.secondaryPlotMarkerID = markerID;
+                                g.secondaryPlotChromosome = chromosome;
+                                g.secondaryPlotLocation = location;
 
-                xAxis: {
-                    opposite: true,
-                    gridLineWidth: 0,
-                    labels: {
-                        formatter: function () {
-                            return chromosomeAxisText[this.value];
+                                generateSecondaryPlot(plot, currentID, markerID, chromosome, location);
+                            }
                         }
-                    },
-                    tickPositions: chromosomeAxisVals,
-                    plotBands: chromosomeBands,
-
+                    }
                 },
-
-                yAxis: {
-                    title: {
-                        text: 'LOD'
+                series: [{
+                    boostThreshold: 1,
+                    color: 'black',
+                    data: newLodData,
+                    lineWidth: 0.5,
+                    marker: {
+                       enabled: false
                     },
-                    plotLines: _plotLines
+                    showInLegend: false,
+                    turboThreshold: 0,
+                    type: 'line',
+                }],
+                title: {
+                    text: xAxisTitle
                 },
-
                 tooltip: {
                     positioner: function(labelWidth, labelHeight, point) {
                         let tooltipX, tooltipY;
@@ -4106,61 +3981,24 @@
                         return `<b>${p.id}</b><br/>LOD: ${p.y}<br/>Chromosome: ${p.chr}<br/>Position: ${p.chrPos}`;
                     }
                 },
-
-
-                plotOptions: {
-                    series: {
-                        findNearestPointBy: 'xy',
-                        cursor: 'pointer',
-                        events: {
-                            click: function(event) {
-                                let plot = $('#secondaryPlotTabs').find('.active').attr('id');
-                                let markerID = event.point.id;
-                                let chromosome = event.point.chr;
-                                let location = event.point.chrPos;
-
-                                g.secondaryPlotMarkerID = markerID;
-                                g.secondaryPlotChromosome = chromosome;
-                                g.secondaryPlotLocation = location;
-
-                                generateSecondaryPlot(plot, currentID, markerID, chromosome, location);
-                            }
+                xAxis: {
+                    opposite: true,
+                    gridLineWidth: 0,
+                    labels: {
+                        formatter: function () {
+                            return chromosomeAxisText[this.value];
                         }
-                    }
-                },
-
-
-                series: [{
-                    type: 'line',
-                    showInLegend: false,
-                    turboThreshold: 0,
-                    boostThreshold: 1,
-                    marker: {
-       enabled: false
-    },
-                    /*
-                    downsample: {
-                        //threshold: 10000
-                        threshold: 0 // 0 disables downsampling
                     },
-                    */
-                    data: newLodData,
-                    lineWidth: 0.5,
-                    color: 'black' // Color value
-                }],
+                    tickPositions: chromosomeAxisVals,
+                    plotBands: chromosomeBands,
 
-                boost: {
-                    enabled: true,
-                    useGPUTranslations: true,
-                    //usePreAllocated: true,
-                    debug: {
-                        showSkipSummary: true
-                    }
                 },
-
-                exporting: exporting
-
-
+                yAxis: {
+                    title: {
+                        text: 'LOD'
+                    },
+                    plotLines: _plotLines
+                },
             });
         }
 
@@ -4187,6 +4025,7 @@
         }
 
         function configureCovarFactors() {
+            // current dataset
             let ds = g.dataSets[g.dataSetID];
 
             let orderCount = ds.covarFactors.length;
@@ -4195,9 +4034,8 @@
             $('#factor-view-select').multiselect({
                 onChange: function(option, checked) {
                     if (checked) {
-                        // this might have to be a global
-                        // g.orderCount
                         g.orderCount++;
+                        console.log('g.orderCount=', g.orderCount);
                         $(option).attr('order', g.orderCount);
                     }
                     else {
@@ -4228,7 +4066,7 @@
                             text += ((i+1) + ': ' + selected[i][0] + ', ');
                         }
 
-                        return text.substr(0, text.length -2);
+                        return text.substr(0, text.length - 2);
                     }
                 }
             });
@@ -4240,10 +4078,10 @@
                 console.log(element);
                 selectOptions.push({
                     label: element['display.name'],
+                    order: index,
+                    selected: true,
                     title: element['display.name'],
                     value: element['column.name'],
-                    order: index,
-                    selected: true
                 });
                 html += `<option value="${element['column.name']}">${element['display.name']}</option>`
             });
@@ -4266,17 +4104,6 @@
                     console.error('MAJOR ERROR');
                 }
             });
-
-
-
-            //
-
-
-
-
-
-
-
         }
 
         function resetSecondaryPlots() {
@@ -4442,9 +4269,9 @@
                                     // first time we need to hide jumbotron instructions
                                     // it's ok to keep hiding
                                     $('#divWelcomeMesage').html('');
-                                    $("#divLOD").removeClass("invisible");
-                                    $("#divItemInfo").removeClass("invisible");
-                                    $("#divSecondRow").removeClass("invisible");
+                                    $('#divLOD').removeClass("invisible");
+                                    $('#divItemInfo').removeClass("invisible");
+                                    $('#divSecondRow').removeClass("invisible");
                                     stopTask();
                                 }
                             }
@@ -4559,15 +4386,15 @@
             }
 
             swal({
-                  title: '<i class="fas fa-exclamation-circle"></i> Error!',
-                  allowOutsideClick: false,
                   allowEnterKey: false,
                   allowEscapeKey: false,
+                  allowOutsideClick: false,
+                  buttonsStyling: false,
                   html: errorMessage,
-                  showConfirmButton: false,
                   showCancelButton: false,
                   showCloseButton: true,
-                  buttonsStyling: false,
+                  showConfirmButton: false,
+                  title: '<i class="fas fa-exclamation-circle"></i> Error!',
             });
         }
 
@@ -4690,9 +4517,9 @@
                                     // first time we need to hide jumbotron instructions
                                     // it's ok to keep hiding
                                     $('#divWelcomeMesage').html('');
-                                    $("#divLOD").removeClass("invisible");
-                                    $("#divItemInfo").removeClass("invisible");
-                                    $("#divSecondRow").removeClass("invisible");
+                                    $('#divLOD').removeClass("invisible");
+                                    $('#divItemInfo').removeClass("invisible");
+                                    $('#divSecondRow').removeClass("invisible");
                                     stopTask();
                                 }
                             }
@@ -4806,6 +4633,7 @@
     $().ready(function () {
         QTL.init();
 
+        // handle search
         $('#searchTerm').keypress(function(evt) {
             let code = evt.which ? evt.which : evt.keyCode;
             if (code === 13) {
@@ -4838,7 +4666,8 @@
             exporting: {
                 buttons: {
                     contextButton: {
-                        menuItems: ['downloadPNG',
+                        menuItems: [
+                            'downloadPNG',
                             'downloadJPEG',
                             'downloadSVG'
                         ]
