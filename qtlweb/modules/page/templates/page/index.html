@@ -1568,19 +1568,21 @@
                 yAxis: yAxis,
             });
 
-            // TODO: fix hack
-            // this hack is awful and needs to be fixed
-            // this is the only way I could get the tooltips to appear
-            // without manually moving the slider
-            // I'm guessing it has something to do with canvas vs svg
-            setTimeout(function () {
-                console.log('updatingPeaks 1');
-                updatePeaks(maxLOD);
+            if ((g.dataSets[g.dataSetID].dataType === 'mRNA') ||
+                (g.dataSets[g.dataSetID].dataType === 'protein')) {
+                // this hack is awful and needs to be fixed
+                // this is the only way I could get the tooltips to appear
+                // without manually moving the slider
+                // I'm guessing it has something to do with canvas vs svg
                 setTimeout(function () {
-                    console.log('updatingPeaks 2');
-                    updatePeaks(minLOD);
+                    console.log('updatingPeaks 1');
+                    updatePeaks(maxLOD);
+                    setTimeout(function () {
+                        console.log('updatingPeaks 2');
+                        updatePeaks(minLOD);
+                    }, 250);
                 }, 250);
-            }, 250);
+            }
         }
 
         function startTask() {
