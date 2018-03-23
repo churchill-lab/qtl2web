@@ -58,3 +58,8 @@ COMPRESS_MIMETYPES = [
     'application/json',
     'application/javascript'
 ]
+
+
+LOGIN_REQUIRED=True
+LOGIN_USERID='ADMIN'
+LOGIN_PASSWORD='PASSWORD'
