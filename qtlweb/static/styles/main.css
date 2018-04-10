@@ -19,7 +19,12 @@
 
 .results-wrapper {
     overflow-y: scroll;
-    height: 400px;
+    height: 500px;
+}
+
+.results-wrapper-225 {
+    overflow-y: scroll;
+    height: 225px;
 }
 
 #cancellablePopup #loader2 {

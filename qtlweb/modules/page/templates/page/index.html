@@ -160,19 +160,56 @@
                         <div class="col">
                             <div class="card">
                                 <div class="card-header">
-                                    <a class="collapsed" data-toggle="collapse" href="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                                    <i class="fa" aria-hidden="true"></i>
-                                    <span id="div_current_item_information_header"></span>
-                                    </a>
+                                    <ul id="infoTabs" class="nav nav-tabs" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="navIDInformation" data-toggle="tab" href="#tabIDInformation"><i class="fas fa-info-circle"></i> <span id="div_current_item_information_header"></span></a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="navCorrelation" data-toggle="tab" href="#tabCorrelation"><i class="fas fa-barcode"></i> Correlation</a>
+                                        </li>
+                                    </ul>
                                 </div>
-                                <div class="card-body collapse" id="collapseExample">
-                                    <div id="div_current_item_information_body"></div>
+                                <div class="card-body">
+                                    <div class="tab-content">
+                                        <div role="tabpanel" class="tab-pane active" id="tabIDInformation">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div id="div_current_item_information_body"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane" id="tabCorrelation">
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    <span class="align-bottom">Select Correlation Dataset:</span>
+                                                </div>
+                                                <div class="col" id="correlationDatasetSelection">
+                                                </div>
+                                            </div>
+                                            <div class="row row-spacer">
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4 results-wrapper-225" id="correlationDataTable">
+                                                </div>
+                                                <div class="col-8" id="correlationDataPlot">
+                                                    <div id="plotCorrelation"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row row-spacer">
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <button id="btnDownloadCorrelationData" type="button" class="btn btn-sm btn-flat btn-primary">
+                                                        <i class="fas fa-download"></i> Download Correlations</button>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-
 
                     <div class="row invisible" id="divLOD">
                         <div class="col">
@@ -625,6 +662,8 @@
                                     </ul>`;
 
                         $('#dataSetSelectMenu').append(html);
+                        $('#correlationDatasetSelection').html(`${g.dataSets[g.dataSetID].displayName}`);
+
                     } else if (data.result.dataSets.length > 1) {
                         // show multiple menu items
                         let html = `<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerQTL" aria-controls="navbarTogglerQTL" aria-expanded="false" aria-label="Toggle navigation">
@@ -645,6 +684,25 @@
                             let selected = $(this).find(':selected').val();
                             switchDataSet(selected);
                         });
+
+                        ///
+
+                        // show multiple menu items
+                        let htmlNew = `<select id="correlationDatasetSelect" data-btn-class="btn-secondary btn-sm" class="form-control">`;
+
+                        for (let d in data.result.dataSets) {
+                            htmlNew += `<option value="${data.result.dataSets[d].id}">${data.result.dataSets[d].displayName}</option>`;
+                        }
+
+                        htmlNew += '</select>';
+
+                        $('#correlationDatasetSelection').html(htmlNew);
+                        //$('#correlationDatasetSelect').extendSelect();
+                        $('#correlationDatasetSelect').on('change', function () {
+                            let selected = $(this).find(':selected').val();
+                            switchCorrelationDataSet(selected);
+                            console.log(selected);
+                        });
                     }
 
                     configureCovarFactors();
@@ -661,6 +719,35 @@
                             console.error('MAJOR ERROR');
                         }
                     });
+
+                    $('#btnDownloadCorrelationData').on('click', function(evt) {
+                        if (g.correlationData) {
+                            let csvContent = '';
+                            let id = '';
+
+                            if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
+                                id = g.geneID;
+                            } else if (g.dataSets[g.dataSetID].dataType === 'protein') {
+                                id = g.proteinID;
+                            } else if (g.dataSets[g.dataSetID].dataType === 'phenotype') {
+                                id = g.phenotypeID;
+                            } else {
+                                // TODO: major error
+                                console.error('MAJOR ERROR');
+                            }
+
+                            csvContent = '"id","correlation"\n';
+                            $.each(g.correlationData, function (k, v) {
+                                let line = `${v['cor']},"${v['id']}"\n`;
+                                csvContent += line;
+                            });
+
+                            downloadCSV(csvContent, `${id}_correlation.csv`, 'text/csv;encoding:utf-8');
+                        } else {
+                            console.log('no correlation data?');
+                        }
+                    });
+
 
                     g.ensimpl = new ensimpl({
                         search_limit: 100,
@@ -3007,6 +3094,149 @@
             }
         }
 
+
+
+        function updateCorrelateDataSet(groupID) {
+            // send GET request to status URL
+            console.log('updateCorrelateDataSet');
+            console.log(groupID);
+
+            if (g.runningTask) {
+                let statusURL = '{{ url_for('api.api_status', group_id='', _external=True) }}' + groupID;
+                $.ajax({
+                    type: 'GET',
+                    url: statusURL,
+                    success: function (data, status, request) {
+                        console.log('DATA=======', data);
+                        if (data['status'] === 'DONE') {
+                            if ('error' in data) {
+                                // MAJOR ERROR
+                                let message = `Unfortunately, there was a problem contacting the server.  Please try again.`;
+                                stopTask();
+                                showErrorMessage(message, null);
+                            } else if (data['number_tasks_errors'] !== 0) {
+                                let message = `Unfortunately, we encountered an error.  Please try again.`;
+                                let errorMessages = '';
+                                $.each(data['response_data'], function (key, value) {
+                                    if ('error' in value) {
+                                        errorMessages += (`<strong>${key}:</strong> ${value['error']}<br>`);
+                                    }
+                                });
+
+                                stopTask();
+                                showErrorMessage(message, errorMessages);
+                            } else if (data['number_tasks_errors'] === 0) {
+                                // check to make sure the status codes are good
+                                let errorMessages = '';
+                                $.each(data['response_data'], function (key, value) {
+                                    if (value['status_code'] !== 200) {
+                                        errorMessages += (`<strong>${key}:</strong> ${value['response']['error']}<br>`);
+                                    }
+                                });
+
+                                if (errorMessages !== '') {
+                                    let message = `Unfortunately, there was a problem calculating the Correlation Data.`;
+                                    stopTask();
+                                    showErrorMessage(message, errorMessages);
+                                } else {
+                                    // 1. Correlation information
+
+                                    console.log('show result');
+                                    console.log('using data=', data);
+                                    let info = data['response_data']['correlation'];
+                                    console.log('info=', info);
+                                    let len = info.response.result.length;
+
+                                    let dbg = `<table class="table table-sm">
+                                            <tr><td><strong>Request Time</strong></td><td>${info.time_total}</td></tr>
+                                            <tr><td><strong>API Time</strong></td><td>${info.response.time}</td></tr>
+                                            <tr><td><strong>Cached</strong></td><td>${info.from_cache}</td></tr>
+                                            <tr><td><strong>Correlation Points</strong></td><td>${len}</td></tr>
+                                            </table>`;
+
+                                    debugMessage('Correlation Plot Information', dbg);
+
+                                    displayCorrelation(data.response_data.correlation);
+
+                                    stopTask();
+                                }
+                            }
+                        } else {
+                            // rerun in 1 seconds
+                            console.log('Not done, keep checking...');
+                            setTimeout(function () {
+                                updateCorrelateDataSet(groupID);
+                            }, 1000);  // TODO: change to 1000 (1 second)
+                        }
+                    }
+                });
+            } else {
+                // TODO: cleanup
+                console.log('canceling');
+                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
+                $.getJSON(cancelURL, function (data) {
+                    console.log(data);
+                    g.chartCorrelation = null;
+                    $('#correlationDataTable').html('');
+                    $('#plotCorrelation').html('');
+                });
+            }
+
+        }
+
+        function switchCorrelationDataSet(dataSetID) {
+            $('#plotCorrelation').html('');
+            $('#correlationDataTable').html('');
+            g.chartCorrelation = null;
+
+            let currentID = '';
+
+            if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
+                currentID = g.geneID;
+            } else if (g.dataSets[g.dataSetID].dataType === 'protein') {
+                currentID = g.proteinID;
+            } else if (g.dataSets[g.dataSetID].dataType === 'phenotype') {
+                currentID = g.phenotypeID;
+            } else {
+                // TODO: handle error
+                console.error('MAJOR PROBLEM');
+            }
+
+            let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${g.dataSetID}&id=${currentID}&datasetCorrelate=${dataSetID}`;
+
+            let submitData = {
+                urls:[{
+                    url_id: 'correlation',
+                    url: urlCorrelation
+                }]};
+
+            startTask();
+
+            $.ajax({
+                type: 'POST',
+                url: '{{ url_for('api.api_submit', _external=True) }}',
+                contentType: 'application/json',
+                data: JSON.stringify(submitData),
+                success: function(data, status, request) {
+                    g.runningTask = true;
+                    console.log('data=', data);
+                    console.log('status=', status);
+                    console.log('request=', request);
+                    //let status_url = request.getResponseHeader('Location');
+                    //console.log('status_url=', status_url);
+                    console.log('data.group_id=', data.group_id);
+                    updateCorrelateDataSet(data.group_id);
+                },
+                error: function() {
+                    alert('Unexpected error');
+                }
+            });
+
+
+
+
+        }
+
         /**
          * Switch the datasets.
          *
@@ -3260,7 +3490,6 @@
             $.each(data.data, function(k, v) {
                 let line = `"${v.mouse_id}",${v.expression}`;
                 $.each(factors, function(fk, fv) {
-
                     line += `,"${v[fv['column.name']]}"`;
                 });
 
@@ -3281,7 +3510,9 @@
             let data = g.expressionData;
             let categories = getFactorOrder();
             console.log('categories=', categories);
+
             let categorySeries = $('#factorSeries').find(':selected').val();
+            console.log('categorySeries=', categorySeries);
 
             // using this so plots have same jitter
             Math.seedrandom('profileplot');
@@ -3293,6 +3524,8 @@
             $.each(g.dataSets[g.dataSetID].covarFactors, function(idx, elem) {
                 cfMap[elem['column.name']] = elem['display.name'];
             });
+
+            console.log('cfMap=', cfMap);
 
 
             let title = [];
@@ -3308,6 +3541,8 @@
             let chartTitle = title.join(' x ');
             allCategories = permutateArrays(allCategories);
 
+            console.log('All Categories=', allCategories);
+
             // this will give us 9 points per "category"
             let jitter = 5;
             let jitterPad = 2;
@@ -3318,6 +3553,8 @@
 
             let newCategories = {};
             let newCategoriesOrder = [];
+
+            console.log("Loop through categories...");
             $.each(allCategories, function(idx, elem) {
                 let catName = elem.join(':');
                 let combo = {};
@@ -3338,9 +3575,8 @@
                 pointToLabel[start + (idx * stepAmount)] = catName;
             });
 
-
             console.log('point=', point);
-            console.log('pointToLabel=', point);
+            console.log('pointToLabel=', pointToLabel);
 
             let seriesData = {};
             $.each(data.dataTypes[categorySeries], function(idx, val) {
@@ -3349,7 +3585,9 @@
 
             console.log('seriesData=', seriesData);
 
+            console.log('Looping through data.data...');
             $.each(data.data, function(idx, val) {
+                //console.log('Looping through ', data.dataTypes[categorySeries]);
                 $.each(data.dataTypes[categorySeries], function(i, v) {
                     //console.log(idx, val, i, v, categorySeries);
 
@@ -3359,22 +3597,22 @@
                     });
                     let catName = abc.join(':');
 
-                    /*
                     if (val['expression'] === undefined) {
-                        console.log(val);
-                    }
-                    */
+                        console.log('Undefined data=', val);
+                    } else {
 
-                    newCategories[catName].values.push(val['expression']);
+                        newCategories[catName].values.push(val['expression']);
 
-                    // put the data in the correct buckets
-                    if (v === val[categorySeries]) {
-                        seriesData[v].values.push({
-                            type: 'scatter',
-                            val: val,
-                            x: newCategories[catName].start + getRandomInt(-1 * jitter, jitter),
-                            y: val['expression']
-                        });
+                        // put the data in the correct buckets
+
+                        if (v === val[categorySeries]) {
+                            seriesData[v].values.push({
+                                type: 'scatter',
+                                val: val,
+                                x: newCategories[catName].start + getRandomInt(-1 * jitter, jitter),
+                                y: val['expression']
+                            });
+                        }
                     }
                 });
             });
@@ -4114,6 +4352,293 @@
             });
         }
 
+        function formatStrToNum(val, decimals) {
+            return Number.parseFloat(val).toFixed(decimals);
+        }
+
+
+        function displayCorrelation(correlationData) {
+            $('#correlationDataTable').html('');
+            console.log('correlationData=', correlationData);
+            g.correlationData = correlationData.response.result;
+
+            let htmlBody = '<table id="corTable" class="table table-sm">';
+            htmlBody += '<tr><td><strong>Value</strong></td><td><strong>ID</strong></td></tr>';
+
+            $.each(correlationData.response.result, function(idx, value) {
+                htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dID="${value.id}">${value.id}</a></td></tr>`;
+            });
+
+            htmlBody += '</table>';
+            $('#correlationDataTable').html(htmlBody);
+
+            $('#corTable a').click(function(evt) {
+                evt.preventDefault();
+                let that = $(this);
+                let cid = null;
+
+                if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
+                    cid = g.geneID;
+                } else if (g.dataSets[g.dataSetID].dataType === 'protein') {
+                    cid = g.proteinID;
+                } else if (g.dataSets[g.dataSetID].dataType === 'phenotype') {
+                    cid = g.phenotypeID;
+                }
+
+                generateCorrelationPlot(g.dataSetID, cid, $("#correlationDatasetSelect").val(), that.attr('dID'));
+                return false;
+            });
+        }
+
+        function exportCorrelationPlotData(id, idCorrelate, data) {
+            let csvContent = `"mouse_id","${id}","${idCorrelate}"\n`;
+
+            $.each(data, function(k, v) {
+                let line = `"${v['mouse.id']}",${v['x']},${v['y']}`;
+                csvContent += `${line}\n`;
+            });
+
+            downloadCSV(csvContent, `${id}_${idCorrelate}_MEDIATION.csv`, 'text/csv;encoding:utf-8');
+        }
+
+
+        function plotCorrelationChart(data) {
+            console.log(data);
+            let plotTitle = '';
+            let currentID = '';
+
+
+            let newData = [];
+            $.each(data.data, function(index, element) {
+                if (element['x'] !== undefined) {
+                    newData.push(element);
+                }
+            });
+
+            console.log('newData = ', newData);
+
+            /*
+            if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
+                plotTitle = `${g.geneID} (${g.currentGene.gene[g.geneID].symbol})`;
+                currentID = g.geneID;
+            } else if (g.dataSets[g.dataSetID].dataType === 'protein') {
+                plotTitle = `${g.proteinID} (${g.currentGene.gene[g.geneID].symbol})`;
+                currentID = g.proteinID;
+            } else if (g.dataSets[g.dataSetID].dataType === 'phenotype') {
+                plotTitle = g.phenotypeID;
+                currentID = g.phenotypeID;
+            } else {
+                // TODO: handle error
+                console.error('MAJOR PROBLEM');
+            }
+            */
+
+            let exporting = appendExportButton('Download CSV', function() {
+                exportCorrelationPlotData(data.id, data.idCorrelate, newData);
+            });
+            exporting.filename = data.id + '_' + data.idCorrelate + '_CORRELATION';
+
+            g.chartCorrelation = Highcharts.chart({
+                chart: {
+                    renderTo: 'plotCorrelation',
+                    zoomType: 'xy',
+                    height: 250,
+                },
+                exporting: exporting,
+                plotOptions: {
+                    scatter: {
+                        marker: {
+                            radius: 5,
+                            states: {
+                                hover: {
+                                    enabled: true,
+                                    lineColor: 'rgb(100,100,100)'
+                                }
+                            }
+                        },
+                        states: {
+                            hover: {
+                                marker: {
+                                    enabled: false
+                                }
+                            }
+                        },
+                    }
+                },
+                series: [{
+                    data: newData,
+                    downsample: {
+                        threshold: 0 // 0 disables downsampling
+                    },
+                    marker: {
+                          radius: 2
+                    },
+                    showInLegend: false,
+                    turboThreshold: 0,
+                    type: 'scatter',
+                }],
+                title: {
+                    text: '',
+                },
+                tooltip: {
+                    useHTML: true,
+                    formatter: function () {
+                        let p = this.point;
+                        return `<b>${p['mouse.id']}</b>`;
+                    },
+                    positioner: function(labelWidth, labelHeight, point){
+                        let tooltipX, tooltipY;
+                        let chart = g.chartCorrelation;
+                        if (point.plotX + labelWidth > chart.plotWidth) {
+                            tooltipX = point.plotX + chart.plotLeft - labelWidth - 20;
+                        } else {
+                            tooltipX = point.plotX + chart.plotLeft + 20;
+                        }
+                        tooltipY = point.plotY + chart.plotTop - 20;
+                        return {
+                            x: tooltipX,
+                            y: tooltipY
+                        };
+                    },
+                },
+                xAxis: {
+                    title: {
+                        text: data.id
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: data.idCorrelate
+                    }
+                },
+            });
+
+        }
+
+        function updateCorrelationData(groupID, currentDataset, currentID, correlateDataset, correlateID) {
+            // send GET request to status URL
+            console.log('updateCorrelationData');
+            console.log(groupID);
+
+            if (g.runningTask) {
+                let statusURL = '{{ url_for('api.api_status', group_id='', _external=True) }}' + groupID;
+                $.ajax({
+                    type: 'GET',
+                    url: statusURL,
+                    success: function (data, status, request) {
+                        console.log('DATA=======', data);
+                        if (data['status'] === 'DONE') {
+                            if ('error' in data) {
+                                // MAJOR ERROR
+                                let message = `Unfortunately, there was a problem contacting the server.  Please try again.`;
+                                stopTask();
+                                showErrorMessage(message, null);
+                            } else if (data['number_tasks_errors'] !== 0) {
+                                let message = `Unfortunately, we encountered an error.  Please try again.`;
+                                let errorMessages = '';
+                                $.each(data['response_data'], function (key, value) {
+                                    if ('error' in value) {
+                                        errorMessages += (`<strong>${key}:</strong> ${value['error']}<br>`);
+                                    }
+                                });
+
+                                stopTask();
+                                showErrorMessage(message, errorMessages);
+                            } else if (data['number_tasks_errors'] === 0) {
+                                // check to make sure the status codes are good
+                                let errorMessages = '';
+                                $.each(data['response_data'], function (key, value) {
+                                    if (value['status_code'] !== 200) {
+                                        errorMessages += (`<strong>${key}:</strong> ${value['response']['error']}<br>`);
+                                    }
+                                });
+
+                                if (errorMessages !== '') {
+                                    let message = `Unfortunately, there was a problem calculating the Correlation Plot.`;
+                                    stopTask();
+                                    showErrorMessage(message, errorMessages);
+                                } else {
+                                    // 1. Correlation information
+
+                                    console.log('show result');
+                                    console.log('using data=', data);
+                                    let info = data['response_data']['correlationPlot'];
+                                    let len = info.response.result.data.length;
+
+                                    let dbg = `<table class="table table-sm">
+                                            <tr><td><strong>Request Time</strong></td><td>${info.time_total}</td></tr>
+                                            <tr><td><strong>API Time</strong></td><td>${info.response.time}</td></tr>
+                                            <tr><td><strong>Cached</strong></td><td>${info.from_cache}</td></tr>
+                                            <tr><td><strong>Correlation Points</strong></td><td>${len}</td></tr>
+                                            </table>`;
+
+                                    debugMessage('Correlation Plot Information', dbg);
+
+                                    plotCorrelationChart(data.response_data.correlationPlot.response.result);
+                                    stopTask();
+                                }
+                            }
+                        } else {
+                            // rerun in 1 seconds
+                            console.log('Not done, keep checking...');
+                            setTimeout(function () {
+                                updateCorrelationData(groupID, currentDataset, currentID, correlateDataset, correlateID);
+                            }, 1000);  // TODO: change to 1000 (1 second)
+                        }
+                    }
+                });
+            } else {
+                // TODO: cleanup
+                console.log('canceling');
+                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
+                $.getJSON(cancelURL, function (data) {
+                    console.log(data);
+                    g.chartCorrelation = null;
+                    $('#correlationDataTable').html('');
+                    $('#plotCorrelation').html('');
+                });
+            }
+
+        }
+
+        function generateCorrelationPlot(currentDataset, currentID, correlateDataset, correlateID) {
+            let urlCorrelationPlot = `{{ config.API_R_BASE }}/correlationPlotData?dataset=${currentDataset}&id=${currentID}&datasetCorrelate=${correlateDataset}&idCorrelate=${correlateID}`;
+
+            let submitData = {
+                urls:[{
+                    url_id: 'correlationPlot',
+                    url: urlCorrelationPlot
+                }]};
+
+
+            startTask();
+
+            // reset the chart and clear it
+            g.correlationPlot = null;
+            $('#plotCorrelation').html('');
+
+
+            $.ajax({
+                type: 'POST',
+                url: '{{ url_for('api.api_submit', _external=True) }}',
+                contentType: 'application/json',
+                data: JSON.stringify(submitData),
+                success: function(data, status, request) {
+                    console.log('data=', data);
+                    console.log('status=', status);
+                    console.log('request=', request);
+                    console.log('data.group_id=', data.group_id);
+                    updateCorrelationData(data.group_id, currentDataset, currentID, correlateDataset, correlateID);
+                },
+                error: function() {
+                    // TODO: handle
+                    alert('Unexpected error');
+                }
+            });
+
+        }
+
+
         function resetSecondaryPlots() {
             g.chartMediation = null;
             g.chartEffect = null;
@@ -4274,6 +4799,21 @@
                                             </table>`;
                                     debugMessage('Expression Information', dbg);
 
+                                    // 4. Correlation
+                                    info = data['response_data']['correlation'];
+                                    len = info.response.result.length;
+
+                                    displayCorrelation(info);
+
+                                    dbg = `<table class="table table-sm">
+                                            <tr><td><strong>Request Time</strong></td><td>${info.time_total}</td></tr>
+                                            <tr><td><strong>API Time</strong></td><td>${info.response.time}</td></tr>
+                                            <tr><td><strong>Cached</strong></td><td>${info.from_cache}</td></tr>
+                                            <tr><td><strong>Correlation Points</strong></td><td>${len}</td></tr>
+                                            </table>`;
+                                    debugMessage('Correlation Information', dbg);
+
+
                                     // first time we need to hide jumbotron instructions
                                     // it's ok to keep hiding
                                     $('#divWelcomeMesage').html('');
@@ -4310,6 +4850,7 @@
             //let urlGeneData = `http://churchill-lab.jax.org/ensimpl/api/gene?id=${geneID}`;
             let urlExpression = `{{ config.API_R_BASE }}/expression?dataset=${dataSetID}&id=${phenotypeID}`;
             let urlLOD = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=${phenotypeID}`;
+            let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${dataSetID}&id=${phenotypeID}`;
 
             // TODO: make reset function
             g.currentGene = null;
@@ -4319,6 +4860,8 @@
             g.secondaryPlotMarkerID = null;
             g.secondaryPlotChromosome = null;
             g.secondaryPlotLocation = null;
+            g.correlationData = null;
+            g.correlationDatasetID = dataSetID;
 
             // TODO: add ncores?, regress_local? to urlLOD, or handle backend?
             //URL += '&regress_local=' + regressLocal;
@@ -4331,6 +4874,9 @@
                 urls:[{
                     url_id: 'expression',
                     url: urlExpression
+                }, {
+                    url_id: 'correlation',
+                    url: urlCorrelation
                 }, {
                     url_id: 'lod',
                     url: urlLOD
@@ -4501,6 +5047,21 @@
                                             </table>`;
                                     debugMessage('LOD Information', dbg);
 
+                                    // 2. Correlation
+                                    info = data['response_data']['correlation'];
+                                    len = info.response.result.length;
+
+                                    displayCorrelation(info);
+
+                                    dbg = `<table class="table table-sm">
+                                            <tr><td><strong>Request Time</strong></td><td>${info.time_total}</td></tr>
+                                            <tr><td><strong>API Time</strong></td><td>${info.response.time}</td></tr>
+                                            <tr><td><strong>Cached</strong></td><td>${info.from_cache}</td></tr>
+                                            <tr><td><strong>Correlation Points</strong></td><td>${len}</td></tr>
+                                            </table>`;
+                                    debugMessage('Correlation Information', dbg);
+
+
                                     // 3. Expression information
                                     g.expressionData = data['response_data']['expression']['response']['result'];
                                     plotProfile(g.phenotypeID);
@@ -4558,6 +5119,7 @@
             let urlGeneData = `http://churchill-lab.jax.org/ensimpl/api/gene?id=${geneID}&species=${g.speciesID}&version=${g.ensemblVersion}`;
             let urlExpression = `{{ config.API_R_BASE }}/expression?dataset=${dataSetID}&id=`;
             let urlLOD = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=`;
+            let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${dataSetID}&id=`;
 
             g.currentGene = null;
             g.geneID = geneID;
@@ -4566,13 +5128,17 @@
             g.secondaryPlotMarkerID = null;
             g.secondaryPlotChromosome = null;
             g.secondaryPlotLocation = null;
+            g.correlationData = null;
+            g.correlationDatasetID = dataSetID;
 
             if ((proteinID === undefined) || (proteinID == null)) {
                 urlExpression += geneID;
                 urlLOD += geneID;
+                urlCorrelation += geneID;
             } else {
                 urlExpression += proteinID;
                 urlLOD += proteinID;
+                urlCorrelation += proteinID;
             }
 
             // TODO: add ncores?, regress_local? to urlLOD, or handle backend?
@@ -4590,6 +5156,9 @@
                     url_id: 'expression',
                     url: urlExpression
                 }, {
+                    url_id: 'correlation',
+                    url: urlCorrelation
+                }, {
                     url_id: 'lod',
                     url: urlLOD
                 }]};
@@ -4606,7 +5175,6 @@
             $('#fact-svg-chart').html('');
 
             resetSecondaryPlots();
-
 
             $.ajax({
                 type: 'POST',
@@ -4657,6 +5225,7 @@
             return false;
         });
 
+
         $('#performBLUP').bootstrapSwitch();
 
         // set some global options for Highcharts
@@ -4677,6 +5246,7 @@
                         menuItems: [
                             'downloadPNG',
                             'downloadJPEG',
+                            'downloadPDF',
                             'downloadSVG'
                         ]
                     }
