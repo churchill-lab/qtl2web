@@ -103,25 +103,16 @@
     height: 10px;
 }
 
+.table-sm-text {
+    font-size: 0.9em;
+}
+
 #searchPheno .typeahead__list {
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
-#plotLodPeaks .highcharts-xaxis-grid .highcharts-grid-line {
-    stroke-width: 1px;
-    stroke: #d8d8d8;
-}
-
-#plotLodPeaks .highcharts-xaxis .highcharts-tick {
-    stroke-width: 1px;
-    stroke: #d8d8d8;
-}
-
-#plotLodPeaks .highcharts-minor-grid-line {
-    stroke-dasharray: 2, 2;
-}
 
 .scrollY200 {
     min-height: 200px;

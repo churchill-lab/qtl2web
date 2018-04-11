@@ -320,6 +320,10 @@
                                 </div>
                                 <div role="tabpanel" class="tab-pane" id="tabPlotMediation">
                                     <div class="row">
+                                        <div class="col" id="divMediationSelect">
+                                        </div>
+                                    </div>
+                                    <div class="row">
                                         <div class="col">
                                             <div id="plotMediation"></div>
                                         </div>
@@ -987,37 +991,57 @@
             let ticksStartText = {};
             let ticksMidVals = [];
             let ticksMidText = {};
-            //let bandsX = [];
-            //let bandsY = [];
-
-            let xPlotLines = [];
-            let yPlotLines = [];
 
             let firstDraw = true;
 
-            $.each(g.chromosomes.chr, function(key, value) {
+            let plotLines = [];
+            let plotBands = [];
+            let i = 0;
+
+            $.each(g.chromosomes.chr, function(idx, value) {
+                plotLines.push({
+                   color: '#eeeeee',
+                   value: value.start,
+                   width: 2,
+                });
+
+                if ((i % 2) === 1) {
+                    plotBands.push({
+                        color: '#eeeeee',
+                        from: value.start,
+                        to: value.start + value.length
+                    });
+                }
+
+                i += 1;
+
                 ticksStartVals.push(value.start);
                 ticksStartText[value.start] = value.chromosome;
                 ticksMidVals.push(value.mid);
                 ticksMidText[value.mid] = value.chromosome;
-
-                xPlotLines.push({value: value.start,
-                                 color: '#eeeeee',
-                                 width: 2,
-                                 label: {
-                                     text: value.chromosome,
-                                 }
-                });
-
-                yPlotLines.push({
-                    value: value.start,
-                    color: '#eeeeee',
-                    width: 2,
-                    label: {
-                        text: value.chromosome,
-                    }
-                });
             });
+
+            if ((i % 2) === 0) {
+                console.log('adding ', g.chromosomes.idx[i-1].chromosome);
+                plotBands.push({
+                    color: '#eeeeee',
+                    from: g.chromosomes.idx[i-1].start,
+                    to: g.chromosomes.idx[i-1].start + g.chromosomes.idx[i-1].length
+                });
+            }
+
+            console.log('plotBands=', plotBands);
+
+            plotLines.push({
+               color: '#eeeeee',
+               value: g.chromosomes.totalLength,
+               width: 2,
+            });
+
+            console.log('ticksStartVals=', ticksStartVals);
+            console.log('ticksStartText=', ticksStartText);
+            console.log('ticksMidVals=', ticksMidVals);
+            console.log('ticksMidText=', ticksMidText);
 
             let data = [];
             let xAxis = null;
@@ -1178,75 +1202,43 @@
                 };
 
                 xAxis = {
+                    endOnTick: false,
+                    gridLineWidth: 0,
+                    labels: {
+                        formatter: function () {
+                            return ticksMidText[this.value];
+                        }
+                    },
+                    min: 0,
+                    max: g.chromosomes.totalLength,
+                    plotLines: plotLines,
+                    showLastLabel: true,
+                    startOnTick: false,
+                    tickPositions: ticksMidVals,
                     title: {
                         enabled: true,
                         text: 'Marker'
                     },
-                    min: 0,
-                    max: g.chromosomes.totalLength,
-                    //tickInterval: 0,
-                    labels: {
-                        formatter: function () {
-                            return ticksStartText[this.value];
-                        }
-                    },
-
-                    tickPositions: ticksStartVals,
-                    //plotLines: xPlotLines
                 };
 
                 yAxis = {
+                    endOnTick: false,
+                    gridLineWidth: 0,
+                    labels: {
+                        formatter: function () {
+                            return ticksMidText[this.value];
+                        }
+                    },
+                    min: 0,
+                    max: g.chromosomes.totalLength,
+                    plotLines: plotLines,
+                    showLastLabel: true,
+                    startOnTick: false,
+                    tickPositions: ticksMidVals,
                     title: {
                         enabled: true,
                         text: 'Gene'
                     },
-                    min: 0,
-                    max: g.chromosomes.totalLength,
-                    /*
-                    tickInterval: 0,
-                    plotLines: xPlotLines,
-                    tickPositions: ticksMidVals,
-                    events: {
-                        afterSetExtremes: function (a,b,c) {
-                            console.log('afterSetExtremes');
-                            console.log(a,b,c);
-                        }
-                    },
-                    */
-
-                    labels: {
-                        formatter: function () {
-                            return ticksStartText[this.value];
-                        }
-                    },
-
-                    tickPositioner: function (minY, maxY) {
-                        let yAxisStart = 0;
-                        let yAxisEnd = 0;
-
-                        $.each(ticksStartVals, function(idx, elem) {
-                            if (elem < minY) {
-                                yAxisStart = idx;
-                            }
-
-                            if (elem < maxY) {
-                                yAxisEnd = idx;
-                            }
-                        });
-
-                        yAxisStart -= 1;
-                        if (yAxisStart < 0) {
-                            yAxisStart = 0;
-                        }
-
-                        yAxisEnd += 1;
-                        if (yAxisEnd > ticksStartVals.length) {
-                            yAxisEnd = ticksStartVals.length;
-                        }
-
-                        let ticks = ticksStartVals.slice(yAxisStart, yAxisEnd);
-                        return ticks;
-                    }
                 };
 
                 clickFunction = function (event) {
@@ -1394,77 +1386,45 @@
                 };
 
                 xAxis = {
+                    endOnTick: false,
+                    gridLineWidth: 0,
+                    labels: {
+                        formatter: function () {
+                            return ticksMidText[this.value];
+                        }
+                    },
+                    min: 0,
+                    max: g.chromosomes.totalLength,
+                    plotLines: plotLines,
+                    showLastLabel: true,
+                    startOnTick: false,
+                    tickPositions: ticksMidVals,
                     title: {
                         enabled: true,
                         text: 'Marker'
                     },
-                    min: 0,
-                    max: g.chromosomes.totalLength,
-                    //tickInterval: 0,
-                    labels: {
-                        formatter: function () {
-                            return ticksStartText[this.value];
-                        }
-                    },
-
-                    tickPositions: ticksStartVals,
-                    //plotLines: xPlotLines
                 };
 
                 yAxis = {
-                    title: {
-                        enabled: true,
-                        text: 'Protein'
+                    endOnTick: false,
+                    gridLineWidth: 0,
+                    labels: {
+                        formatter: function () {
+                            return ticksMidText[this.value];
+                        }
                     },
                     min: 0,
                     max: g.chromosomes.totalLength,
-                    /*
-                    tickInterval: 0,
-                    plotLines: xPlotLines,
+                    plotLines: plotLines,
+                    showLastLabel: true,
+                    startOnTick: false,
                     tickPositions: ticksMidVals,
-                    events: {
-                        afterSetExtremes: function (a,b,c) {
-                            console.log('afterSetExtremes');
-                            console.log(a,b,c);
-                        }
+                    title: {
+                        enabled: true,
+                        text: 'Gene'
                     },
-                    */
-
-                    labels: {
-                        formatter: function () {
-                            return ticksStartText[this.value];
-                        }
-                    },
-
-                    tickPositioner: function (minY, maxY) {
-                        let yAxisStart = 0;
-                        let yAxisEnd = 0;
-
-                        $.each(ticksStartVals, function(idx, elem) {
-                            if (elem < minY) {
-                                yAxisStart = idx;
-                            }
-
-                            if (elem < maxY) {
-                                yAxisEnd = idx;
-                            }
-                        });
-
-                        yAxisStart -= 1;
-                        if (yAxisStart < 0) {
-                            yAxisStart = 0;
-                        }
-
-                        yAxisEnd += 1;
-                        if (yAxisEnd > ticksStartVals.length) {
-                            yAxisEnd = ticksStartVals.length;
-                        }
-
-                        let ticks = ticksStartVals.slice(yAxisStart, yAxisEnd);
-                        return ticks;
-                    }
-
                 };
+
 
                 clickFunction = function (event) {
                     selectGeneProtein(this.geneID, this.proteinID, g.dataSetID);
@@ -1482,11 +1442,9 @@
             } else if (g.dataSets[g.dataSetID].dataType === 'phenotype') {
                 // ["5_137006393","5",137.0064,"MEcyan","MEcyan","MEcyan",9.1161],[
 
-
                 let seriesData = {};
-                console.log(g.lodPeaks);
+                console.log('g.lodPeaks=', g.lodPeaks);
                 $.each(g.lodPeaks, function(index, element) {
-                    console.log(index, element);
                     // element[0] = marker_id
                     let markerChr = g.chromosomes.chr[element[1]];
                     let markerPos = element[2] * 1000000.0;
@@ -1497,8 +1455,6 @@
                     if (!(phenotype.category in seriesData)) {
                         seriesData[phenotype.category] = [];
                     }
-
-                    console.log('phenotype.category=', phenotype.category);
 
                     seriesData[phenotype.category].push({
                         x: markerChr.start + markerPos,
@@ -1516,12 +1472,12 @@
                     maxLOD = Math.max(maxLOD, element[6]);
                 });
 
-                console.log(minLOD, maxLOD);
+                console.log('minLOD=', minLOD, 'maxLOD=', maxLOD);
 
                 minLOD = Math.floor(minLOD);
                 maxLOD = Math.ceil(maxLOD);
 
-                console.log(minLOD, maxLOD);
+                console.log('ADJUSTED: minLOD=', minLOD, 'maxLOD=', maxLOD);
 
                 $('#tabLodPeaks').html(html);
 
@@ -1545,11 +1501,8 @@
                 };
 
                 xAxis = {
-                    title: {
-                        enabled: true,
-                        text: 'Marker Location'
-                    },
-                    tickPositions: ticksMidVals,
+                    endOnTick: false,
+                    gridLineWidth: 0,
                     labels: {
                         formatter: function () {
                             return ticksMidText[this.value];
@@ -1557,10 +1510,15 @@
                     },
                     min: 0,
                     max: g.chromosomes.totalLength,
-                    tickWidth: 0,
-                    startOnTick: true,
-                    endOnTick: true,
+                    plotBands: plotBands,
+                    plotLines: plotLines,
                     showLastLabel: true,
+                    startOnTick: false,
+                    tickPositions: ticksMidVals,
+                    title: {
+                        enabled: true,
+                        text: 'Marker Location'
+                    },
                 };
 
                 yAxis = {
@@ -1915,6 +1873,7 @@
                 dataLabels: {
                     align: 'left',
                     allowOverlap: true,
+                    color: 'black',
                     defer: false,
                     enabled: true,
                     formatter: function() {
@@ -1922,6 +1881,9 @@
                     },
                     inside: true,
                     padding: 0,
+                    style: {
+                        textOutline: false
+                    },
                 },
                 //boostThreshold: 0,
                 /* When a series contains a data array that is longer than this,
@@ -2324,7 +2286,7 @@
                 let s = {
                     color: value['color'],
                     data: value['data'],
-                    lineWidth: 0.5,
+                    lineWidth: 1,
                     marker: {
                         symbol: 'circle',
                     },
@@ -2385,7 +2347,7 @@
                 animation: false,
                 color: '#000000',
                 data: lodData,
-                lineWidth: 0.5,
+                lineWidth: 1,
                 name: 'LOD',
                 showInLegend: false,
                 stack: 0,
@@ -2537,10 +2499,10 @@
          * Plot mediation data
          * @param {Object} mediationData - mediation data
          */
-        function plotMediation(mediationData) {
+        function plotMediation(mediationData, dsMediateAgainst) {
             let newData = [];
 
-            if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
+            if (g.dataSets[dsMediateAgainst].dataType === 'mRNA') {
                 // ["ENSMUSG00000000001", "Gnai3", "3", 108.1267, 140.1666]
                 $.each(mediationData, function(index, element) {
                     if (element[2] in g.chromosomes.chr) {
@@ -2562,7 +2524,7 @@
                     }
                 });
 
-            } else if (g.dataSets[g.dataSetID].dataType === 'protein') {
+            } else if (g.dataSets[dsMediateAgainst].dataType === 'protein') {
                 // ["ENSMUSP00000000001", "ENSMUSG00000000001", "Gnai3", "3", 108.126713, 7.1102046955]
                 $.each(mediationData, function(index, element) {
                     if (element[3] in g.chromosomes.chr) {
@@ -2733,7 +2695,8 @@
          *
          */
         function generateMediationPlot(id, markerID) {
-            let mediateURL = `{{ config.API_R_BASE }}/mediate?dataset=${g.dataSetID}&id=${id}&mid=${markerID}`;
+            let mediateAgainst = $('#dsMediateAgainstID').val();
+            let mediateURL = `{{ config.API_R_BASE }}/mediate?dataset=${g.dataSetID}&id=${id}&mid=${markerID}&datasetMediate=${mediateAgainst}`;
 
             let submitData = {
                 urls:[{
@@ -2757,7 +2720,7 @@
                     console.log('status=', status);
                     console.log('request=', request);
                     console.log('data.group_id=', data.group_id);
-                    updateMediationData(data.group_id);
+                    updateMediationData(data.group_id, mediateAgainst);
                 },
                 error: function() {
                     // TODO: handle
@@ -2771,7 +2734,7 @@
          *
          * @param {string} groupID - the group identifier of the task
          */
-        function updateMediationData(groupID) {
+        function updateMediationData(groupID, dsMediateAgainst) {
             // send GET request to status URL
             console.log('updateMediationData');
             console.log(groupID);
@@ -2828,7 +2791,7 @@
                                             <tr><td><strong>Mediation Points</strong></td><td>${len}</td></tr>
                                             </table>`;
                                     debugMessage('Mediation', dbg);
-                                    plotMediation(info['response']['result']);
+                                    plotMediation(info['response']['result'], dsMediateAgainst);
                                     stopTask();
                                 }
                             }
@@ -2836,7 +2799,7 @@
                             // rerun in 1 seconds
                             console.log('Not done, keep checking...');
                             setTimeout(function () {
-                                updateMediationData(groupID);
+                                updateMediationData(groupID, dsMediateAgainst);
                             }, 1000);  // TODO: change to 1000 (1 second)
                         }
                     }
@@ -3155,7 +3118,6 @@
                                             </table>`;
 
                                     debugMessage('Correlation Plot Information', dbg);
-
                                     displayCorrelation(data.response_data.correlation);
 
                                     stopTask();
@@ -3188,6 +3150,7 @@
             $('#plotCorrelation').html('');
             $('#correlationDataTable').html('');
             g.chartCorrelation = null;
+            g.correlationDatasetID = dataSetID;
 
             let currentID = '';
 
@@ -3317,6 +3280,36 @@
 
                 // hide some secondary plots
                 $('#navPlotMediation').hide();
+
+
+                // hide or show the mediation based upon if there are datasets that can mediate against
+                let allDS = [];
+                $.each(g.dataSets, function(key, value) {
+                    if (value.dataType !== 'phenotype') {
+                        allDS.push(value);
+                    }
+                });
+
+                $('#divMediationSelect').html('');
+
+                if (allDS.length >= 1) {
+                    $('#navPlotMediation').show();
+                }
+
+                if (allDS.length === 1) {
+                    $('#divMediationSelect').html(`Mediating against: ${allDS[0].displayName}`);
+                    $('#divMediationSelect').append(`<input type="hidden" id="dsMediateAgainstID" value="${allDS[0].id}"/>`);
+                } else if (allDS.length > 1) {
+                    let html = 'Mediate against:';
+                    html += '<select id="dsMediateAgainstID">';
+                    $.each(allDS, function(idx, elem) {
+                        html += `<option value="${elem.id}">${elem.displayName}</option>`;
+                    });
+                    html += '</select>';
+
+                    $('#divMediationSelect').html(html);
+                }
+
 
                 $('#searchPheno').html('');
                 $('#searchPhenoCategoryText').html('');
@@ -3598,7 +3591,7 @@
                     let catName = abc.join(':');
 
                     if (val['expression'] === undefined) {
-                        console.log('Undefined data=', val);
+                        //console.log('Undefined data=', val);
                     } else {
 
                         newCategories[catName].values.push(val['expression']);
@@ -4362,12 +4355,27 @@
             console.log('correlationData=', correlationData);
             g.correlationData = correlationData.response.result;
 
-            let htmlBody = '<table id="corTable" class="table table-sm">';
-            htmlBody += '<tr><td><strong>Value</strong></td><td><strong>ID</strong></td></tr>';
+            let htmlBody = '<table id="corTable" class="table table-sm table-sm-text">';
 
-            $.each(correlationData.response.result, function(idx, value) {
-                htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dID="${value.id}">${value.id}</a></td></tr>`;
-            });
+            if (g.dataSets[g.correlationDatasetID].dataType === 'mRNA') {
+                htmlBody += '<tr><td><strong>Value</strong></td><td><strong>Symbol</strong></td><td><strong>Chr</strong></td></tr>';
+                $.each(correlationData.response.result, function(idx, value) {
+                    htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}</td></tr>`;
+                });
+            } else if (g.dataSets[g.correlationDatasetID].dataType === 'protein') {
+                htmlBody += '<tr><td><strong>Value</strong></td><td><strong>Symbol</strong></td><td><strong>Chr</strong></td></tr>';
+                $.each(correlationData.response.result, function(idx, value) {
+                    htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}</td></tr>`;
+                });
+            } else if (g.dataSets[g.correlationDatasetID].dataType === 'phenotype') {
+                htmlBody += '<tr><td><strong>Value</strong></td><td><strong>ID</strong></td></tr>';
+                $.each(correlationData.response.result, function(idx, value) {
+                    htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="" dID="${value.id}">${value.id}</a></td></tr>`;
+                });
+            } else {
+                // TODO: major error
+                console.error('MAJOR ERROR');
+            }
 
             htmlBody += '</table>';
             $('#correlationDataTable').html(htmlBody);
@@ -4385,7 +4393,7 @@
                     cid = g.phenotypeID;
                 }
 
-                generateCorrelationPlot(g.dataSetID, cid, $("#correlationDatasetSelect").val(), that.attr('dID'));
+                generateCorrelationPlot(g.dataSetID, cid, $("#correlationDatasetSelect").val(), that.attr('dID'), that.attr('dSymbol'));
                 return false;
             });
         }
@@ -4402,11 +4410,9 @@
         }
 
 
-        function plotCorrelationChart(data) {
+        function plotCorrelationChart(data, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol) {
             console.log(data);
             let plotTitle = '';
-            let currentID = '';
-
 
             let newData = [];
             $.each(data.data, function(index, element) {
@@ -4416,6 +4422,12 @@
             });
 
             console.log('newData = ', newData);
+
+            let yAxisTitle = correlateID;
+
+            if (correlateSymbol !== '') {
+                yAxisTitle = correlateSymbol;
+            }
 
             /*
             if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
@@ -4508,14 +4520,14 @@
                 },
                 yAxis: {
                     title: {
-                        text: data.idCorrelate
+                        text: yAxisTitle
                     }
                 },
             });
 
         }
 
-        function updateCorrelationData(groupID, currentDataset, currentID, correlateDataset, correlateID) {
+        function updateCorrelationData(groupID, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol) {
             // send GET request to status URL
             console.log('updateCorrelationData');
             console.log(groupID);
@@ -4574,7 +4586,7 @@
 
                                     debugMessage('Correlation Plot Information', dbg);
 
-                                    plotCorrelationChart(data.response_data.correlationPlot.response.result);
+                                    plotCorrelationChart(data.response_data.correlationPlot.response.result, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
                                     stopTask();
                                 }
                             }
@@ -4582,7 +4594,7 @@
                             // rerun in 1 seconds
                             console.log('Not done, keep checking...');
                             setTimeout(function () {
-                                updateCorrelationData(groupID, currentDataset, currentID, correlateDataset, correlateID);
+                                updateCorrelationData(groupID, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
                             }, 1000);  // TODO: change to 1000 (1 second)
                         }
                     }
@@ -4601,7 +4613,7 @@
 
         }
 
-        function generateCorrelationPlot(currentDataset, currentID, correlateDataset, correlateID) {
+        function generateCorrelationPlot(currentDataset, currentID, correlateDataset, correlateID, correlateSymbol) {
             let urlCorrelationPlot = `{{ config.API_R_BASE }}/correlationPlotData?dataset=${currentDataset}&id=${currentID}&datasetCorrelate=${correlateDataset}&idCorrelate=${correlateID}`;
 
             let submitData = {
@@ -4628,7 +4640,7 @@
                     console.log('status=', status);
                     console.log('request=', request);
                     console.log('data.group_id=', data.group_id);
-                    updateCorrelationData(data.group_id, currentDataset, currentID, correlateDataset, correlateID);
+                    updateCorrelationData(data.group_id, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
                 },
                 error: function() {
                     // TODO: handle
