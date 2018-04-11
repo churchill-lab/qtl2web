@@ -103,6 +103,10 @@
     height: 10px;
 }
 
+.table-sm-text {
+    font-size: 0.9em;
+}
+
 #searchPheno .typeahead__list {
     max-height: 300px;
     overflow-y: auto;
