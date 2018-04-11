@@ -987,37 +987,21 @@
             let ticksStartText = {};
             let ticksMidVals = [];
             let ticksMidText = {};
-            //let bandsX = [];
-            //let bandsY = [];
-
-            let xPlotLines = [];
-            let yPlotLines = [];
 
             let firstDraw = true;
 
             $.each(g.chromosomes.chr, function(key, value) {
+                console.log(key, value);
                 ticksStartVals.push(value.start);
                 ticksStartText[value.start] = value.chromosome;
                 ticksMidVals.push(value.mid);
                 ticksMidText[value.mid] = value.chromosome;
-
-                xPlotLines.push({value: value.start,
-                                 color: '#eeeeee',
-                                 width: 2,
-                                 label: {
-                                     text: value.chromosome,
-                                 }
-                });
-
-                yPlotLines.push({
-                    value: value.start,
-                    color: '#eeeeee',
-                    width: 2,
-                    label: {
-                        text: value.chromosome,
-                    }
-                });
             });
+
+            console.log('ticksStartVals=', ticksStartVals);
+            console.log('ticksStartText=', ticksStartText);
+            console.log('ticksMidVals=', ticksMidVals);
+            console.log('ticksMidText=', ticksMidText);
 
             let data = [];
             let xAxis = null;
@@ -1407,6 +1391,7 @@
                         }
                     },
 
+
                     tickPositions: ticksStartVals,
                     //plotLines: xPlotLines
                 };
@@ -1482,9 +1467,8 @@
             } else if (g.dataSets[g.dataSetID].dataType === 'phenotype') {
                 // ["5_137006393","5",137.0064,"MEcyan","MEcyan","MEcyan",9.1161],[
 
-
                 let seriesData = {};
-                console.log(g.lodPeaks);
+                console.log('g.lodPeaks=', g.lodPeaks);
                 $.each(g.lodPeaks, function(index, element) {
                     console.log(index, element);
                     // element[0] = marker_id
@@ -1516,12 +1500,12 @@
                     maxLOD = Math.max(maxLOD, element[6]);
                 });
 
-                console.log(minLOD, maxLOD);
+                console.log('minLOD=', minLOD, 'maxLOD=', maxLOD);
 
                 minLOD = Math.floor(minLOD);
                 maxLOD = Math.ceil(maxLOD);
 
-                console.log(minLOD, maxLOD);
+                console.log('ADJUSTED: minLOD=', minLOD, 'maxLOD=', maxLOD);
 
                 $('#tabLodPeaks').html(html);
 
@@ -1549,10 +1533,10 @@
                         enabled: true,
                         text: 'Marker Location'
                     },
-                    tickPositions: ticksMidVals,
+                    tickPositions: ticksStartVals,
                     labels: {
                         formatter: function () {
-                            return ticksMidText[this.value];
+                            return ticksStartText[this.value];
                         }
                     },
                     min: 0,
@@ -1915,6 +1899,7 @@
                 dataLabels: {
                     align: 'left',
                     allowOverlap: true,
+                    color: 'black',
                     defer: false,
                     enabled: true,
                     formatter: function() {
@@ -1922,6 +1907,9 @@
                     },
                     inside: true,
                     padding: 0,
+                    style: {
+                        textOutline: false
+                    },
                 },
                 //boostThreshold: 0,
                 /* When a series contains a data array that is longer than this,
@@ -3155,7 +3143,6 @@
                                             </table>`;
 
                                     debugMessage('Correlation Plot Information', dbg);
-
                                     displayCorrelation(data.response_data.correlation);
 
                                     stopTask();
@@ -3188,6 +3175,7 @@
             $('#plotCorrelation').html('');
             $('#correlationDataTable').html('');
             g.chartCorrelation = null;
+            g.correlationDatasetID = dataSetID;
 
             let currentID = '';
 
@@ -3598,7 +3586,7 @@
                     let catName = abc.join(':');
 
                     if (val['expression'] === undefined) {
-                        console.log('Undefined data=', val);
+                        //console.log('Undefined data=', val);
                     } else {
 
                         newCategories[catName].values.push(val['expression']);
@@ -4362,12 +4350,27 @@
             console.log('correlationData=', correlationData);
             g.correlationData = correlationData.response.result;
 
-            let htmlBody = '<table id="corTable" class="table table-sm">';
-            htmlBody += '<tr><td><strong>Value</strong></td><td><strong>ID</strong></td></tr>';
+            let htmlBody = '<table id="corTable" class="table table-sm table-sm-text">';
 
-            $.each(correlationData.response.result, function(idx, value) {
-                htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dID="${value.id}">${value.id}</a></td></tr>`;
-            });
+            if (g.dataSets[g.correlationDatasetID].dataType === 'mRNA') {
+                htmlBody += '<tr><td><strong>Value</strong></td><td><strong>Symbol</strong></td><td><strong>Chr</strong></td></tr>';
+                $.each(correlationData.response.result, function(idx, value) {
+                    htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}</td></tr>`;
+                });
+            } else if (g.dataSets[g.correlationDatasetID].dataType === 'protein') {
+                htmlBody += '<tr><td><strong>Value</strong></td><td><strong>Symbol</strong></td><td><strong>Chr</strong></td></tr>';
+                $.each(correlationData.response.result, function(idx, value) {
+                    htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}</td></tr>`;
+                });
+            } else if (g.dataSets[g.correlationDatasetID].dataType === 'phenotype') {
+                htmlBody += '<tr><td><strong>Value</strong></td><td><strong>ID</strong></td></tr>';
+                $.each(correlationData.response.result, function(idx, value) {
+                    htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="" dID="${value.id}">${value.id}</a></td></tr>`;
+                });
+            } else {
+                // TODO: major error
+                console.error('MAJOR ERROR');
+            }
 
             htmlBody += '</table>';
             $('#correlationDataTable').html(htmlBody);
@@ -4385,7 +4388,7 @@
                     cid = g.phenotypeID;
                 }
 
-                generateCorrelationPlot(g.dataSetID, cid, $("#correlationDatasetSelect").val(), that.attr('dID'));
+                generateCorrelationPlot(g.dataSetID, cid, $("#correlationDatasetSelect").val(), that.attr('dID'), that.attr('dSymbol'));
                 return false;
             });
         }
@@ -4402,11 +4405,9 @@
         }
 
 
-        function plotCorrelationChart(data) {
+        function plotCorrelationChart(data, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol) {
             console.log(data);
             let plotTitle = '';
-            let currentID = '';
-
 
             let newData = [];
             $.each(data.data, function(index, element) {
@@ -4416,6 +4417,12 @@
             });
 
             console.log('newData = ', newData);
+
+            let yAxisTitle = correlateID;
+
+            if (correlateSymbol !== '') {
+                yAxisTitle = correlateSymbol;
+            }
 
             /*
             if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
@@ -4508,14 +4515,14 @@
                 },
                 yAxis: {
                     title: {
-                        text: data.idCorrelate
+                        text: yAxisTitle
                     }
                 },
             });
 
         }
 
-        function updateCorrelationData(groupID, currentDataset, currentID, correlateDataset, correlateID) {
+        function updateCorrelationData(groupID, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol) {
             // send GET request to status URL
             console.log('updateCorrelationData');
             console.log(groupID);
@@ -4574,7 +4581,7 @@
 
                                     debugMessage('Correlation Plot Information', dbg);
 
-                                    plotCorrelationChart(data.response_data.correlationPlot.response.result);
+                                    plotCorrelationChart(data.response_data.correlationPlot.response.result, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
                                     stopTask();
                                 }
                             }
@@ -4582,7 +4589,7 @@
                             // rerun in 1 seconds
                             console.log('Not done, keep checking...');
                             setTimeout(function () {
-                                updateCorrelationData(groupID, currentDataset, currentID, correlateDataset, correlateID);
+                                updateCorrelationData(groupID, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
                             }, 1000);  // TODO: change to 1000 (1 second)
                         }
                     }
@@ -4601,7 +4608,7 @@
 
         }
 
-        function generateCorrelationPlot(currentDataset, currentID, correlateDataset, correlateID) {
+        function generateCorrelationPlot(currentDataset, currentID, correlateDataset, correlateID, correlateSymbol) {
             let urlCorrelationPlot = `{{ config.API_R_BASE }}/correlationPlotData?dataset=${currentDataset}&id=${currentID}&datasetCorrelate=${correlateDataset}&idCorrelate=${correlateID}`;
 
             let submitData = {
@@ -4628,7 +4635,7 @@
                     console.log('status=', status);
                     console.log('request=', request);
                     console.log('data.group_id=', data.group_id);
-                    updateCorrelationData(data.group_id, currentDataset, currentID, correlateDataset, correlateID);
+                    updateCorrelationData(data.group_id, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
                 },
                 error: function() {
                     // TODO: handle
