@@ -3326,7 +3326,8 @@
                     if ((element.isPheno) && (element.isNumeric)) {
                         categories.add(element.category);
                         element.display = element.shortName;
-                        newPhenotypes.push({Phenotype: element.shortName,
+                        newPhenotypes.push({phenotype_id: element.dataName, // use for id
+                                            phenotype: element.shortName,   // display on screen
                                             category: element.category,
                                             desc: element.desc});
                     }
@@ -3368,7 +3369,7 @@
                     g.phenoDynaTable = $('#phenotypesTable')
                         .bind('dynatable:init', function(e, dynatable) {
                             dynatable.queries.functions['phenotype'] = function(record, queryValue) {
-                                if ((record.Phenotype.toLowerCase().indexOf(queryValue.toLowerCase()) !== -1) ||
+                                if ((record.phenotype.toLowerCase().indexOf(queryValue.toLowerCase()) !== -1) ||
                                     (record.desc.toLowerCase().indexOf(queryValue.toLowerCase()) !== -1)) {
                                     return true;
                                 }
@@ -3389,7 +3390,7 @@
                             },
                             writers: {
                                 _rowWriter: function(rowIndex, record, columns, cellWriter) {
-                                    return `<tr><td><span class="font-weight-bold"><a href="#" phenotypeid="${record.Phenotype}">${record.Phenotype}</a></span><br><span class="font-italic">${record.category}</span><br><span class="font-weight-light">${record.desc}</span></td></tr>`;
+                                    return `<tr><td><span class="font-weight-bold"><a href="#" phenotypeid="${record.phenotype_id}">${record.phenotype}</a></span><br><span class="font-italic">${record.category}</span><br><span class="font-weight-light">${record.desc}</span></td></tr>`;
                                 }
                             },
                         }).data('dynatable');
