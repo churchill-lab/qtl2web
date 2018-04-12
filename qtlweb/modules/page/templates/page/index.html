@@ -667,6 +667,7 @@
 
                         $('#dataSetSelectMenu').append(html);
                         $('#correlationDatasetSelection').html(`${g.dataSets[g.dataSetID].displayName}`);
+                        $('#correlationDatasetSelection').append(`<input type="hidden" id="correlationDatasetSelect" value="${g.dataSets[g.dataSetID].id}"/>`);
 
                     } else if (data.result.dataSets.length > 1) {
                         // show multiple menu items
@@ -4903,6 +4904,12 @@
             g.chartLOD = null;
             $('#lodPlotChart').html('');
 
+
+            g.chartCorrelation = null;
+            $('#plotCorrelation').html('');
+            $('#correlationDataTable').html('');
+            $('#correlationDatasetSelect').val(g.dataSetID);
+
             g.fact = {};
             $('#fact-svg-chart').html('');
 
@@ -5183,6 +5190,12 @@
 
             g.chartLOD = null;
             $('#lodPlotChart').html('');
+
+            g.chartCorrelation = null;
+            $('#plotCorrelation').html('');
+            $('#correlationDataTable').html('');
+            $('#correlationDatasetSelect').val(g.dataSetID);
+
 
             g.fact = {};
             $('#fact-svg-chart').html('');
