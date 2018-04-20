@@ -3250,7 +3250,7 @@
             let ds = g.dataSets[dataSetID];
             g.dataSetID = dataSetID;
 
-            console.log(ds);
+            console.log('ds=', ds);
 
             // clear LOD Plot
             // TODO: clear LOD PLOT, Profile PLOT
@@ -3275,6 +3275,9 @@
                 $('#searchResultsDiv').html('');
                 $('#searchResultsTableInfo').html('');
 
+                $('#divMediationSelect').html(`Mediating against: ${g.dataSets[dataSetID].displayName}`);
+                $('#divMediationSelect').append(`<input type="hidden" id="dsMediateAgainstID" value="${dataSetID}"/>`);
+
             } else if (ds.dataType === 'phenotype') {
                 $('#navPheno').show();
                 $('#navPheno').tab('show');
@@ -3296,6 +3299,9 @@
                 if (allDS.length >= 1) {
                     $('#navPlotMediation').show();
                 }
+
+                console.log('allDS=', allDS);
+                console.log('allDS.length=', allDS.length);
 
                 if (allDS.length === 1) {
                     $('#divMediationSelect').html(`Mediating against: ${allDS[0].displayName}`);
