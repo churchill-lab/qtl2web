@@ -160,50 +160,12 @@
                         <div class="col">
                             <div class="card">
                                 <div class="card-header">
-                                    <ul id="infoTabs" class="nav nav-tabs" role="tablist">
-                                        <li class="nav-item">
-                                            <a class="nav-link active" id="navIDInformation" data-toggle="tab" href="#tabIDInformation"><i class="fas fa-info-circle"></i> <span id="div_current_item_information_header"></span></a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" id="navCorrelation" data-toggle="tab" href="#tabCorrelation"><i class="fas fa-barcode"></i> Correlation</a>
-                                        </li>
-                                    </ul>
+                                    <i class="fas fa-calculator"></i> Profile Plot
                                 </div>
                                 <div class="card-body">
-                                    <div class="tab-content">
-                                        <div role="tabpanel" class="tab-pane active" id="tabIDInformation">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div id="div_current_item_information_body"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div role="tabpanel" class="tab-pane" id="tabCorrelation">
-                                            <div class="row">
-                                                <div class="col-3">
-                                                    <span class="align-bottom">Select Correlation Dataset:</span>
-                                                </div>
-                                                <div class="col" id="correlationDatasetSelection">
-                                                </div>
-                                            </div>
-                                            <div class="row row-spacer">
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-4 results-wrapper-225" id="correlationDataTable">
-                                                </div>
-                                                <div class="col-8" id="correlationDataPlot">
-                                                    <div id="plotCorrelation"></div>
-                                                </div>
-                                            </div>
-                                            <div class="row row-spacer">
-                                            </div>
-                                            <div class="row">
-                                                <div class="col">
-                                                    <button id="btnDownloadCorrelationData" type="button" class="btn btn-sm btn-flat btn-primary">
-                                                        <i class="fas fa-download"></i> Download Correlations</button>
-
-                                                </div>
-                                            </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div id="div_current_item_information_body"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -242,44 +204,109 @@
                 <div class="col-md-6 col-lg-5 col-xl-4">
                     <div class="card h-100">
                         <div class="card-header" id="profilePlot">
-                            <i class="fas fa-calculator"></i>
-                            Profile Plot
+                            <ul id="infoTabs" class="nav nav-tabs" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="navProfile" data-toggle="tab" href="#tabProfile"><i class="fas fa-calculator"></i> Profile Plot</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="navCorrelation" data-toggle="tab" href="#tabCorrelation"><i class="fas fa-barcode"></i> Correlation</a>
+                                </li>
+                            </ul>
                         </div>
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col font-weight-bold">
-                                    Select your factors
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-8">
-                                    <div id="factor-view-select-wrapper">
-                                        <select id="factor-view-select" data-style="btn-secondary" multiple="multiple">
-                                        </select>
+
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane active" id="tabProfile">
+                                    <div class="row">
+                                        <div class="col font-weight-bold">
+                                            Select your factors
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-8">
+                                            <div id="factor-view-select-wrapper">
+                                                <select id="factor-view-select" data-style="btn-secondary" multiple="multiple">
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <button id="btnFactPlot" type="button" class="btn btn-flat btn-primary">
+                                                <i class="fas fa-sync"></i> Update</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col font-weight-bold">
+                                            Select a series to color
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col" id="divFactorSeries">
+                                        </div>
+                                    </div>
+
+                                    <div class="row row-spacer"></div>
+                                    <div class="row" id="fact-svg-panel">
+                                        <div class="col">
+                                            <div id="profilePlotChart"></div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-4">
-                                    <button id="btnFactPlot" type="button" class="btn btn-flat btn-primary">
-                                        <i class="fas fa-sync"></i> Update</button>
+                                <div role="tabpanel" class="tab-pane" id="tabCorrelation">
+                                    <div class="row">
+                                        <div class="col">
+                                            <span class="align-bottom">Select Correlation Dataset:</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col" id="correlationDatasetSelection">
+                                        </div>
+                                    </div>
+
+                                    <div class="row row-spacer"></div>
+
+                                    <div class="row">
+                                        <div class="col results-wrapper-225" id="correlationDataTable">
+                                        </div>
+                                    </div>
+
+                                    <div class="row row-spacer"></div>
+
+                                    <div class="row">
+                                        <div class="col">
+                                            <button id="btnDownloadCorrelationData" type="button" class="btn btn-sm btn-flat btn-primary">
+                                                <i class="fas fa-download"></i> Download Correlations</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="row row-spacer"></div>
+
+                                    <div class="row">
+                                        <div class="col">
+                                            Select an ID from above to plot the correlation data.
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col" id="correlationDataPlot">
+                                            <div id="plotCorrelation"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row row-spacer"></div>
+
+                                    <div class="row">
+                                        <div class="col font-weight-bold">
+                                            Select a series to color
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col" id="divFactorSeriesCorrelation">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col font-weight-bold">
-                                    Select a series to color
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col" id="divFactorSeries">
-                                </div>
-                            </div>
 
-                            <div class="row row-spacer"></div>
-                            <div class="row" id="fact-svg-panel">
-                                <div class="col">
-                                    <div id="profilePlotChart"></div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -425,12 +452,12 @@
     <script src="//churchill-lab.jax.org/ensimpl/api/js/ensimpl.js"></script>
 
     <!-- Highcharts/Highstock //-->
-    <script src="//code.highcharts.com/stock/6.0.7/highstock.js"></script>
-    <script src="//code.highcharts.com/stock/6.0.7/highcharts-more.js"></script>
-    <script src="//code.highcharts.com/stock/6.0.7/modules/xrange.js"></script>
-    <script src="//code.highcharts.com/stock/6.0.7/modules/boost.js"></script>
-    <script src="//code.highcharts.com/stock/6.0.7/modules/exporting.js"></script>
-    <script src="//code.highcharts.com/stock/6.0.7/modules/offline-exporting.js"></script>
+    <script src="//code.highcharts.com/stock/6.1.0/highstock.js"></script>
+    <script src="//code.highcharts.com/stock/6.1.0/highcharts-more.js"></script>
+    <script src="//code.highcharts.com/stock/6.1.0/modules/xrange.js"></script>
+    <script src="//code.highcharts.com/stock/6.1.0/modules/boost.js"></script>
+    <script src="//code.highcharts.com/stock/6.1.0/modules/exporting.js"></script>
+    <script src="//code.highcharts.com/stock/6.1.0/modules/offline-exporting.js"></script>
 
     <!-- D3 //-->
     <script src="//d3js.org/d3.v3.min.js"></script>
@@ -667,6 +694,7 @@
 
                         $('#dataSetSelectMenu').append(html);
                         $('#correlationDatasetSelection').html(`${g.dataSets[g.dataSetID].displayName}`);
+                        $('#correlationDatasetSelection').append(`<input type="hidden" id="correlationDatasetSelect" value="${g.dataSets[g.dataSetID].id}"/>`);
 
                     } else if (data.result.dataSets.length > 1) {
                         // show multiple menu items
@@ -736,15 +764,28 @@
                             } else if (g.dataSets[g.dataSetID].dataType === 'phenotype') {
                                 id = g.phenotypeID;
                             } else {
-                                // TODO: major error
                                 console.error('MAJOR ERROR');
                             }
 
-                            csvContent = '"id","correlation"\n';
-                            $.each(g.correlationData, function (k, v) {
-                                let line = `${v['cor']},"${v['id']}"\n`;
-                                csvContent += line;
-                            });
+                            if (g.dataSets[g.correlationDatasetID].dataType === 'mRNA') {
+                                csvContent = '"id","symbol","chr","start","end","correlation"\n';
+                                $.each(g.correlationData, function (k, v) {
+                                    csvContent += `"${v['id']}","${v['symbol']}","${v['chr']}",${v['start']},${v['end']},${v['cor']}\n`;
+                                });
+                            } else if (g.dataSets[g.correlationDatasetID].dataType === 'protein') {
+                                csvContent = '"id","symbol","chr","start","end","correlation"\n';
+                                $.each(g.correlationData, function (k, v) {
+                                    csvContent += `"${v['id']}","${v['symbol']}","${v['chr']}",${v['start']},${v['end']},${v['cor']}\n`;
+                                });
+                            } else if (g.dataSets[g.correlationDatasetID].dataType === 'phenotype') {
+                                csvContent = '"id","correlation"\n';
+                                $.each(g.correlationData, function (k, v) {
+                                    csvContent += `"${v['id']}",${v['cor']}\n`;
+                                });
+                            } else {
+                                // TODO: major error
+                                console.error('MAJOR ERROR');
+                            }
 
                             downloadCSV(csvContent, `${id}_correlation.csv`, 'text/csv;encoding:utf-8');
                         } else {
@@ -1730,7 +1771,7 @@
                 e.x = value.position_start;
                 e.x2 = value.position_end;
                 data.push(e);
-                console.log(e);
+                //console.log(e);
             });
 
             chart.series[1].setData(data);
@@ -1852,17 +1893,19 @@
                 color: 'rgba(223, 83, 83, .5)',
                 yAxis: 'snpTop',
                 type: 'scatter',
-                    marker: {
-                          radius: 2
-                    }
+                marker: {
+                    enabled: true,
+                    radius: 2
+                },
+
                 /* Set the point threshold for when a series should enter boost mode.
                    Setting it to e.g. 2000 will cause the series to enter boost mode when there are 2000 or more points in the series.
                    To disable boosting on the series, set the boostThreshold to 0. Setting it to 1 will force boosting.
                    Requires modules/boost.js.
                    Defaults to 5000.
                 */
-                //boostThreshold: 1,
-                //findNearestPointBy: 'xy',
+                boostThreshold: 1,
+                findNearestPointBy: 'xy',
             });
 
             series.push({
@@ -1908,6 +1951,13 @@
             exporting.filename = currentID + '_SNPASSOC';
 
             g.chartSNPAssoc = Highcharts.chart({
+                boost: {
+                    debug: {
+                        showSkipSummary: true
+                    },
+                    enabled: true,
+                    useGPUTranslations: true,
+                },
                 chart: {
                     renderTo: 'plotSNPAssoc',
                     panning: true,
@@ -1951,11 +2001,13 @@
                         min: 0,
                         offset: 0,
                         height: '50%',
+                    /*
                         labels: {
                             formatter: function () {
                                 return this.value;
                             }
                         }
+                        */
                     }, {
                         id: 'genesBottom',
                         reverse: true,
@@ -1982,6 +2034,13 @@
                                 }
                             }
                         },
+                        states: {
+                            hover: {
+                                marker: {
+                                    enabled: false
+                                }
+                            }
+                        }
                     },
 
                     series: {
@@ -2008,15 +2067,22 @@
                 series: series,
 
                 tooltip: {
-                     positioner: function(labelWidth, labelHeight, point){
+                    positioner: function(labelWidth, labelHeight, point) {
                         let tooltipX, tooltipY;
                         let chart = g.chartSNPAssoc;
+
                         if (point.plotX + labelWidth > chart.plotWidth) {
                             tooltipX = point.plotX + chart.plotLeft - labelWidth - 20;
                         } else {
                             tooltipX = point.plotX + chart.plotLeft + 20;
                         }
-                        tooltipY = point.plotY + chart.plotTop - 20;
+
+                        if (point.plotY + labelHeight > chart.plotHeight) {
+                            tooltipY = point.plotY + chart.plotTop - labelHeight - 20;
+                        } else {
+                            tooltipY = point.plotY + chart.plotTop - 20;
+                        }
+
                         return {
                             x: tooltipX,
                             y: tooltipY
@@ -2025,6 +2091,7 @@
                     useHTML: true,
                     shared: false,
                     followPointer: true,
+                    enabled: true,
                     formatter: function () {
                         let text = "";
                         if (this.series.name === 'seriesSNPs') {
@@ -2656,19 +2723,27 @@
                             return `<b>${p.gene_id}</b><br/>Symbol: ${p.symbol}<br/>Chromosome: ${p.chr}<br/>Location: ${p.pos}<br/>LOD: ${p.LOD}`;
                         }
                     },
-                    positioner: function(labelWidth, labelHeight, point){
+                    positioner: function(labelWidth, labelHeight, point) {
                         let tooltipX, tooltipY;
                         let chart = g.chartMediation;
+
                         if (point.plotX + labelWidth > chart.plotWidth) {
                             tooltipX = point.plotX + chart.plotLeft - labelWidth - 20;
                         } else {
                             tooltipX = point.plotX + chart.plotLeft + 20;
                         }
-                        tooltipY = point.plotY + chart.plotTop - 20;
+
+                        if (point.plotY + labelHeight > chart.plotHeight) {
+                            tooltipY = point.plotY + chart.plotTop - labelHeight - 20;
+                        } else {
+                            tooltipY = point.plotY + chart.plotTop - 20;
+                        }
+
                         return {
                             x: tooltipX,
                             y: tooltipY
                         };
+
                     },
                 },
                 xAxis: {
@@ -3249,7 +3324,7 @@
             let ds = g.dataSets[dataSetID];
             g.dataSetID = dataSetID;
 
-            console.log(ds);
+            console.log('ds=', ds);
 
             // clear LOD Plot
             // TODO: clear LOD PLOT, Profile PLOT
@@ -3274,6 +3349,9 @@
                 $('#searchResultsDiv').html('');
                 $('#searchResultsTableInfo').html('');
 
+                $('#divMediationSelect').html(`Mediating against: ${g.dataSets[dataSetID].displayName}`);
+                $('#divMediationSelect').append(`<input type="hidden" id="dsMediateAgainstID" value="${dataSetID}"/>`);
+
             } else if (ds.dataType === 'phenotype') {
                 $('#navPheno').show();
                 $('#navPheno').tab('show');
@@ -3295,6 +3373,9 @@
                 if (allDS.length >= 1) {
                     $('#navPlotMediation').show();
                 }
+
+                console.log('allDS=', allDS);
+                console.log('allDS.length=', allDS.length);
 
                 if (allDS.length === 1) {
                     $('#divMediationSelect').html(`Mediating against: ${allDS[0].displayName}`);
@@ -3562,8 +3643,8 @@
                     x: idx,
                     start: start + (idx * stepAmount),
                     values: []
-
                 };
+
                 newCategoriesOrder.push(catName);
                 point.push(start + (idx * stepAmount));
                 pointToLabel[start + (idx * stepAmount)] = catName;
@@ -4174,6 +4255,7 @@
                         }
                     }
                 },
+
                 series: [{
                     boostThreshold: 1,
                     color: 'black',
@@ -4210,8 +4292,6 @@
                             x: tooltipX,
                             y: tooltipY
                         };
-
-
                     },
                     useHTML: true,
                     formatter: function () {
@@ -4235,7 +4315,9 @@
                     title: {
                         text: 'LOD'
                     },
+                    {% if config.PLOT_LOD_LINES %}
                     plotLines: _plotLines
+                    {% endif %}
                 },
             });
         }
@@ -4311,6 +4393,7 @@
 
             let selectOptions = [];
             let html = '<select id="factorSeries">';
+            let htmlCorrelation = '<select id="factorSeriesCorrelation">';
 
             console.log('ds.covarFactors=', ds.covarFactors);
 
@@ -4324,12 +4407,15 @@
                     value: element['column.name'],
                 });
                 html += `<option value="${element['column.name']}">${element['display.name']}</option>`
+                htmlCorrelation += `<option value="${element['column.name']}">${element['display.name']}</option>`
             });
             html += '</select>';
+            htmlCorrelation += '</select>';
 
             $('#factor-view-select').multiselect('dataprovider', selectOptions);
 
             $('#divFactorSeries').html(html);
+            $('#divFactorSeriesCorrelation').html(htmlCorrelation);
 
             $('#factorSeries').extendSelect();
             $('#factorSeries').on('change', function () {
@@ -4343,6 +4429,12 @@
                     // TODO: major error
                     console.error('MAJOR ERROR');
                 }
+            });
+
+            $('#factorSeriesCorrelation').extendSelect();
+            $('#factorSeriesCorrelation').on('change', function (evt) {
+                console.log(evt.target.value);
+                plotCorrelationChart();
             });
         }
 
@@ -4359,19 +4451,25 @@
             let htmlBody = '<table id="corTable" class="table table-sm table-sm-text">';
 
             if (g.dataSets[g.correlationDatasetID].dataType === 'mRNA') {
-                htmlBody += '<tr><td><strong>Value</strong></td><td><strong>Symbol</strong></td><td><strong>Chr</strong></td></tr>';
+                htmlBody += '<tr><td><strong>Value</strong></td><td><strong>Symbol</strong></td><td><strong>Location</strong></td></tr>';
                 $.each(correlationData.response.result, function(idx, value) {
-                    htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}</td></tr>`;
+                    if (idx < 1000) {
+                        htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}:` + formatStrToNum(value.start, 2) + '-' + formatStrToNum(value.end, 2) + '</td></tr>';
+                    }
                 });
             } else if (g.dataSets[g.correlationDatasetID].dataType === 'protein') {
                 htmlBody += '<tr><td><strong>Value</strong></td><td><strong>Symbol</strong></td><td><strong>Chr</strong></td></tr>';
                 $.each(correlationData.response.result, function(idx, value) {
-                    htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}</td></tr>`;
+                    if (idx < 1000) {
+                        htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}:` + formatStrToNum(value.start, 2) + '-' + formatStrToNum(value.end, 2) + '</td></tr>';
+                    }
                 });
             } else if (g.dataSets[g.correlationDatasetID].dataType === 'phenotype') {
                 htmlBody += '<tr><td><strong>Value</strong></td><td><strong>ID</strong></td></tr>';
                 $.each(correlationData.response.result, function(idx, value) {
-                    htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="" dID="${value.id}">${value.id}</a></td></tr>`;
+                    if (idx < 1000) {
+                        htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="" dID="${value.id}">${value.id}</a></td></tr>`;
+                    }
                 });
             } else {
                 // TODO: major error
@@ -4411,43 +4509,80 @@
         }
 
 
-        function plotCorrelationChart(data, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol) {
-            console.log(data);
+        function plotCorrelationChart() {
+            let data = g.correlationChartData;
+            console.log('plotCorrelationChart, data=', data);
             let plotTitle = '';
 
-            let newData = [];
-            $.each(data.data, function(index, element) {
-                if (element['x'] !== undefined) {
-                    newData.push(element);
+            let categorySeries = $('#divFactorSeriesCorrelation').find(':selected').val();
+            console.log('categorySeries=', categorySeries);
+
+            let seriesData = {};
+
+            // need to pass  back factors or use global?
+            $.each(data.dataTypes[categorySeries], function(idx, val) {
+                seriesData[val] = { values: [] };
+            });
+
+            let minValue = Infinity;
+            let maxValue = -Infinity;
+
+            $.each(data.data, function(idx, element) {
+                if ((element['x'] !== undefined) && (element['y'] !== undefined)) {
+                    minValue = Math.min(minValue, element['x']);
+                    minValue = Math.min(minValue, element['y']);
+                    maxValue = Math.max(maxValue, element['x']);
+                    maxValue = Math.max(maxValue, element['y']);
+
+                    console.log('Looping through ', data.dataTypes[categorySeries]);
+                    $.each(data.dataTypes[categorySeries], function (i, v) {
+                        console.log(idx, element, i, v, categorySeries);
+
+                        // put the data in the correct buckets
+                        if (v === element[categorySeries]) {
+                            seriesData[v].values.push(element);
+                        }
+                    });
                 }
             });
 
-            console.log('newData = ', newData);
+            console.log('seriesData=', seriesData);
 
-            let yAxisTitle = correlateID;
+            // convert from object, to array
 
-            if (correlateSymbol !== '') {
-                yAxisTitle = correlateSymbol;
-            }
+            let series = [];
+            let colors = ['#7cb5ec', '#ed3215', '#8085e9', '#f7a35c', '#90ed7d',
+                '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
+            $.each(seriesData, function(key, val) {
+                series.push({
+                    data: val.values,
+                    name: key,
+                    marker: {
+                        radius: 2
+                    },
+                    type: 'scatter',
+                    color: colors[series.length % colors.length]
+                });
+            });
+
+            minValue = Math.floor(minValue);
+            maxValue = Math.ceil(maxValue);
+
+            console.log('minValue=', minValue);
+            console.log('maxValue=', maxValue);
+
+            console.log('series=', series);
+
+            let yAxisTitle = data.idCorrelate;
 
             /*
-            if (g.dataSets[g.dataSetID].dataType === 'mRNA') {
-                plotTitle = `${g.geneID} (${g.currentGene.gene[g.geneID].symbol})`;
-                currentID = g.geneID;
-            } else if (g.dataSets[g.dataSetID].dataType === 'protein') {
-                plotTitle = `${g.proteinID} (${g.currentGene.gene[g.geneID].symbol})`;
-                currentID = g.proteinID;
-            } else if (g.dataSets[g.dataSetID].dataType === 'phenotype') {
-                plotTitle = g.phenotypeID;
-                currentID = g.phenotypeID;
-            } else {
-                // TODO: handle error
-                console.error('MAJOR PROBLEM');
+            if (correlateSymbol !== '') {
+                yAxisTitle = correlateSymbol;
             }
             */
 
             let exporting = appendExportButton('Download CSV', function() {
-                exportCorrelationPlotData(data.id, data.idCorrelate, newData);
+                exportCorrelationPlotData(data.id, data.idCorrelate, data.data);
             });
             exporting.filename = data.id + '_' + data.idCorrelate + '_CORRELATION';
 
@@ -4455,7 +4590,8 @@
                 chart: {
                     renderTo: 'plotCorrelation',
                     zoomType: 'xy',
-                    height: 250,
+                    height: 350,
+                    width: 350
                 },
                 exporting: exporting,
                 plotOptions: {
@@ -4478,6 +4614,7 @@
                         },
                     }
                 },
+                /*
                 series: [{
                     data: newData,
                     downsample: {
@@ -4490,6 +4627,8 @@
                     turboThreshold: 0,
                     type: 'scatter',
                 }],
+                */
+                series: series,
                 title: {
                     text: '',
                 },
@@ -4515,11 +4654,21 @@
                     },
                 },
                 xAxis: {
+                    endOnTick: true,
+                    gridLineWidth: 1,
+                    min: minValue,
+                    max: maxValue,
+                    //tickAmount: 4,
                     title: {
                         text: data.id
-                    }
+                    },
                 },
                 yAxis: {
+                    endOnTick: true,
+                    gridLineWidth: 1,
+                    min: minValue,
+                    max: maxValue,
+                    //tickAmount: 4,
                     title: {
                         text: yAxisTitle
                     }
@@ -4587,7 +4736,9 @@
 
                                     debugMessage('Correlation Plot Information', dbg);
 
-                                    plotCorrelationChart(data.response_data.correlationPlot.response.result, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
+                                    g.correlationChartData = data.response_data.correlationPlot.response.result;
+
+                                    plotCorrelationChart();
                                     stopTask();
                                 }
                             }
@@ -4903,6 +5054,12 @@
             g.chartLOD = null;
             $('#lodPlotChart').html('');
 
+
+            g.chartCorrelation = null;
+            $('#plotCorrelation').html('');
+            $('#correlationDataTable').html('');
+            $('#correlationDatasetSelect').val(g.dataSetID);
+
             g.fact = {};
             $('#fact-svg-chart').html('');
 
@@ -5183,6 +5340,12 @@
 
             g.chartLOD = null;
             $('#lodPlotChart').html('');
+
+            g.chartCorrelation = null;
+            $('#plotCorrelation').html('');
+            $('#correlationDataTable').html('');
+            $('#correlationDatasetSelect').val(g.dataSetID);
+
 
             g.fact = {};
             $('#fact-svg-chart').html('');

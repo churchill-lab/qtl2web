@@ -13,29 +13,29 @@ API_R_BASE = 'http://myapi:8000'
 #
 ###############################################################################
 
-MAIN_TITLE = 'DO188b Kidney QTL Viewer'
+MAIN_TITLE = 'QTL Viewer'
 
 CHROMOSOMES = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
                '11', '12', '13', '14', '15', '16', '17', '18', '19',
                'X']
 
-PLOT_LOD_LINES = [
-    {'val':6.52, 'color':'#DAA520', 'text':'80%'},
-    {'val':7.38, 'color':'red', 'text':'95%'}
-]
+#PLOT_LOD_LINES = [
+#    {'val':6.52, 'color':'#DAA520', 'text':'80%'},
+#    {'val':7.38, 'color':'red', 'text':'95%'}
+#]
 
 PLOT_LOD_XAXIS_TEXT = 'LOD'
 
-PLOT_EFFECT_STRAINS = [
-    {'key':'A', 'color':"#F0F000", 'name':"A/J"},
-    {'key':'B', 'color':"#808080", 'name':"C57BL/6J"},
-    {'key':'C', 'color':"#F08080", 'name':"129S1/SvImJ"},
-    {'key':'D', 'color':"#1010F0", 'name':"NOD/ShiLtJ"},
-    {'key':'E', 'color':"#00A0F0", 'name':"NZO/H1LtJ"},
-    {'key':'F', 'color':"#00A000", 'name':"CAST/EiJ"},
-    {'key':'G', 'color':"#F00000", 'name':"PWK/PhJ"},
-    {'key':'H', 'color':"#9000E0", 'name':"WSB/EiJ"}
-]
+#PLOT_EFFECT_STRAINS = [
+#    {'key':'A', 'color':"#F0F000", 'name':"A/J"},
+#    {'key':'B', 'color':"#808080", 'name':"C57BL/6J"},
+#    {'key':'C', 'color':"#F08080", 'name':"129S1/SvImJ"},
+#    {'key':'D', 'color':"#1010F0", 'name':"NOD/ShiLtJ"},
+#    {'key':'E', 'color':"#00A0F0", 'name':"NZO/H1LtJ"},
+#    {'key':'F', 'color':"#00A000", 'name':"CAST/EiJ"},
+#    {'key':'G', 'color':"#F00000", 'name':"PWK/PhJ"},
+#    {'key':'H', 'color':"#9000E0", 'name':"WSB/EiJ"}
+#]
 
 PLOT_EFFECT_STRAINS = [
     {'key':'A', 'color':"#f9c922", 'name':"A/J"},
