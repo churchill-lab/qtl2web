@@ -9,14 +9,13 @@ from flask import (
 from datetime import datetime
 import time
 import requests
-import requests_cache
 from qtlweb.utils import format_time
 import json
 from celery import group, current_app
 from celery.result import GroupResult
 # INSTALL CACHE
-import requests_cache
-requests_cache.install_cache()
+#import requests_cache
+#requests_cache.install_cache()
 
 api = Blueprint('api', __name__, template_folder='templates', url_prefix='/api')
 
@@ -150,7 +149,8 @@ def api_status(group_id):
         #rs = current_app.GroupResult.restore(group_id)
         from qtlweb.modules.api.tasks import call_api
         print('rs=', rs)
-        #print(type(rs))
+        print(type(rs))
+
 
         #print('ready()=', rs.ready())
         #print('waiting()=', rs.waiting())
@@ -158,7 +158,7 @@ def api_status(group_id):
         #print('failed()=', rs.failed())
 
         if rs.ready():
-            results = rs.join(propagate=False)
+            results = rs.get(propagate=False)
 
             data = {}
             error_count = 0
@@ -175,6 +175,10 @@ def api_status(group_id):
                 'number_tasks_errors': error_count,
                 'response_data': data
             }
+
+            for c in rs.children:
+                c.get()
+                c.forget()
 
             # delete all the task_ids for this group_id from redis
             rs.forget()
