@@ -9,14 +9,13 @@ from flask import (
 from datetime import datetime
 import time
 import requests
-import requests_cache
 from qtlweb.utils import format_time
 import json
-from celery import group, current_app
+from celery import group, current_app, chord
 from celery.result import GroupResult
 # INSTALL CACHE
-import requests_cache
-requests_cache.install_cache()
+#import requests_cache
+#requests_cache.install_cache()
 
 api = Blueprint('api', __name__, template_folder='templates', url_prefix='/api')
 
@@ -118,6 +117,7 @@ def api_submit():
     # class 'celery.result.GroupResult'>
     result = job.apply_async()
 
+
     #print('type(job)=', type(job))
     #print('type(result)=', type(result))
 
@@ -149,8 +149,6 @@ def api_status(group_id):
         rs = celery.GroupResult.restore(group_id)
         #rs = current_app.GroupResult.restore(group_id)
         from qtlweb.modules.api.tasks import call_api
-        print('rs=', rs)
-        #print(type(rs))
 
         #print('ready()=', rs.ready())
         #print('waiting()=', rs.waiting())
@@ -158,7 +156,7 @@ def api_status(group_id):
         #print('failed()=', rs.failed())
 
         if rs.ready():
-            results = rs.join(propagate=False)
+            results = rs.get(propagate=False)
 
             data = {}
             error_count = 0

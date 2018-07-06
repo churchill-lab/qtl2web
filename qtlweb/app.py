@@ -8,6 +8,9 @@ from flask import Flask
 from flask import render_template
 from flask import url_for
 
+import requests
+import requests_cache
+
 from qtlweb.modules.api.views import api
 from qtlweb.modules.page.views import page
 from qtlweb.extensions import compress
@@ -98,6 +101,7 @@ def extensions(app):
     :return: None
     """
     compress.init_app(app)
+    requests_cache.install_cache(os.getenv('API_CACHE', 'cache'))
 
     return None
 
