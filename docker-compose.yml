@@ -23,7 +23,7 @@ services:
 
   celery:
     build: .
-    command: celery worker -l info -A qtlweb.modules.api.tasks
+    command: celery worker -l info -A qtlweb.modules.api.tasks -E
     env_file:
       - '.env'
     volumes:

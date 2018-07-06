@@ -61,6 +61,16 @@ API_R_NUM_CORES=5
 
 CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 CELERY_BROKER_URL = 'redis://redis:6379/0'
+#CELERY_TASK_RESULT_EXPIRES=60
+#CELERYBEAT_SCHEDULER='celery.beat:PersistentScheduler'
+
+#CELERYBEAT_SCHEDULE = {
+#    'task-number-one': {
+#        'task': 'celery.backend_cleanup',
+#        'schedule': 'crontab(hour="*/1")',
+#    }
+#}
+
 
 
 LOG_LEVEL = 'DEBUG' # CRITICAL / ERROR / WARNING / INFO / DEBUG
