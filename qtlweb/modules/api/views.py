@@ -11,7 +11,7 @@ import time
 import requests
 from qtlweb.utils import format_time
 import json
-from celery import group, current_app
+from celery import group, current_app, chord
 from celery.result import GroupResult
 # INSTALL CACHE
 #import requests_cache
@@ -117,6 +117,7 @@ def api_submit():
     # class 'celery.result.GroupResult'>
     result = job.apply_async()
 
+
     #print('type(job)=', type(job))
     #print('type(result)=', type(result))
 
@@ -148,9 +149,6 @@ def api_status(group_id):
         rs = celery.GroupResult.restore(group_id)
         #rs = current_app.GroupResult.restore(group_id)
         from qtlweb.modules.api.tasks import call_api
-        print('rs=', rs)
-        print(type(rs))
-
 
         #print('ready()=', rs.ready())
         #print('waiting()=', rs.waiting())
@@ -175,10 +173,6 @@ def api_status(group_id):
                 'number_tasks_errors': error_count,
                 'response_data': data
             }
-
-            for c in rs.children:
-                c.get()
-                c.forget()
 
             # delete all the task_ids for this group_id from redis
             rs.forget()

@@ -22,7 +22,7 @@ def call_api(self, url_id, url):
         dict: a dictionary specifying the state and results
     """
     meta = {'url_id': url_id, 'url': url}
-    print('call_api: meta = ', meta)
+    # print('call_api: meta = ', meta)
 
     self.update_state(state='PROGRESS', meta=meta)
 
@@ -80,7 +80,7 @@ def call_api(self, url_id, url):
 
     self.update_state(state='SUCCESS', meta=meta)
 
-    return meta
+    return None
 
 
 
