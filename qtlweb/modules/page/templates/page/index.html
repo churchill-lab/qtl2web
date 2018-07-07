@@ -450,7 +450,7 @@
     <script src="//churchill-lab.jax.org/ensimpl/api/js/ensimpl.js"></script>
 
     <!-- Highcharts/Highstock //-->
-    <script src="//code.highcharts.com/stock/6.1.0/highstock.js"></script>
+    <script src="//code.highcharts.com/stock/6.1.0/highstock.src.js"></script>
     <script src="//code.highcharts.com/stock/6.1.0/highcharts-more.js"></script>
     <script src="//code.highcharts.com/stock/6.1.0/modules/xrange.js"></script>
     <script src="//code.highcharts.com/stock/6.1.0/modules/boost.js"></script>
@@ -731,7 +731,7 @@
                         $('#correlationDatasetSelect').on('change', function () {
                             let selected = $(this).find(':selected').val();
                             switchCorrelationDataSet(selected);
-                            console.log(selected);
+                            //console.log(selected);
                         });
                     }
 
@@ -984,7 +984,10 @@
                 //error
             }
 
-            g.chartPeaks.series[0].setData(newData);
+            //console.log('g.chartPeaks=', g.chartPeaks);
+            //console.log('g.chartPeaks.series[0].=', g.chartPeaks.series[0]);
+            // TODO: https://github.com/highcharts/highcharts/issues/8355
+            g.chartPeaks.series[0].setData(newData, true, false, false);
         }
 
         function exportLODPeaks(id, peaks) {
@@ -1061,7 +1064,7 @@
             });
 
             if ((i % 2) === 0) {
-                console.log('adding ', g.chromosomes.idx[i-1].chromosome);
+                //console.log('adding ', g.chromosomes.idx[i-1].chromosome);
                 plotBands.push({
                     color: '#eeeeee',
                     from: g.chromosomes.idx[i-1].start,
@@ -1077,10 +1080,10 @@
                width: 2,
             });
 
-            console.log('ticksStartVals=', ticksStartVals);
-            console.log('ticksStartText=', ticksStartText);
-            console.log('ticksMidVals=', ticksMidVals);
-            console.log('ticksMidText=', ticksMidText);
+            //console.log('ticksStartVals=', ticksStartVals);
+            //console.log('ticksStartText=', ticksStartText);
+            //console.log('ticksMidVals=', ticksMidVals);
+            //console.log('ticksMidText=', ticksMidText);
 
             let data = [];
             let xAxis = null;
@@ -1482,7 +1485,7 @@
                 // ["5_137006393","5",137.0064,"MEcyan","MEcyan","MEcyan",9.1161],[
 
                 let seriesData = {};
-                console.log('g.lodPeaks=', g.lodPeaks);
+                //console.log('g.lodPeaks=', g.lodPeaks);
                 $.each(g.lodPeaks, function(index, element) {
                     // element[0] = marker_id
                     let markerChr = g.chromosomes.chr[element[1]];
@@ -1524,7 +1527,7 @@
 
                 series = [];
                 $.each(seriesData, function(index, element) {
-                    console.log(index, element);
+                    //console.log(index, element);
                     series.push({
                         data: element,
                         name: index,
@@ -1726,8 +1729,8 @@
             let computedLength = G_ELEM.getComputedTextLength();
             let temp = chart.xAxis[0].toPixels(s);
             let ret = chart.xAxis[0].toValue(temp + computedLength + 10);
-            console.log('getTextEnd=', text, computedLength);
-            console.log('getTextEnd=', temp, ret);
+            //console.log('getTextEnd=', text, computedLength);
+            //console.log('getTextEnd=', temp, ret);
             return ret;
         }
 
@@ -1740,7 +1743,7 @@
                     value.max_end = Math.max(value.position_end, value.text_end);
                     value.id = value.ensembl_id;
 
-                    console.log('Loop=', value.symbol, value.position_start, value.position_end, value.text_end, value.max_end);
+                    //console.log('Loop=', value.symbol, value.position_start, value.position_end, value.text_end, value.max_end);
                     genes.push(value);
                 }
             });
@@ -3514,7 +3517,7 @@
                             event.preventDefault();
                         }
                         let q = $(this).val();
-                        console.log('q=', q);
+                        //console.log('q=', q);
                         if (q === "") { q = undefined; }
                         if (q) {
                             console.log('adding', q);
@@ -4532,10 +4535,8 @@
                     maxValue = Math.max(maxValue, element['x']);
                     maxValue = Math.max(maxValue, element['y']);
 
-                    console.log('Looping through ', data.dataTypes[categorySeries]);
+                    //console.log('Looping through ', data.dataTypes[categorySeries]);
                     $.each(data.dataTypes[categorySeries], function (i, v) {
-                        console.log(idx, element, i, v, categorySeries);
-
                         // put the data in the correct buckets
                         if (v === element[categorySeries]) {
                             seriesData[v].values.push(element);
@@ -4544,7 +4545,7 @@
                 }
             });
 
-            console.log('seriesData=', seriesData);
+            //console.log('seriesData=', seriesData);
 
             // convert from object, to array
 
@@ -5432,13 +5433,3 @@
     </script>
 
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
