@@ -11,7 +11,7 @@ import string
 
 from urllib.request import urlopen
 
-logging.basicConfig(format='[ENsimpl] [%(asctime)s] %(message)s',
+logging.basicConfig(format='[qtlwebaaaaaaaaa] [%(asctime)s] %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 
 
