@@ -3358,6 +3358,12 @@
                     html += '</select>';
 
                     $('#divMediationSelect').html(html);
+
+                    $('#divMediationSelect').select2({
+                        minimumResultsForSearch: Infinity,
+                        width: '100%',
+                    });
+
                 }
 
                 $('#searchPheno').html('');
