@@ -7,7 +7,7 @@ from flask import request
 from flask import session
 from flask import url_for
 
-from qtlweb import utils
+from qtlweb import utils, __version__
 
 import socket
 
@@ -57,7 +57,7 @@ def index():
 
     return render_template('page/index.html',
                            search_term=search_term, datasetid=datasetid,
-                           debug=debug)
+                           debug=debug, app_version=__version__)
 
 
 '''

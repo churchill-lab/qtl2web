@@ -445,10 +445,17 @@
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
         <span class="text-muted">
-            <strong>Created by <a href="http://churchill-lab.jax.org">The Churchill Lab</a>.</strong>
+            <strong>Created by <a href="{{ config.LAB_URL }}">{{ config.LAB_NAME }}</a>.</strong>
         </span>
       </li>
     </ul>
+    {%- if config.SHOW_VERSION %}
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+            <span class="text-light">v{{ app_version }}</span>
+        </li>
+    </ul>
+    {%- endif -%}
 </nav>
 <!-- end Main Footer -->
 
@@ -627,8 +634,8 @@
              */
             g.chartPeaks = null;
             g.chartLOD = null;
-            g.chartLODCovariateFull = null
-            g.chartLODCovariateDiff = null
+            g.chartLODCovariateFull = null;
+            g.chartLODCovariateDiff = null;
             g.chartMediation = null;
             g.chartEffect = null;
             g.chartSNPAssoc = null;
@@ -736,6 +743,7 @@
                         }
 
                         html += '</select></div>';
+
                         $('#dataSetSelectMenu').append(html);
                         $('#datasetSelect').select2({
                             minimumResultsForSearch: Infinity,
@@ -2425,6 +2433,10 @@
             let effectMinValue = Math.floor(Math.min.apply(null, allEffectValues));
             let effectMaxValue = Math.ceil(Math.max.apply(null, allEffectValues));
 
+
+            console.log('effectMinValue=', effectMinValue);
+            console.log('effectMaxValue=', effectMaxValue);
+
             /*
             if ((effectMaxValue > 30.0) || (effectMinValue < -30.0)) {
                 displayError('Effect Plot Error', 'Effect values appear to be invalid, ' + effectMinValue + ' to ' + effectMaxValue);
@@ -2999,10 +3011,10 @@
          *
          */
         function generateEffectPlot(id, chromosome, covar) {
-            let effectURL = `{{ config.API_R_BASE }}/foundercoefs?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&intcovar=${covar}`;
+            let effectURL = `{{ config.API_R_BASE }}/foundercoefs?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&intCovar=${covar}`;
             effectURL += '&blup=' + $('#performBLUP').bootstrapSwitch('state');
 
-            let lodURL = `{{ config.API_R_BASE }}/lodscansamples?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&intcovar=${covar}`;
+            let lodURL = `{{ config.API_R_BASE }}/lodscansamples?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&intCovar=${covar}`;
 
             {% if config.API_R_NUM_CORES %}
             effectURL += '&nCores={{ config.API_R_NUM_CORES }}';
@@ -3169,7 +3181,8 @@
                                     stopTask();
                                     showErrorMessage(message, errorMessages);
                                 } else {
-                                    displayCorrelation(data.response_data.correlation);
+                                    displayCorrelation(data.response_data.correlation.response.result);
+                                    //displayCorrelation(data.response_data.correlation);
                                     stopTask();
                                 }
                             }
@@ -3322,43 +3335,12 @@
                 $('#searchResultsDiv').html('');
                 $('#searchResultsTableInfo').html('');
 
-                $('#divMediationSelect').html(`Mediating against: ${g.DATASETS[dataSetID].displayName}`);
-                $('#divMediationSelect').append(`<input type="hidden" id="dsMediateAgainstID" value="${dataSetID}"/>`);
-
             } else if (ds.dataType === 'phenotype') {
                 $('#navPheno').show();
                 $('#navPheno').tab('show');
 
                 // hide some secondary plots
                 $('#navPlotMediation').hide();
-
-                // hide or show the mediation based upon if there are datasets that can mediate against
-                let allDS = [];
-                $.each(g.DATASETS, function(key, value) {
-                    if (value.dataType !== 'phenotype') {
-                        allDS.push(value);
-                    }
-                });
-
-                $('#divMediationSelect').html('');
-
-                if (allDS.length >= 1) {
-                    $('#navPlotMediation').show();
-                }
-
-                if (allDS.length === 1) {
-                    $('#divMediationSelect').html(`Mediating against: ${allDS[0].displayName}`);
-                    $('#divMediationSelect').append(`<input type="hidden" id="dsMediateAgainstID" value="${allDS[0].id}"/>`);
-                } else if (allDS.length > 1) {
-                    let html = 'Mediate against:';
-                    html += '<select id="dsMediateAgainstID">';
-                    $.each(allDS, function(idx, elem) {
-                        html += `<option value="${elem.id}">${elem.displayName}</option>`;
-                    });
-                    html += '</select>';
-
-                    $('#divMediationSelect').html(html);
-                }
 
                 $('#searchPheno').html('');
                 $('#searchPhenoCategoryText').html('');
@@ -3504,6 +3486,44 @@
             } else {
                 // TODO: handle error
                 console.log('ERROR in setDataSet:', ds);
+            }
+
+
+            // hide or show the mediation based upon if there are datasets that can mediate against
+            let allDS = [];
+            $.each(g.DATASETS, function(key, value) {
+                if (value.dataType !== 'phenotype') {
+                    allDS.push(value);
+                }
+            });
+            console.log('allDS=', allDS)
+
+            $('#divMediationSelect').html('');
+
+            if (allDS.length === 1) {
+                $('#divMediationSelect').html(`Mediating against: ${allDS[0].displayName}`);
+                $('#divMediationSelect').append(`<input type="hidden" id="dsMediateAgainstID" value="${allDS[0].id}"/>`);
+            } else if (allDS.length > 1) {
+
+                let htmlMediate = `<div class="row">
+                                       <div class="col-3 align-self-center font-weight-bold">
+                                           Mediate Against
+                                      </div>
+                                      <div class="col-9">
+                                          <select id="dsMediateAgainstID" data-btn-class="btn-secondary btn-sm">`;
+
+                $.each(allDS, function(idx, elem) {
+                    console.log(idx, elem);
+                    htmlMediate += `<option value="${elem.id}">${elem.displayName}</option>`;
+                });
+                htmlMediate += '</select></div></div>';
+
+                $('#divMediationSelect').html(htmlMediate);
+
+                $('#dsMediateAgainstID').select2({
+                    minimumResultsForSearch: Infinity,
+                    width: '100%',
+                });
             }
         }
 
@@ -4356,7 +4376,7 @@
             let html = '<select id="factorSeries">';
             let htmlCorrelation = '<select id="factorSeriesCorrelation">';
             let htmlInteractiveCovariatesLOD = `<div class="row">
-                                                    <div class="col-3 align-self-center">
+                                                    <div class="col-3 align-self-center font-weight-bold">
                                                         <span>Plots</span>
                                                     </div>
                                                     <div class="col-9">
@@ -4370,16 +4390,12 @@
                                                           <select id="interactiveCovarPeaks" data-btn-class="btn-secondary btn-sm">
                                             `;
 
-            console.log('ds.covarFactors=', ds.covarFactors);
-
             g.interactiveCovariates = [];
 
             htmlInteractiveCovariatesLOD += `<option value="additive">Additive</option>`;
             htmlInteractiveCovariatesPeaks += `<option value="additive">Additive</option>`;
 
             $.each(ds.covarFactors, function(index, element) {
-                console.log('ds.covarFactor, element=', element);
-
                 selectOptions.push({
                     label: element['display.name'],
                     order: index,
@@ -4394,7 +4410,6 @@
                 // interactive covariates
                 if ('int.covar' in element) {
                     g.interactiveCovariates.push(element);
-
                     htmlInteractiveCovariatesLOD += `<option value="${element['column.name']}">${element['display.name']}</option>`;
                     htmlInteractiveCovariatesPeaks += `<option value="${element['column.name']}">${element['display.name']}</option>`;
                 }
@@ -4482,8 +4497,11 @@
 
         function displayCorrelation(correlationData) {
             $('#correlationDataTable').html('');
+            console.log('displayCorrelation()');
             console.log('correlationData=', correlationData);
             g.correlationData = correlationData;
+
+            console.log('g.DATASETS[g.correlationDatasetID].dataType=', g.DATASETS[g.correlationDatasetID].dataType);
 
             let htmlBody = '<table id="corTable" class="table table-sm table-sm-text">';
 
@@ -4698,7 +4716,7 @@
         function updateCorrelationData(groupID, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol) {
             // send GET request to status URL
             console.log('updateCorrelationData');
-            console.log(groupID);
+            console.log(currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
 
             if (g.runningTask) {
                 let statusURL = '{{ url_for('api.api_status', group_id='', _external=True) }}' + groupID;
@@ -4767,6 +4785,7 @@
         }
 
         function generateCorrelationPlot(currentDataset, currentID, correlateDataset, correlateID, correlateSymbol) {
+            console.log('Generating correlation plot:', currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
             let urlCorrelationPlot = `{{ config.API_R_BASE }}/correlationPlotData?dataset=${currentDataset}&id=${currentID}&datasetCorrelate=${correlateDataset}&idCorrelate=${correlateID}`;
             let submitData = {
                 urls:[{
@@ -5000,17 +5019,15 @@
             });
 
             if (covar === 'additive') {
-                urlLOD += '&intcovar=additive';
+                urlLOD += '&intCovar=additive';
                 urlLODCovar = null;
             } else {
-                urlLOD += '&intcovar=additive';
-                urlLODCovar += ('&intcovar=' + covar);
+                urlLOD += '&intCovar=additive';
+                urlLODCovar += ('&intCovar=' + covar);
             }
 
-            //urlLOD += ('&intcovar=' + $('#interactiveCovarLODS').val());
 
             // TODO: add ncores?, regress_local? to urlLOD, or handle backend?
-            //URL += '&regress_local=' + regressLocal;
             //URL += '&ncores=' + _G.api_cores;
             {% if config.API_R_NUM_CORES %}
             if (urlLODCovar != null) {
@@ -5302,17 +5319,16 @@
             }
 
             if (covar === 'additive') {
-                urlLOD += '&intcovar=additive';
+                urlLOD += '&intCovar=additive';
                 urlLODCovar = null;
             } else {
-                urlLOD += '&intcovar=additive';
-                urlLODCovar += ('&intcovar=' + covar);
+                urlLOD += '&intCovar=additive';
+                urlLODCovar += ('&intCovar=' + covar);
             }
 
             //urlLOD += ('&intcovar=' + $('#interactiveCovarLODS').val());
 
             // TODO: add ncores?, regress_local? to urlLOD, or handle backend?
-            //URL += '&regress_local=' + regressLocal;
             //URL += '&ncores=' + _G.api_cores;
             {% if config.API_R_NUM_CORES %}
             if (urlLODCovar != null) {
@@ -5538,10 +5554,9 @@
                     console.error('MAJOR PROBLEM');
                 }
 
-                urlLOD += ('&intcovar=' + covariate);
+                urlLOD += ('&intCovar=' + covariate);
 
                 // TODO: add ncores?, regress_local? to urlLOD, or handle backend?
-                //URL += '&regress_local=' + regressLocal;
                 //URL += '&ncores=' + _G.api_cores;
                 {% if config.API_R_NUM_CORES %}
                 urlLOD += '&nCores={{ config.API_R_NUM_CORES }}';
