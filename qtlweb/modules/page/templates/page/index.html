@@ -251,36 +251,10 @@
 
                             <div class="tab-content">
                                 <div role="tabpanel" class="tab-pane active" id="tabProfile">
-                                    <div class="row">
-                                        <div class="col font-weight-bold">
-                                            Select your factors
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-8">
-                                            <div id="factor-view-select-wrapper">
-                                                <select id="factor-view-select" data-style="btn-secondary" multiple="multiple">
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <button id="btnFactPlot" type="button" class="btn btn-flat btn-primary">
-                                                <i class="fas fa-sync"></i> Update</button>
-                                        </div>
+
+                                    <div class="row" id="divProfilePlotOptions">
                                     </div>
 
-                                    <div class="row">
-                                        <div class="col font-weight-bold">
-                                            Select a series to color
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col" id="divFactorSeries">
-                                        </div>
-                                    </div>
-
-                                    <div class="row row-spacer"></div>
                                     <div class="row" id="fact-svg-panel">
                                         <div class="col">
                                             <div id="profilePlotChart"></div>
@@ -395,7 +369,8 @@
                                     </div>
                                     <div class="row">
                                         <div class="col">
-                                            <div id="plotSNPAssoc" style="height:800px"></div>
+                                            <div id="plotSNPAssocSNPS"></div>
+                                            <div id="plotSNPAssocGenes"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -492,16 +467,21 @@
     <!-- ENSIMPL API -->
     <script src="//churchill-lab.jax.org/ensimpl/api/js/ensimpl.js"></script>
 
+    {% if debug %}
     <!-- Highcharts/Highstock //-->
-    <script src="//code.highcharts.com/stock/6.1.1/highstock.src.js"></script>
-    <script src="//code.highcharts.com/stock/6.1.1/highcharts-more.js"></script>
-    <script src="//code.highcharts.com/stock/6.1.1/modules/xrange.js"></script>
+    <script src="//code.highcharts.com/stock/7.0.2/highstock.src.js"></script>
+    {% else %}
+    <script src="//code.highcharts.com/stock/7.0.2/highstock.js"></script>
+    {% endif %}
+    <script src="//code.highcharts.com/stock/7.0.2/highcharts-more.js"></script>
+    <script src="//code.highcharts.com/stock/7.0.2/modules/xrange.js"></script>
+
     <!--
     <script src="//code.highcharts.com/stock/6.0.4/modules/boost-canvas.js"></script>
     //-->
-    <script src="//code.highcharts.com/stock/6.1.1/modules/boost.js"></script>
-    <script src="//code.highcharts.com/stock/6.1.1/modules/exporting.js"></script>
-    <script src="//code.highcharts.com/stock/6.1.1/modules/offline-exporting.js"></script>
+    <script src="//code.highcharts.com/stock/7.0.2/modules/boost.js"></script>
+    <script src="//code.highcharts.com/stock/7.0.2/modules/exporting.js"></script>
+    <script src="//code.highcharts.com/stock/7.0.2/modules/offline-exporting.js"></script>
 
     <!-- D3 //-->
     <script src="//d3js.org/d3.v3.min.js"></script>
@@ -558,6 +538,51 @@
         }
     });
 
+    const SUCCESS_MSG = [
+        'background: green',
+        'color: white',
+        'display: block',
+        'text-align: center'
+    ].join(';');
+
+    const ERROR_MSG = [
+        'background: red',
+        'color: white',
+        'display: block',
+        'text-align: center'
+    ].join(';');
+
+    /**
+     * Debug message.
+     *
+     * @param {string} functionName - the name of the function
+     * @param {string} message - the debug message
+     */
+    function dbg() {
+        {% if debug %}
+        let args = Array.prototype.slice.call(arguments);
+        console.log.apply(console, args);
+        {% endif %}
+    }
+
+    /**
+     * Error message.
+     *
+     * @param {string} message - the error message
+     */
+    function err(message) {
+        console.log('%c%s', ERROR_MSG, message);
+    }
+
+    /**
+     * Success message.
+     *
+     * @param {string} message - the success message
+     */
+    function succ(message) {
+        console.log('%c%s', SUCCESS_MSG, message);
+    }
+
     /**
      * Download data.
      *
@@ -576,20 +601,22 @@
      * @param {function} callback - the callback function
      */
     function downloadData(URL, description, callback) {
-        console.log('Downloading: ', URL);
+        dbg('Downloading: ', URL);
 
         $.ajax({
             url: URL,
             method: 'GET'
         }).done(function(data, textStatus, jqXHR) {
-            console.log(`Download of ${description}:`, data);
+            succ(`Download of ${description}`);
+            dbg(`Download of ${description}:`, data);
             callback(null, data);
         }).fail(function(jqXHR, textStatus, errorThrown) {
-            //displayError('Server Error', 'Unable to download ' + description);
-            console.error(description, textStatus);
+            err(description, textStatus);
+            console.error(description, textStatus, errorThrown);
             callback(errorThrown, null);
         });
     }
+
 
     QTL = function() {
         var g = {};
@@ -638,7 +665,8 @@
             g.chartLODCovariateDiff = null;
             g.chartMediation = null;
             g.chartEffect = null;
-            g.chartSNPAssoc = null;
+            g.chartSNPAssocSNPS = null;
+            g.chartSNPAssocGenes = null;
 
             // for tasks
             g.runningTask = false;
@@ -646,9 +674,7 @@
             d3.queue()
                 .defer(downloadDataSets)
                 .await(function(error, data) {
-                    {%- if debug -%}
-                    console.log('dataSetsData=', data);
-                    {%- endif -%}
+                    dbg('dataSetsData=', data);
 
                     if (error) {
                         console.error(error);
@@ -660,7 +686,7 @@
                     }
 
                     if ((data.result === undefined) || (data.result.dataSets.length === 0)) {
-                        console.error('data=', data);
+                        err('data=', data);
                         {% if not debug -%}
                         // ?debug=1 will prevent forwarding on error
                         window.location = '{{ url_for('page.error') }}';
@@ -716,6 +742,8 @@
                     }
 
                     configureCovarFactors(true);
+
+                    console.log('data.result.dataSets.length=',data.result.dataSets.length);
 
                     if (data.result.dataSets.length === 1) {
                         // just show a menu item
@@ -774,59 +802,6 @@
                         });
                     }
 
-                    $('#btnFactPlot').on('click', function(evt) {
-                        if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
-                            plotProfile(g.geneID);
-                        } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
-                            plotProfile(g.proteinID);
-                        } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
-                            plotProfile(g.phenotypeID);
-                        } else {
-                            // TODO: major error
-                            console.error('MAJOR ERROR');
-                        }
-                    });
-
-                    $('#btnDownloadCorrelationData').on('click', function(evt) {
-                        if (g.correlationData) {
-                            let csvContent = '';
-                            let id = '';
-
-                            if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
-                                id = g.geneID;
-                            } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
-                                id = g.proteinID;
-                            } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
-                                id = g.phenotypeID;
-                            } else {
-                                console.error('MAJOR ERROR');
-                            }
-
-                            if (g.DATASETS[g.correlationDatasetID].dataType === 'mRNA') {
-                                csvContent = '"id","symbol","chr","start","end","correlation"\n';
-                                $.each(g.correlationData, function (k, v) {
-                                    csvContent += `"${v.id}","${v.symbol}","${v.chr}",${v.start},${v.end},${v.cor}\n`;
-                                });
-                            } else if (g.DATASETS[g.correlationDatasetID].dataType === 'protein') {
-                                csvContent = '"id","symbol","chr","start","end","correlation"\n';
-                                $.each(g.correlationData, function (k, v) {
-                                    csvContent += `"${v.id}","${v.symbol}","${v.chr}",${v.start},${v.end},${v.cor}\n`;
-                                });
-                            } else if (g.DATASETS[g.correlationDatasetID].dataType === 'phenotype') {
-                                csvContent = '"id","correlation"\n';
-                                $.each(g.correlationData, function (k, v) {
-                                    csvContent += `"${v.id}",${v.cor}\n`;
-                                });
-                            } else {
-                                // TODO: major error
-                                console.error('MAJOR ERROR');
-                            }
-
-                            downloadCSV(csvContent, `${id}_correlation.csv`, 'text/csv;encoding:utf-8');
-                        } else {
-                            console.log('no correlation data?');
-                        }
-                    });
 
                     g.ENSIMPL = new ensimpl({
                         search_limit: 100,
@@ -871,6 +846,7 @@
                     // download all the other load peaks from all the datasets except the current one
                     // we do this in the background to gain some performance
                     let q = d3.queue();
+                    dbg('Downloading the peaks...');
 
                     $.each(g.DATASETS, function(key, value) {
                         if (key !== g.dataSetID) {
@@ -1136,6 +1112,7 @@
          */
         function plotLODPeaks() {
             let covar = $('#interactiveCovarPeaks').val();
+            console.log('plotLODPeaks: covar=', covar);
 
             // DATA will depend on type
             let ticksStartVals = [];
@@ -1814,57 +1791,168 @@
             downloadData(dataSetsURL, 'dataSets', callback);
         }
 
-        function getTextEnd(text, chart, s) {
+        function getTextEnd(text, dchart, start_position, end_position) {
             let G_ELEM = document.getElementById('getTheFontSize');
             let J_ELEM = $('#getTheFontSize');
             J_ELEM.text(text);
-            let computedLength = G_ELEM.getComputedTextLength();
-            let temp = chart.xAxis[0].toPixels(s);
-            let ret = chart.xAxis[0].toValue(temp + computedLength + 10);
-            return ret;
+
+            let txtLengthPxls = G_ELEM.getComputedTextLength();
+
+            let startPosPxls = dchart.xAxis[0].toPixels(start_position); // where the start is in pixels
+            let endPosPxls = dchart.xAxis[0].toPixels(end_position); // where the end is in pixels
+
+            let textEndPosCoord = dchart.xAxis[0].toValue(startPosPxls + txtLengthPxls + 5); // end value (megabases)
+
+            let endPosCoord = Math.max(textEndPosCoord, end_position);
+            let w = Math.ceil(endPosPxls - startPosPxls);
+
+            //dbg(text, txtLengthPxls, start_position, end_position);
+            //dbg(startPosPxls, endPosPxls, textEndPosCoord, endPosCoord, w);
+
+            return {
+                endPosCoord,
+                w
+            };
         }
 
-        function fitSNPGenes(chart, geneData) {
+        function configureGenes(chart, geneData) {
             let genes = [];
+            let minCoord = 0;
+            let maxCoord = 0;
+            let shelves = [];
+
             $.each(geneData.matches, function(index, value) {
                 if (value.symbol !== null) {
-                    value.text_end = getTextEnd(value.symbol, chart, value.position_start);
-                    value.max_end = Math.max(value.position_end, value.text_end);
+                    value.name = value.symbol;
+                    value.start = value.position_start;
+
+                    let te = getTextEnd(value.name, chart, value.position_start, value.position_end);
+
+                    value.end = te.endPosCoord;
                     value.id = value.ensembl_id;
 
-                    //console.log('Loop=', value.symbol, value.position_start, value.position_end, value.text_end, value.max_end);
+                    minCoord = Math.min(minCoord, value.start);
+                    maxCoord = Math.max(maxCoord, value.end);
+
                     genes.push(value);
                 }
             });
 
-            // generate the gene layout
-            genes.sort(function(a, b) {
-                return a.position_start - b.position_start;
-            });
+            shelves = addItems(shelves, genes, maxCoord - minCoord);
 
-            layoutFeatures(genes);
-
-            genes.sort(function(a, b) {
-                return a.position_start - b.position_start;
-            });
-
-            let categories = [];
-            let data = [];
-
-            $.each(genes, function(index, value) {
-                if (!(value.slot in categories)) {
-                    categories.push(value.slot * -1);
-                }
-                let e = value;
-                e.y = value.slot * -1;
-                e.x = value.position_start;
-                e.x2 = value.position_end;
-                data.push(e);
-                //console.log(e);
-            });
-
-            chart.series[1].setData(data);
+            return shelves;
         }
+
+
+
+var hasPlotBand = false;
+
+//catch mousemove event and have all 3 charts' crosshairs move along indicated values on x axis
+
+function syncronizeCrossHairs(chart) {
+    var container = $(chart.container),
+        offset = container.offset(),
+        x, y, isInside, report;
+
+    container.mousemove(function(evt) {
+
+        x = evt.clientX - chart.plotLeft - offset.left;
+        y = evt.clientY - chart.plotTop - offset.top;
+        var xAxis = chart.xAxis[0];
+        var xVal = xAxis.toValue(x, true);
+
+        //remove old plot line and draw new plot line (crosshair) for this chart
+        var xAxis1 = g.chartSNPAssocSNPS.xAxis[0];
+        /*
+        var points1 = chart1.series[0].points;
+
+        Highcharts.each(points1, function(point, i) {
+          if (i + 1 < points1.length && point.x <= xVal && points1[i + 1].x > xVal) {
+            //reset state
+            point.setState();
+            points1[i + 1].setState();
+
+            if (xVal - point.x <= points1[i + 1].x - xVal) {
+              chart1.tooltip.refresh(point);
+              point.setState('hover');
+            } else {
+              chart1.tooltip.refresh(points1[i + 1]);
+              points1[i + 1].setState('hover');
+            }
+          }
+        });
+        */
+
+        xAxis1.removePlotLine("myPlotLineId");
+        xAxis1.addPlotLine({
+            value: chart.xAxis[0].translate(x, true),
+            width: 1,
+            color: 'red',
+            //dashStyle: 'dash',
+            id: "myPlotLineId",
+            zIndex: 5
+        });
+        //remove old crosshair and draw new crosshair on chart2
+        var xAxis2 = g.chartSNPAssocGenes.xAxis[0];
+        xAxis2.removePlotLine("myPlotLineId");
+        xAxis2.addPlotLine({
+            value: chart.xAxis[0].translate(x, true),
+            width: 1,
+            color: 'red',
+            //dashStyle: 'dash',
+            id: "myPlotLineId",
+            zIndex: 5
+        });
+
+        Highcharts.each(g.chartSNPAssocGenes.series[0].points, function(point) {
+
+            if (point.x < xVal && point.x2 > xVal) {
+                //chart2.tooltip.refresh(point);
+                /*
+                point.update({
+                  color: '#4879b2'
+                });
+                */
+            } else {
+                /*point.update({
+                  color: '#fff'
+                });
+                */
+            }
+        });
+        /*
+            var xAxis3 = chart3.xAxis[0];
+            var points3 = chart3.series[0].points;
+            Highcharts.each(points3, function(point, i) {
+              if (i + 1 < points3.length && point.x <= xVal && points3[i + 1].x > xVal) {
+                //reset state
+                point.setState();
+                points3[i + 1].setState();
+
+                if (xVal - point.x <= points3[i + 1].x - xVal) {
+                  chart3.tooltip.refresh(point);
+                  point.setState('hover');
+                } else {
+                  chart3.tooltip.refresh(points3[i + 1]);
+                  points3[i + 1].setState('hover');
+                }
+              }
+            });
+
+            xAxis3.removePlotLine("myPlotLineId");
+            xAxis3.addPlotLine({
+              value: chart.xAxis[0].translate(x, true),
+              width: 1,
+              color: 'red',
+              //dashStyle: 'dash',
+              id: "myPlotLineId"
+            });
+        */
+        //if you have other charts that need to be syncronized - update their crosshair (plot line) in the same way in this function.
+    });
+}
+
+
 
         function exportSNPAssocData(id, snps, genes) {
             // TODO: export genes?
@@ -1878,13 +1966,24 @@
             downloadCSV(csvContent, `${id}_SNPASSOC.csv`, 'text/csv;encoding:utf-8');
         }
 
+
+
         /**
          * Plot the SNP Association plot.
          * @param {Array} snpData - array of SNP information
          * @param {Array} geneData - array of gene objects
          */
         function plotSNPAssoc(snpData, geneData, id, chromosome, location) {
-            console.log('plotSNPAssoc');
+            console.log('plotSNPAssoc', chromosome, location);
+
+
+
+            let windowSize = 1000000;
+            let minPos = Math.max(location * 1000000 - windowSize, 0);
+            let maxPos = location * 1000000 + windowSize;
+
+
+
 
             let maxLODScore = null;
             let plotTitle = '';
@@ -1968,81 +2067,20 @@
 
             maxLODScore += 1;
 
-            let series = [];
+            dbg('maxLODScore', maxLODScore);
+            dbg('minn', minn);
+            dbg('maxx', maxx);
 
-            series.push({
-                name: 'seriesSNPs',
-                data: snps,
-                turboThreshold: 0,
-                color: 'rgba(223, 83, 83, .5)',
-                yAxis: 'snpTop',
-                type: 'scatter',
-                marker: {
-                    enabled: true,
-                    radius: 1,
-                },
-                tooltip: {
-                    pointFormatter: function(a,b,c) {
-                        console.log(a,b,c);
-                        return 'hello';
-                    }
-                },
+            dbg('minPos', minPos);
+            dbg('maxPos', maxPos);
 
-                /* Set the point threshold for when a series should enter boost mode.
-                   Setting it to e.g. 2000 will cause the series to enter boost mode when there are 2000 or more points in the series.
-                   To disable boosting on the series, set the boostThreshold to 0. Setting it to 1 will force boosting.
-                   Requires modules/boost.js.
-                   Defaults to 5000.
-                */
-                boostThreshold: 1,
-                findNearestPointBy: 'xy',
-            });
-
-            console.log('snps=', snps);
-
-            series.push({
-                name: 'seriesGenes',
-                data: [],
-                yAxis: 'genesBottom',
-                type: 'xrange',
-                dataLabels: {
-                    align: 'left',
-                    allowOverlap: true,
-                    color: 'black',
-                    defer: false,
-                    enabled: true,
-                    formatter: function() {
-                        return this.point.symbol;
-                    },
-                    inside: true,
-                    padding: 0,
-                    style: {
-                        textOutline: false
-                    },
-                },
-                //boostThreshold: 0,
-                /* When a series contains a data array that is longer than this,
-                   only one dimensional arrays of numbers, or two dimensional
-                   arrays with x and y values are allowed. Also, only the first
-                   point is tested, and the rest are assumed to be the same
-                   format. This saves expensive data checking and indexing in
-                   long series. Set it to 0 disable.
-                   Defaults to 1000.
-                  */
-                /*
-                turboThreshold: 0,
-                animation: {
-                    duration: 0
-                }
-                */
-            });
 
             let exporting = appendExportButton('Download CSV', function() {
                 exportSNPAssocData(currentID, snps, geneData);
             });
             exporting.filename = currentID + '_SNPASSOC';
 
-            g.chartSNPAssoc = Highcharts.chart({
+            g.chartSNPAssocSNPS = Highcharts.chart({
                 boost: {
                     debug: {
                         showSkipSummary: true
@@ -2052,16 +2090,18 @@
                     usePreallocated: true,
                 },
                 chart: {
-                    renderTo: 'plotSNPAssoc',
-                    panning: true,
-                    panKey: 'shift',
-                    zoomType: 'x',
                     animation: false,
-                    events: {
-                        load: function () {
-                            fitSNPGenes(this, geneData);
-                        }
-                    }
+                    type: 'scatter',
+                    marginLeft: 80,
+                    renderTo: 'plotSNPAssocSNPS',
+                    //panning: true,
+                    //panKey: 'shift',
+                    zoomType: 'x',
+                    //events: {
+                    //    load: function () {
+                    //        fitSNPGenes(this, geneData);
+                    //    }
+                    //}
                 },
 
                 title: {
@@ -2069,100 +2109,80 @@
                 },
 
                 xAxis: [{
-                    min: minn,
-                    max: maxx,
-                    labels: {
-                        enabled: true
+                    min: minPos,
+                    max: maxPos,
+                    events: {
+                        afterSetExtremes: function() {
+                            var xMin = this.chart.xAxis[0].min;
+                            var xMax = this.chart.xAxis[0].max;
+
+                            if ((g.chartSNPAssocGenes !== undefined) && (g.chartSNPAssocGenes !== null)) {
+
+                                g.chartSNPAssocGenes.xAxis[0].setExtremes(xMin, xMax);
+                            }
+                            // anotherChart.xAxis[0].setExtremes(xMin, xMax);
+                        }
                     },
-                    title: {
-                        text: ''
-                    },
-                    scrollbar: {
-                        enabled: true
-                    },
-                    crosshair: {
-                        snap: false
-                    }
+                    type: 'linear',
                 }],
 
-                yAxis: [{
-                        id: 'snpTop',
-                        title: {
-                            text: 'LOD'
-                        },
-                        max: maxLODScore,
-                        min: 0,
-                        offset: 0,
-                        height: '50%',
+                yAxis: {
                     /*
-                        labels: {
-                            formatter: function () {
-                                return this.value;
-                            }
-                        }
-                        */
-                    }, {
-                        id: 'genesBottom',
-                        reverse: true,
-                        min: -12,
-                        max: -0,
-                        categories: [-0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12],
-                        title: {
-                            text: ""
-                        },
-                        visible: false,
-                        offset: 0,
-                        top: '51%',
-                        height: '49%',
-                    }
-                ],
-
-                plotOptions: {
-                    scatter: {
-                        marker: {
-                            states: {
-                                hover: {
-                                    enabled: false,
-                                    lineColor: 'rgb(100,100,100)'
-                                }
-                            }
-                        },
-                        states: {
-                            hover: {
-                                marker: {
-                                    enabled: false
-                                }
-                            }
-                        }
+                    scrollbar: {
+                        enabled: true,
+                        showFull: false
                     },
+                    */
 
-                    series: {
-                        borderRadius: 0
+                    title: {
+                        text: '',
+                        //      max: 100,
+                        lineWidth: 0, //get rid of the
+                        minorGridLineWidth: 0,
+                        lineColor: 'transparent',
+                        //floor: 0,
+                        //ceiling: 100
                     },
-
-                    xrange: {
-                        borderWidth: 1,
-                        borderColor: 'black',
-                        colorByPoint: true,
-                        colors: ['#7cb5ec'],
-                        dataLabels: {
-                            style: {
-                                color: 'white'
-                            }
-                        }
-                    }
                 },
+
 
                 legend: {
                     enabled: false
                 },
 
-                series: series,
+                series: [{
+                    name: 'seriesSNPs',
+                    data: snps,
+                    turboThreshold: 0,
+                    color: 'rgba(223, 83, 83, .5)',
+                    marker: {
+                        enabled: true,
+                        radius: 1,
+                    },
+                    /*
+                    tooltip: {
+                        pointFormatter: function(a,b,c) {
+                            console.log(a,b,c);
+                            return 'hello';
+                        }
+                    },
+                    */
+
+                    /* Set the point threshold for when a series should enter boost mode.
+                       Setting it to e.g. 2000 will cause the series to enter boost mode when there are 2000 or more points in the series.
+                       To disable boosting on the series, set the boostThreshold to 0. Setting it to 1 will force boosting.
+                       Requires modules/boost.js.
+                       Defaults to 5000.
+                    */
+                    boostThreshold: 1,
+                    //findNearestPointBy: 'xy',
+
+                }],
 
                 tooltip: {
                     positioner: function(labelWidth, labelHeight, point) {
                         let tooltipX, tooltipY;
-                        let chart = g.chartSNPAssoc;
+                        let chart = g.chartSNPAssocGenes;
 
                         if (point.plotX + labelWidth > chart.plotWidth) {
                             tooltipX = point.plotX + chart.plotLeft - labelWidth - 20;
@@ -2209,8 +2229,321 @@
                         return text;
                     }
                 },
+
                 exporting: exporting,
+
+                plotOptions: {
+                    spline: {
+                        marker: {
+                            enabled: false
+                        }
+                    },
+
+
+                }
+
+            }, function(chart) {
+                syncronizeCrossHairs(chart);
             });
+
+
+        console.log('geneData = ', geneData);
+        let tempGenes = configureGenes(g.chartSNPAssocSNPS, geneData);
+        console.log('tempGenes = ', tempGenes);
+        let newGenes = [];
+        let cats  = {};
+$.each(tempGenes, function(key, value) {
+    //console.log(key, value);
+    let slot = key;
+    cats[key] = key;
+    $.each(value.elements, function(i, element) {
+
+        console.log(element);
+        console.log(key, element.start, element.end, element.end - element.start);
+
+        element.x = element.start;
+        element.x2 = element.position_end;
+        element.y = slot ;
+        newGenes.push(element);
+    });
+
+});
+
+var newCats = [];
+$.each(cats, function(key, value) {
+    newCats.push(+value);
+});
+newCats = newCats.sort(function(a, b){return a-b});
+
+
+console.log('newGenes = ', newGenes);
+g.GENESREDRAWENABLED=true;
+g.chartSNPAssocGenes = Highcharts.chart({
+            chart: {
+                animation: false,
+                renderTo: 'plotSNPAssocGenes',
+                type: 'xrange',
+                zoomType: 'x',
+                marginLeft: 80,
+                marginTop: 0,
+                height: 100,  // this will be overridden on load
+                events: {
+            load: function() {
+                let chart = this,
+                plotAreaOffset = chart.chartHeight - chart.plotHeight,
+                maxPointHeight = 0,
+                catAmount = chart.yAxis[0].categories.length,// * 2,
+                pointsOffset = 20;
+
+              chart.series.forEach(function(series) {
+                  //console.log(series);
+                series.points.forEach(function(point) {
+                    //console.log(point, point.shapeArgs.height);
+                  maxPointHeight = (point.shapeArgs.height > maxPointHeight) ? point.shapeArgs.height : maxPointHeight;
+                });
+              });
+              maxPointHeight = 10;
+
+              console.log('height=', maxPointHeight, catAmount, plotAreaOffset, pointsOffset, catAmount);
+              console.log('height=', maxPointHeight * catAmount + plotAreaOffset + pointsOffset * catAmount);
+              chart.update({
+                chart: {
+                  height: maxPointHeight * catAmount + plotAreaOffset + pointsOffset * catAmount
+                }
+              }, true, false, false);
+            },
+
+                    render: function() {
+                        if (this.series.length !== 1) {
+                            return;
+                        }
+                        if (g.GENESREDRAWENABLED) {
+                            let points = this.series[0].points,
+                                chart = this,
+                                //dataLabelWidth,
+                                height;
+
+                            g.GENESREDRAWENABLED = false;
+
+                            Highcharts.each(points, function(point) {
+                                height = point.shapeArgs.height;
+
+                                if ((point.dataLabel.x < point.shapeArgs.x) || (point.dataLabel.y < point.shapeArgs.y) ||
+                                    (point.shapeArgs.x < 0)) {
+                                    point.dataLabel.hide();
+                                } else {
+                                    point.dataLabel.show();
+                                }
+
+
+                                console.log(point.name, point);
+                                console.log(height);
+
+
+                            });
+
+                            chart.series[0].isDirty = true;
+                            chart.redraw();
+
+                            g.GENESREDRAWENABLED = true;
+                        }
+
+                    },
+
+                },
+            },
+            exporting: {
+                enabled: false,
+                sourceWidth: 1200
+            },
+            credits: {
+                enabled: false
+            },
+
+            title: {
+                text: null,
+            },
+
+            legend: {
+                enabled: false
+            },
+            xAxis: {
+                min: minPos,
+                max: maxPos,
+                events: {
+                    afterSetExtremes: function() {
+                        var xMin = this.chart.xAxis[0].min;
+                        var xMax = this.chart.xAxis[0].max;
+
+                        g.chartSNPAssocSNPS.xAxis[0].setExtremes(xMin, xMax);
+                        //chart3.xAxis[0].setExtremes(xMin, xMax);
+                    }
+                },
+                //type: 'linear',
+                //labels: {
+                //      format: '{value:%b %e}'
+                //},
+                maxPadding: 0.06,
+                scrollbar: {
+                    enabled: true,
+                    showFull: false
+                }
+            },
+            yAxis: {
+                title: {
+                    text: null
+                },
+                lineWidth: 0,
+                minorGridLineWidth: 0,
+                lineColor: 'transparent',
+
+                gridLineWidth: 0,
+                //lineWidth: 1,
+                //min: -20,
+                //max: 0,
+
+                /*
+
+                scrollbar: {
+                    enabled: true,
+                    showFull: false
+                },
+                */
+
+                labels: {
+                    enabled: false
+                },
+
+                minorTickLength: 0,
+                tickLength: 0,
+                reversed: true,
+                //min: -12,
+                //max: 2,
+                //categories: [2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12],
+                categories: newCats,
+
+            },
+
+
+            plotOptions: {
+                series: {
+                    //pointRange: 2,
+                    pointWidth: 10,
+                    minPointLength: 1
+
+                },
+                xrange: {
+                    pointPlacement: "on",
+
+                    borderWidth: 1,
+                    borderColor: 'black',
+                    colorByPoint: true,
+                    colors: ['#7cb5ec'],
+                    dataLabels: {
+                        style: {
+                            color: 'white'
+                        }
+                    }
+                },
+            },
+
+
+
+            tooltip: {
+                /*
+                              positioner: function(labelWidth, labelHeight, point) {
+                                  let tooltipX, tooltipY;
+                                  let chart = chart2;
+
+                                  if (point.plotX + labelWidth > chart.plotWidth) {
+                                      tooltipX = point.plotX + chart.plotLeft - labelWidth - 20;
+                                  } else {
+                                      tooltipX = point.plotX + chart.plotLeft + 20;
+                                  }
+
+                                  if (point.plotY + labelHeight > chart.plotHeight) {
+                                      tooltipY = point.plotY + chart.plotTop - labelHeight - 20;
+                                  } else {
+                                      tooltipY = point.plotY + chart.plotTop - 20;
+                                  }
+
+                                  return {
+                                      x: tooltipX,
+                                      y: tooltipY
+                                  };
+                              },
+                              */
+                useHTML: true,
+                shared: false,
+                followPointer: true,
+                enabled: true,
+                formatter: function() {
+                    let text = '';
+                    console.log('this.series.name=', this.series.name);
+                    console.log(this.point);
+                    if (this.series.name === 'seriesSNPs') {
+                        let csq = ['this.point.csq.'].split(',');
+                        let csqs = csq.join('<br/>');
+                        let pos = this.point.y / 100000;
+
+                        text = `<b>${this.point.id}</b><br/>
+                                         LOD: ${this.point.lod}<br/>
+                                         Position: ${pos}<br/>
+                                         CSQ: ${csqs}`;
+                    } else {
+                        let x = this.point.x2 - this.point.x;
+
+                        text = `<b>${this.point.symbol}</b><br/>
+                                         Ensembl ID: ${this.point.ensembl_gene_id}<br/>
+                                         Name: ${this.point.name}<br/>
+                                         Position: ${this.point.match_value} (${this.point.strand})<br/>
+                                         X: ${x}<br/>
+                                         ${this.point.start} (${this.point.end})<br/>
+                                         `;
+
+                    }
+                    console.log(text);
+                    return text;
+                }
+            },
+
+            series: [{
+                name: "seriesGenes",
+                data: newGenes,
+                //dataLabels: {
+                //    verticalAlign: "top",
+                //    y: 10
+                //},
+                type: "xrange",
+                //marginLeft: 10,
+                borderRadius: 0,
+
+                dataLabels: {
+                    align: 'left',
+                    allowOverlap: true,
+                    color: 'black',
+                    defer: false,
+                    enabled: true,
+                    formatter: function() {
+                        return this.point.symbol;
+                    },
+                    //inside: true,
+                    y:15,
+                    padding: 0,
+                    style: {
+                        textOutline: false
+                    },
+                },
+
+            }]
+        }, function(chart) {
+            syncronizeCrossHairs(chart);
+        });
+
+
+
+
+
         }
 
         /**
@@ -2242,8 +2575,10 @@
             startTask();
 
             // reset the chart and clear it
-            g.chartSNPAssoc = null;
-            $('#plotSNPAssoc').html('');
+            g.chartSNPAssocSNPS = null;
+            g.chartSNPAssocGenes = null;
+            $('#plotSNPAssocSNPS').html('');
+            $('#plotSNPAssocGenes').html('');
             $('#snpWindowMenu').html('');
 
             $.ajax({
@@ -2335,8 +2670,10 @@
                 let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
                     console.log(data);
-                    g.chartSNPAssoc = null;
-                    $('#plotSNPAssoc').html('');
+                    g.chartSNPAssocSNPS = null;
+                    g.chartSNPAssocGenes = null;
+                    $('#plotSNPAssocSNPS').html('');
+                    $('#plotSNPAssocGenes').html('');
                     $('#snpWindowMenu').html('');
                 });
             }
@@ -3282,6 +3619,7 @@
             $('#divSecondRow').addClass('invisible').removeClass('visible');
             $('#div_current_item_information_header').html('');
             $('#div_current_item_information_body').html('');
+            $('#divProfilePlotOptions').html('');
 
             configureCovarFactors(true);
 
@@ -3296,6 +3634,7 @@
          */
         function setDataSet(dataSetID, force) {
             console.log('setDataSet=', dataSetID);
+
             if (!(force) && (QTL.g.dataSetID === dataSetID)) {
                 console.log('Same dataset selected, do nothing');
                 return;
@@ -3553,7 +3892,8 @@
          * @param {string} id - the unique identifier
          */
         function plotProfile(id) {
-            console.log(`plotProfile(${id})`);
+            dbg(`plotProfile(${id})`);
+
             // profiles are covar_factors
             let data = g.expressionData;
             let categories = getFactorOrder();
@@ -3562,25 +3902,15 @@
             // using this so plots have same jitter
             Math.seedrandom('profileplot');
 
+            dbg('categories=', categories);
+            dbg('categorySeries=', categorySeries);
+
+
             let newData = {};
             let allCategories = [];
             let cfMap = {};
-
-            $.each(g.DATASETS[g.dataSetID].covarFactors, function(idx, elem) {
-                cfMap[elem['column.name']] = elem['display.name'];
-            });
-
-            let title = [];
-
-            $.each(categories, function(idx, elem) {
-                newData[elem] = [];
-                allCategories.push(data.dataTypes[elem]);
-                console.log(idx, elem);
-                title.push(cfMap[elem]);
-            });
-
-            let chartTitle = title.join(' x ');
-            allCategories = permutateArrays(allCategories);
+            let chartTitle = null;
+            let seriesData = {};
 
             // this will give us 9 points per "category"
             let jitter = 5;
@@ -3592,57 +3922,88 @@
             let newCategories = {};
             let newCategoriesOrder = [];
 
-            $.each(allCategories, function(idx, elem) {
-                let catName = elem.join(':');
-                let combo = {};
-                $.each(elem, function(i, e) {
-                    combo[categories[i]] = e;
+
+            if ((categories == null) || (categories.length === 0)) {
+                // this is the case when there are no covar factors
+
+                // do we just have 1 series of data here?
+
+
+
+
+            } else {
+                $.each(g.DATASETS[g.dataSetID].covarFactors, function(idx, elem) {
+                    cfMap[elem['column.name']] = elem['display.name'];
                 });
-                newCategories[catName] = {
-                    id: catName,
-                    categoryValues: elem,
-                    combo: combo,
-                    x: idx,
-                    start: start + (idx * stepAmount),
-                    values: []
-                };
 
-                newCategoriesOrder.push(catName);
-                point.push(start + (idx * stepAmount));
-                pointToLabel[start + (idx * stepAmount)] = catName;
-            });
 
-            let seriesData = {};
-            $.each(data.dataTypes[categorySeries], function(idx, val) {
-                seriesData[val] = { values: [] };
-            });
+                let title = [];
 
-            $.each(data.data, function(idx, val) {
-                $.each(data.dataTypes[categorySeries], function(i, v) {
-                    let abc = [];
-                    $.each(categories, function(_i, _elem) {
-                        //console.log(_i, _elem);
-                        abc.push(val[_elem]);
+                $.each(categories, function(idx, elem) {
+                    newData[elem] = [];
+                    allCategories.push(data.dataTypes[elem]);
+                    title.push(cfMap[elem]);
+                });
+
+                chartTitle = title.join(' x ');
+                allCategories = permutateArrays(allCategories);
+
+                dbg('allCategories=', allCategories);
+
+                $.each(allCategories, function(idx, elem) {
+                    let catName = elem.join(':');
+                    let combo = {};
+                    $.each(elem, function(i, e) {
+                        combo[categories[i]] = e;
                     });
-                    let catName = abc.join(':');
+                    newCategories[catName] = {
+                        id: catName,
+                        categoryValues: elem,
+                        combo: combo,
+                        x: idx,
+                        start: start + (idx * stepAmount),
+                        values: []
+                    };
 
-                    if (val.expression === undefined) {
-                        //console.log('Undefined data=', val);
-                    } else {
-                        newCategories[catName].values.push(val.expression);
-
-                        // put the data in the correct buckets
-                        if (v === val[categorySeries]) {
-                            seriesData[v].values.push({
-                                type: 'scatter',
-                                val: val,
-                                x: newCategories[catName].start + getRandomInt(-1 * jitter, jitter),
-                                y: val.expression
-                            });
-                        }
-                    }
+                    newCategoriesOrder.push(catName);
+                    point.push(start + (idx * stepAmount));
+                    pointToLabel[start + (idx * stepAmount)] = catName;
                 });
-            });
+
+                $.each(data.dataTypes[categorySeries], function(idx, val) {
+                    seriesData[val] = { values: [] };
+                });
+
+
+                $.each(data.data, function(idx, val) {
+                    $.each(data.dataTypes[categorySeries], function(i, v) {
+                        let abc = [];
+                        $.each(categories, function(_i, _elem) {
+                            //console.log(_i, _elem);
+                            abc.push(val[_elem]);
+                        });
+                        let catName = abc.join(':');
+
+                        if (val.expression === undefined) {
+                            //console.log('Undefined data=', val);
+                        } else {
+                            newCategories[catName].values.push(val.expression);
+
+                            // put the data in the correct buckets
+                            if (v === val[categorySeries]) {
+                                seriesData[v].values.push({
+                                    type: 'scatter',
+                                    val: val,
+                                    x: newCategories[catName].start + getRandomInt(-1 * jitter, jitter),
+                                    y: val.expression
+                                });
+                            }
+                        }
+                    });
+                });
+            }
+
+            dbg('seriesData=', seriesData);
 
             // convert from object, to array
 
@@ -4326,17 +4687,74 @@
             return ordered;
         }
 
+
         function configureCovarFactors(resetPeaks) {
             // current dataset
+            dbg('configureCovarFactors', resetPeaks);
             let ds = g.DATASETS[g.dataSetID];
 
+            if (ds.covarFactors == null) {
+                dbg('NO COVAR FACTORS');
+
+                let profilePlotOptionsHTML = `
+                <input type="hidden" id="factorSeries" value="additive"/>
+                <input type="hidden" id="factorSeriesCorrelation" value="additive"/>
+                '<select id="factorSeries" style="hidden"><option value="" selected></option></select>';
+                `;
+
+                $('#divInteractiveCovariatesLOD').html(`<input type="hidden" id="interactiveCovarLODS" value="additive"/>`);
+
+                if (resetPeaks) {
+                    $('#divInteractiveCovariatesPeaks').html(`<input type="hidden" id="interactiveCovarPeaks" value="additive"/>`);
+                }
+
+                $('#divProfilePlotOptions').html(profilePlotOptionsHTML);
+
+                return;
+            }
+
+
+            let profilePlotOptionsHTML = `
+                                    <div class="row">
+                                        <div class="col font-weight-bold">
+                                            Select your factors
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-8">
+                                            <div id="factor-view-select-wrapper">
+                                                <select id="factor-view-select" data-style="btn-secondary" multiple="multiple">
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <button id="btnFactPlot" type="button" class="btn btn-flat btn-primary">
+                                                <i class="fas fa-sync"></i> Update</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col font-weight-bold">
+                                            Select a series to color
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col" id="divFactorSeries">
+                                        </div>
+                                    </div>
+
+                                    <div class="row row-spacer"></div>`;
+
+            $('#divProfilePlotOptions').html(profilePlotOptionsHTML);
             g.orderCount = ds.covarFactors.length;
+
+            console.log('g.orderCount=',g.orderCount);
 
             $('#factor-view-select').multiselect({
                 onChange: function(option, checked) {
                     if (checked) {
                         g.orderCount++;
-                        console.log('g.orderCount=', g.orderCount);
                         $(option).attr('order', g.orderCount);
                     }
                     else {
@@ -4396,6 +4814,7 @@
             htmlInteractiveCovariatesPeaks += `<option value="additive">Additive</option>`;
 
             $.each(ds.covarFactors, function(index, element) {
+                console.log(index, element);
                 selectOptions.push({
                     label: element['display.name'],
                     order: index,
@@ -4425,10 +4844,12 @@
             $('#divFactorSeries').html(html);
             $('#divFactorSeriesCorrelation').html(htmlCorrelation);
 
+
             console.log('g.interactiveCovariates=', g.interactiveCovariates);
 
             // display a selection if we have interactive covariates, nothing if not
             if (g.interactiveCovariates.length > 0) {
+
 
                 $('#divInteractiveCovariatesLOD').html(htmlInteractiveCovariatesLOD);
 
@@ -4455,10 +4876,10 @@
 
 
             } else {
-                $('#divInteractiveCovariatesLOD').append(`<input type="hidden" id="interactiveCovarLODS" value=""/>`);
+                $('#divInteractiveCovariatesLOD').html(`<input type="hidden" id="interactiveCovarLODS" value="additive"/>`);
 
                 if (resetPeaks) {
-                    $('#divInteractiveCovariatesPeaks').append(`<input type="hidden" id="interactiveCovarPeaks" value=""/>`);
+                    $('#divInteractiveCovariatesPeaks').html(`<input type="hidden" id="interactiveCovarPeaks" value="additive"/>`);
                 }
             }
             $('#factorSeries').select2({
@@ -4485,9 +4906,65 @@
             });
 
             $('#factorSeriesCorrelation').on('change', function (evt) {
-                console.log(evt.target.value);
                 plotCorrelationChart();
             });
+
+
+            $('#btnFactPlot').on('click', function(evt) {
+                dbg('btnFactPlot clicked');
+                if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+                    plotProfile(g.geneID);
+                } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+                    plotProfile(g.proteinID);
+                } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
+                    plotProfile(g.phenotypeID);
+                } else {
+                    // TODO: major error
+                    console.error('MAJOR ERROR');
+                }
+            });
+
+            $('#btnDownloadCorrelationData').on('click', function(evt) {
+                if (g.correlationData) {
+                    let csvContent = '';
+                    let id = '';
+
+                    if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+                        id = g.geneID;
+                    } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+                        id = g.proteinID;
+                    } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
+                        id = g.phenotypeID;
+                    } else {
+                        console.error('MAJOR ERROR');
+                    }
+
+                    if (g.DATASETS[g.correlationDatasetID].dataType === 'mRNA') {
+                        csvContent = '"id","symbol","chr","start","end","correlation"\n';
+                        $.each(g.correlationData, function (k, v) {
+                            csvContent += `"${v.id}","${v.symbol}","${v.chr}",${v.start},${v.end},${v.cor}\n`;
+                        });
+                    } else if (g.DATASETS[g.correlationDatasetID].dataType === 'protein') {
+                        csvContent = '"id","symbol","chr","start","end","correlation"\n';
+                        $.each(g.correlationData, function (k, v) {
+                            csvContent += `"${v.id}","${v.symbol}","${v.chr}",${v.start},${v.end},${v.cor}\n`;
+                        });
+                    } else if (g.DATASETS[g.correlationDatasetID].dataType === 'phenotype') {
+                        csvContent = '"id","correlation"\n';
+                        $.each(g.correlationData, function (k, v) {
+                            csvContent += `"${v.id}",${v.cor}\n`;
+                        });
+                    } else {
+                        // TODO: major error
+                        console.error('MAJOR ERROR');
+                    }
+
+                    downloadCSV(csvContent, `${id}_correlation.csv`, 'text/csv;encoding:utf-8');
+                } else {
+                    console.log('no correlation data?');
+                }
+            });
+
         }
 
         function formatStrToNum(val, decimals) {
@@ -4818,10 +5295,13 @@
         function resetSecondaryPlots() {
             g.chartMediation = null;
             g.chartEffect = {};
-            g.chartSNPAssoc = null;
+            g.chartSNPAssocSNPS = null;
+            g.chartSNPAssocGenes = null;
+
             $('#plotMediation').html('');
             $('#allEffectPlots').html('');
-            $('#plotSNPAssoc').html('');
+            $('#plotSNPAssocSNPS').html('');
+            $('#plotSNPAssocGenes').html('');
             $('#snpWindowMenu').html('');
         }
 

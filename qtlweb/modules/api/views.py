@@ -28,6 +28,7 @@ def split_url(url):
     return proto, host, uri
 
 
+
 def parse_url(url):
     """Parses out Referer info indicating the request is from a previously proxied page.
     For example, if:
@@ -36,12 +37,15 @@ def parse_url(url):
         ("google.com", "search?q=foo")
     """
 
+
     proto, host, uri = split_url(url)
 
     print('url=', url)
     print('proto=', proto)
     print('host=', host)
     print('uri=', uri)
+
+
 
     if uri.find("/") < 0:
         return None
@@ -57,6 +61,11 @@ class Cache:
 
 
 CACHE = Cache()
+
+
+
+
+
 
 
 @api.route('/get/<path:url>', methods=['GET'])

@@ -165,74 +165,82 @@ function getBoxValues(data) {
  **
  *************************************************************************/
 
-/**
- * If the slot has space or not.
- * @param {Object} feature - the feature to check
- * @param {number} feature.position_start - the strat position
- * @param {number} feature.end - the end position
- * @param {Array} featuresInSlot - an array of features in this slot
- * @return {boolean} true if slot has space for the feature
- */
-function slotHasSpace(feature, featuresInSlot, spacing) {
-    if (!featuresInSlot) {
-        return true;
+
+function createShelf(width) {
+    return {
+        width: width,
+        free: width,
+        used: 0,
+        elements: []
     }
-
-    for (let i = 0; i < featuresInSlot.length; i++) {
-        let subject = featuresInSlot[i];
-
-
-        if (((feature.position_start - spacing <= subject.position_start) &&
-                (feature.max_end + spacing >= subject.position_start)) ||
-            ((feature.position_start - spacing >= subject.position_start) &&
-                (feature.position_start - spacing <= subject.max_end))) {
-            return false;
-        }
-    }
-
-    return true;
 }
 
-/**
- * Sort the features by the slot.
- * @param {Array} features - an array of features in this slot
- * @return {Array} the sorted slots
- */
-function sortFeaturesBySlot(features) {
-    let slots = [];
-    for (let i = 0; i < features.length; i++) {
-        let feature = features[i];
-        if (!slots[feature.slot]) {
-            slots[feature.slot] = [];
-        }
-        slots[feature.slot].push(feature);
+function addItems(shelves, items, width) {
+
+    if (shelves.length === 0) {
+        shelves.push(createShelf(width));
     }
-    return slots;
-}
 
-/**
- * Determine where each feature should be located.
- * @param {Array} features - an array of features
- */
-function layoutFeatures(features, spacing=0) {
-    let allocated = [];
-    let remaining = features;
-    let neededSlots = 0;
+    let spacing = 1000;
+    //items.sort(function(a, b) {
+    //    return (a.position_start - b.position_start);
+    //});
 
-    for (let i = 0; i < remaining.length; i++) {
-        let featuresBySlot = sortFeaturesBySlot(allocated);
-        let current = remaining[i];
-        let slot = 0;
-        while (true) {
-            if (slotHasSpace(current, featuresBySlot[slot], spacing)) {
-                current.slot = slot;
-                allocated.push(current);
-                if (slot > neededSlots) {
-                    neededSlots = slot;
-                }
-                break;
+    items.sort(function(a, b) {
+        return (b.position_end - b.position_start) - (a.position_end - a.position_start);
+    });
+
+    console.log('ADD ITEMS');
+    $.each(items, function(i, item) {
+        console.log('ITEM=', item.name, item.position_end - item.position_start)
+        let shelved = false;
+        $.each(shelves, function(x, shelf) {
+
+            if (shelf.elements.length === 0) {
+                shelf.elements.push(item);
+                shelf.free -= (item.end - item.start);
+                shelf.used += (item.end - item.start);
+                shelved = true;
+                // break out of loop, go to next item
+                return false;
             }
-            slot++;
+
+            // is there enough room?
+            if (shelf.free > (item.end - item.start)) {
+                // there is room, but can it fit in available slots?
+                let canFit = true;
+                $.each(shelf.elements, function(y, element) {
+                    if (((item.start - spacing <= element.start) && (item.end + spacing >= element.start)) ||
+                        ((item.start - spacing >= element.start) && (item.start - spacing <= element.end))) {
+                        canFit = false;
+                        // break out of loop
+                        return false;
+                    }
+                });
+
+                if (canFit) {
+                    shelf.elements.push(item);
+                    shelf.free -= (item.end - item.start);
+                    shelf.used += (item.end - item.start);
+                    shelved = true;
+                }
+
+                if (shelved) {
+                    // break out of loop
+                    return false;
+                }
+            }
+
+        });
+        if (!shelved) {
+            let shelf = createShelf(width);
+            shelf.elements.push(item);
+            shelf.free -= (item.end - item.start);
+            shelf.used += (item.end - item.start);
+            shelves.push(shelf);
         }
-    }
+    });
+
+
+    return shelves;
 }

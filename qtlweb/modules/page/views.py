@@ -36,6 +36,7 @@ def login():
     return redirect(url_for('page.index'))
 
 
+
 @page.route('/logout', methods=['GET', 'POST'])
 def logout():
     session.clear()
