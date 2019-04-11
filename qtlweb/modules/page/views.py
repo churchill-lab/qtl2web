@@ -4,12 +4,22 @@ from flask import current_app
 from flask import redirect
 from flask import render_template
 from flask import request
+from flask import send_from_directory
 from flask import session
 from flask import url_for
 
+
 from qtlweb import utils, __version__
 
+
+
+
+
+
+
+import os
 import socket
+
 
 page = Blueprint('page', __name__, template_folder='templates')
 
@@ -17,6 +27,12 @@ page = Blueprint('page', __name__, template_folder='templates')
 @page.route('/ping')
 def ping():
     return 'OK!!!!'
+
+
+
+@page.route('/favicon.ico')
+def favicon():
+    return redirect(url_for('static', filename='favicon.ico'))
 
 
 @page.route('/login', methods=['GET', 'POST'])
@@ -34,7 +50,6 @@ def login():
         session['auth_message'] = False
 
     return redirect(url_for('page.index'))
-
 
 
 @page.route('/logout', methods=['GET', 'POST'])

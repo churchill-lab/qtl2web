@@ -4,30 +4,24 @@
 {% block meta_description %}{% endblock %}
 {% block head %}
 
-    <link rel="stylesheet" 
-          href="//stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
-          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" 
+    <link rel="stylesheet"
+          href="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
           crossorigin="anonymous">
 
-    <link rel="stylesheet" 
+    <link rel="stylesheet"
           href="//use.fontawesome.com/releases/v5.2.0/css/all.css" 
           integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" 
           crossorigin="anonymous">
 
     <link rel="stylesheet"
-          href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css"/>
+          href="//cdn.jsdelivr.net/npm/bootstrap-select@1.13.7/dist/css/bootstrap-select.min.css">
 
     <link rel="stylesheet"
-          href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css"/>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='vendor/select2-bootstrap4-theme-1.0.2/select2-bootstrap4.min.css', _external=True) }}">
+          href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='vendor/please-wait-0.0.5/please-wait.css', _external=True) }}">
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='vendor/bootstrap-multiselect-v0.9.13/bootstrap-multiselect.css', _external=True) }}">
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='vendor/jquery-nstslider-1.0.13/dist/jquery.nstSlider.css', _external=True) }}">
@@ -36,7 +30,7 @@
           href="{{ url_for('static', filename='vendor/dynatables-0.3.1/jquery.dynatable.css', _external=True) }}">
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='vendor/bootstrap-switch-3.3.4/css/bootstrap3/bootstrap-switch.min.css', _external=True) }}">
+          href="{{ url_for('static', filename='vendor/bootstrap-multiselect-0.9.15/dist/css/bootstrap-multiselect.css', _external=True) }}">
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='styles/main.css', _external=True) }}">
@@ -253,6 +247,7 @@
                                 <div role="tabpanel" class="tab-pane active" id="tabProfile">
 
                                     <div class="row" id="divProfilePlotOptions">
+
                                     </div>
 
                                     <div class="row" id="fact-svg-panel">
@@ -344,8 +339,10 @@
                                 <div role="tabpanel" class="tab-pane active" id="tabPlotEffect">
                                     <div class="row">
                                         <div class="col">
-                                            Best Linear Unbiased Predictors (BLUPs)
-                                            <input id="performBLUP" name="performBLUP" type="checkbox" data-size="mini" data-on-color="info">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" id="performBLUP">
+                                                <label class="custom-control-label" for="performBLUP">Best Linear Unbiased Predictors (BLUPs)</label>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class"row no-gutters">
@@ -452,17 +449,20 @@
     });
     </script>
 
-    <script src="//code.jquery.com/jquery-3.2.1.min.js"
-            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    <script src="//code.jquery.com/jquery-3.4.0.min.js"
+            integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg="
             crossorigin="anonymous"></script>
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
             crossorigin="anonymous"></script>
 
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    <script src="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
             crossorigin="anonymous"></script>
+
+    <script src="//cdn.jsdelivr.net/npm/bootstrap-select@1.13.7/dist/js/bootstrap-select.min.js"></script>
+
 
     <!-- ENSIMPL API -->
     <script src="//churchill-lab.jax.org/ensimpl/api/js/ensimpl.js"></script>
@@ -488,19 +488,24 @@
     <script src="//d3js.org/d3-queue.v3.min.js"></script>
     <script src="//d3js.org/d3-request.v1.min.js"></script>
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
-
     <!-- Extra //-->
     <script src="{{ url_for('static', filename='vendor/sweetalert2.all.js') }}"></script>
     <script src="{{ url_for('static', filename='vendor/seedrandom-2.4.3/seedrandom.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='vendor/bootstrap-multiselect-v0.9.13/bootstrap-multiselect.js') }}"></script>
     <script src="{{ url_for('static', filename='vendor/jquery-nstslider-1.0.13/dist/jquery.nstSlider.js') }}"></script>
     <script src="{{ url_for('static', filename='vendor/dynatables-0.3.1/jquery.dynatable.js') }}"></script>
-    <script src="{{ url_for('static', filename='vendor/bootstrap-switch-3.3.4/js/bootstrap-switch.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap-multiselect-0.9.15/dist/js/bootstrap-multiselect.js') }}"></script>
     <script src="{{ url_for('static', filename='js/utilities.js') }}"></script>
 
     <script>
+
+    {% if debug %}
+    var logDebug = console.log.bind(window.console);
+    {% else %}
+    var logDebug = function(){};
+    {% endif %}
+    var logInfo = console.info.bind(window.console);
+    var logError = console.error.bind(window.console);
+
 
     /**
      * Add a button to the Highcharts export menu.
@@ -538,50 +543,6 @@
         }
     });
 
-    const SUCCESS_MSG = [
-        'background: green',
-        'color: white',
-        'display: block',
-        'text-align: center'
-    ].join(';');
-
-    const ERROR_MSG = [
-        'background: red',
-        'color: white',
-        'display: block',
-        'text-align: center'
-    ].join(';');
-
-    /**
-     * Debug message.
-     *
-     * @param {string} functionName - the name of the function
-     * @param {string} message - the debug message
-     */
-    function dbg() {
-        {% if debug %}
-        let args = Array.prototype.slice.call(arguments);
-        console.log.apply(console, args);
-        {% endif %}
-    }
-
-    /**
-     * Error message.
-     *
-     * @param {string} message - the error message
-     */
-    function err(message) {
-        console.log('%c%s', ERROR_MSG, message);
-    }
-
-    /**
-     * Success message.
-     *
-     * @param {string} message - the success message
-     */
-    function succ(message) {
-        console.log('%c%s', SUCCESS_MSG, message);
-    }
 
     /**
      * Download data.
@@ -601,17 +562,17 @@
      * @param {function} callback - the callback function
      */
     function downloadData(URL, description, callback) {
-        dbg('Downloading: ', URL);
+        logDebug('Downloading: ', URL);
 
         $.ajax({
             url: URL,
             method: 'GET'
         }).done(function(data, textStatus, jqXHR) {
-            succ(`Download of ${description}`);
-            dbg(`Download of ${description}:`, data);
+            logInfo(`Download of ${description}`);
+            logDebug(`Download of ${description}:`, data);
             callback(null, data);
         }).fail(function(jqXHR, textStatus, errorThrown) {
-            err(description, textStatus);
+            logError(description, textStatus);
             console.error(description, textStatus, errorThrown);
             callback(errorThrown, null);
         });
@@ -674,7 +635,7 @@
             d3.queue()
                 .defer(downloadDataSets)
                 .await(function(error, data) {
-                    dbg('dataSetsData=', data);
+                    logDebug('dataSetsData=', data);
 
                     if (error) {
                         console.error(error);
@@ -685,8 +646,8 @@
                         return;
                     }
 
-                    if ((data.result === undefined) || (data.result.dataSets.length === 0)) {
-                        err('data=', data);
+                    if ((data.result === undefined) || (data.result.datasets.length === 0)) {
+                        logError('data=', data);
                         {% if not debug -%}
                         // ?debug=1 will prevent forwarding on error
                         window.location = '{{ url_for('page.error') }}';
@@ -695,36 +656,41 @@
                     }
 
                     g.DATASETS = {};
-                    g.ENSEMBL_VERSION = data.result.ensemblVersion;
+                    g.ENSEMBL_VERSION = data.result['ensembl.version'];
 
-                    $.each(data.result.dataSets, function(dsi, ds) {
+                    $.each(data.result.datasets, function(dsi, ds) {
                         ds.gene_ids = {};
                         ds.protein_ids = {};
                         ds.phenotypes = {};
 
-                        if (ds.dataType === 'mRNA') {
+                        // change the case so we don't have to throughout
+                        ds.datatype = ds.datatype.toLowerCase();
+
+                        if (ds.datatype === 'mrna') {
                             // convert array to object (hash)
                             $.each(ds.annotations.ids, function(index, element) {
                                 ds.gene_ids[element] = 1;
                             });
-                        } else if (ds.dataType === 'protein') {
+                        } else if (ds.datatype === 'protein') {
                             $.each(ds.annotations.ids, function(index, element) {
-                                if (!(element.gene_id in ds.gene_ids)) {
-                                    ds.gene_ids[element.gene_id] = {
-                                        'id': element.gene_id,
+                                if (!(element['gene.id'] in ds.gene_ids)) {
+                                    ds.gene_ids[element['gene.id']] = {
+                                        'id': element['gene.id'],
                                         'protein_ids':[]
                                     };
                                 }
-                                ds.protein_ids[element.protein_id] = element.gene_id;
-                                ds.gene_ids[element.gene_id].protein_ids.push(element.protein_id);
+                                ds.protein_ids[element['protein.id']] = element['gene.id'];
+                                ds.gene_ids[element['gene.id']].protein_ids.push(element['protein.id']);
                             });
-                        } else if (ds.dataType === 'phenotype') {
+                        } else if ((ds.datatype === 'pheno') || (ds.datatype === 'phenotype')) {
+                            ds.datatype = 'pheno';
+
                             $.each(ds.annotations, function(index, element) {
-                                ds.phenotypes[element.dataName] = element;
+                                ds.phenotypes[element['data.name']] = element;
                             });
                         } else {
                             // TODO: handle error
-                            console.error('ERROR in dataSet data:', ds);
+                            console.error('ERROR in dataset data:', ds);
                         }
 
                         // don't need the extra annotations laying around
@@ -738,65 +704,63 @@
                     if (g.DATASETS[requestedDataSetID] !== undefined) {
                         g.dataSetID = requestedDataSetID;
                     } else {
-                        g.dataSetID = data.result.dataSets[0].id;
+                        g.dataSetID = data.result.datasets[0].id;
                     }
 
-                    configureCovarFactors(true);
+                    configureCovarInfo(true);
 
-                    console.log('data.result.dataSets.length=',data.result.dataSets.length);
+                    logDebug('data.result.datasets.length=',data.result.datasets.length);
 
-                    if (data.result.dataSets.length === 1) {
+                    if (data.result.datasets.length === 1) {
                         // just show a menu item
                         let html = `<ul class="navbar-nav navbar-dark mr-auto">
                                         <li class="nav-item active" style="color:white">
-                                            ${g.DATASETS[g.dataSetID].displayName}
+                                            ${g.DATASETS[g.dataSetID]['display.name']}
                                         </li>
                                     </ul>`;
 
                         $('#dataSetSelectMenu').append(html);
-                        $('#correlationDatasetSelection').html(`${g.DATASETS[g.dataSetID].displayName}`);
+                        $('#correlationDatasetSelection').html(`${g.DATASETS[g.dataSetID]['display.name']}`);
                         $('#correlationDatasetSelection').append(`<input type="hidden" id="correlationDatasetSelect" value="${g.DATASETS[g.dataSetID].id}"/>`);
 
-                    } else if (data.result.dataSets.length > 1) {
+                    } else if (data.result.datasets.length > 1) {
                         // show multiple menu items
                         let html = `<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerQTL" aria-controls="navbarTogglerQTL" aria-expanded="false" aria-label="Toggle navigation">
                                         <span class="navbar-toggler-icon"></span>
                                     </button>
                                     <div class="collapse navbar-dark navbar-collapse" id="navbarTogglerQTL">
                                     <span class="navbar-text text-white pr-2">{{ config.NAV_DATASET|safe }} <i class="fas fa-long-arrow-alt-right"></i></span>
-                                    <select id="datasetSelect">`;
+                                    <select data-style="btn-sm btn-light" class="selectpicker" id="datasetSelect">`;
 
-                        for (let d in data.result.dataSets) {
-                            html += `<option value="${data.result.dataSets[d].id}">${data.result.dataSets[d].displayName}</option>`;
+                        for (let d in data.result.datasets) {
+                            html += `<option value="${data.result.datasets[d].id}">${data.result.datasets[d]['display.name']}</option>`;
                         }
 
                         html += '</select></div>';
 
                         $('#dataSetSelectMenu').append(html);
-                        $('#datasetSelect').select2({
-                            minimumResultsForSearch: Infinity,
-                            width: 'element'
-                        });
-                        $('#datasetSelect').on('change', function () {
+
+                        $('#datasetSelect').selectpicker();
+
+                        $('#datasetSelect').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
                             let selected = $(this).find(':selected').val();
                             switchDataSet(selected);
                         });
 
                         // show multiple menu items
-                        let htmlNew = `<select id="correlationDatasetSelect" data-btn-class="btn-secondary btn-sm" class="form-control">`;
+                        let htmlNew = `<select id="correlationDatasetSelect" data-width="100%" data-style="btn-secondary btn-sm" class="selectpicker">`;
 
-                        for (let d in data.result.dataSets) {
-                            htmlNew += `<option value="${data.result.dataSets[d].id}">${data.result.dataSets[d].displayName}</option>`;
+                        for (let d in data.result.datasets) {
+                            htmlNew += `<option value="${data.result.datasets[d].id}">${data.result.datasets[d]['display.name']}</option>`;
                         }
 
                         htmlNew += '</select>';
 
                         $('#correlationDatasetSelection').html(htmlNew);
-                        $('#correlationDatasetSelect').select2({
-                            minimumResultsForSearch: Infinity,
-                            width: '100%',
-                        });
-                        $('#correlationDatasetSelect').on('change', function () {
+
+                        $('#correlationDatasetSelect').selectpicker();
+
+                        $('#correlationDatasetSelect').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
                             let selected = $(this).find(':selected').val();
                             switchCorrelationDataSet(selected);
                         });
@@ -805,12 +769,12 @@
 
                     g.ENSIMPL = new ensimpl({
                         search_limit: 100,
-                        search_version: data.result.ensemblVersion,
+                        search_version: g.ENSEMBL_VERSION,
                         search_species: g.SPECIES_ID
                     });
 
                     d3.queue()
-                        .defer(downloadChromosomes, data.result.ensemblVersion, g.SPECIES_ID)
+                        .defer(downloadChromosomes, g.ENSEMBL_VERSION, g.SPECIES_ID)
                         .defer(downloadLODPeaks, g.dataSetID)
                         .await(function(error, chromosomes, lodPeaks) {
                             g.CHROMOSOMES = {'idx': [], 'chr': {}};
@@ -846,7 +810,7 @@
                     // download all the other load peaks from all the datasets except the current one
                     // we do this in the background to gain some performance
                     let q = d3.queue();
-                    dbg('Downloading the peaks...');
+                    logDebug('Downloading the peaks...');
 
                     $.each(g.DATASETS, function(key, value) {
                         if (key !== g.dataSetID) {
@@ -950,7 +914,7 @@
             g.LODThreshold = minValue;
             let newData = [];
 
-            if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+            if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function (index, element) {
                     let markerChr = g.CHROMOSOMES.chr[element[1]];
                     let markerPos = element[2] * 1000000.0;
@@ -981,7 +945,7 @@
 
                 g.chartPeaks.series[0].setData(newData, true, false, false);
 
-            } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+            } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                 // [marker_id, chrom, position, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
                 // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function (index, element) {
@@ -1056,7 +1020,6 @@
 
                 // add new series
                 $.each(seriesData, function(index, element) {
-                    //console.log(index, element);
                     g.chartPeaks.addSeries({
                         data: element,
                         name: index,
@@ -1076,7 +1039,7 @@
         function exportLODPeaks(id, peaks) {
             let csvContent = '';
 
-            if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+            if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                 csvContent = '"gene_id","symbol","gene_chrom","gene_mid","marker_id","marker_chrom","marker_position","lod"\n';
                 // [marker_id, chrom, position, gene_id, symbol, gene_chrom, gene_mid, lod
                 //     0         1       2        3       4         5          6        7
@@ -1085,7 +1048,7 @@
                     let line = `"${v[3]}","${v[4]}","${v[5]}",${v[6]},"${v[0]}","${v[1]}",${v[2]},"${v[7]}"\n`;
                     csvContent += line;
                 });
-            } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+            } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                 csvContent = '"protein_id","gene_id","symbol","gene_chrom","gene_mid","marker_id","marker_chrom","marker_position","lod"\n';
                 // [marker_id, chrom, position, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
                 //     0         1       2          3          4        5         6        7        8
@@ -1094,7 +1057,7 @@
                     let line = `"${v[3]}","${v[4]}","${v[5]}","${v[6]}",${v[7]},"${v[0]}","${v[1]}",${v[2]},"${v[8]}"\n`;
                     csvContent += line;
                 });
-            } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
+            } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                 csvContent = '"marker_id","marker_chrom","marker_position","phenotype","lod"\n';
                 // ["5_137006393","5",137.0064,"MEcyan","MEcyan","MEcyan",9.1161],[
                 //       0         1     2        3        4        5        6
@@ -1111,8 +1074,9 @@
          * Plot LOD Peaks as a scatter plot.
          */
         function plotLODPeaks() {
+            logDebug('plotLODPeaks()');
             let covar = $('#interactiveCovarPeaks').val();
-            console.log('plotLODPeaks: covar=', covar);
+            logDebug('covar=', covar);
 
             // DATA will depend on type
             let ticksStartVals = [];
@@ -1147,7 +1111,6 @@
             });
 
             if ((i % 2) === 0) {
-                //console.log('adding ', g.CHROMOSOMES.idx[i-1].chromosome);
                 plotBands.push({
                     color: '#eeeeee',
                     from: g.CHROMOSOMES.idx[i-1].start,
@@ -1179,13 +1142,13 @@
             g.LODThreshold = null;
 
             let exporting = appendExportButton('Download CSV', function() {
-                exportLODPeaks(g.DATASETS[g.dataSetID].displayName, g.DATASETS[g.dataSetID].lodpeaks[covar]);
+                exportLODPeaks(g.DATASETS[g.dataSetID]['display.name'], g.DATASETS[g.dataSetID].lodpeaks[covar]);
             });
-            exporting.filename = g.DATASETS[g.dataSetID].displayName + '_PEAKS';
+            exporting.filename = g.DATASETS[g.dataSetID]['display.name'] + '_PEAKS';
 
             //TODO: make sure g.LOD is defined above and g.chartPeaks and reset appropriately
 
-            if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+            if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                 // [marker_id, chrom, position, gene_id, symbol, gene_chrom, gene_mid, lod
                 // ["1_100007442","1",100.0074,"ENSMUSG00000028028","Alpk1","3",127.7255,6.1147]
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
@@ -1209,7 +1172,7 @@
                             markerID: element[0],
                             geneID: element[3],
                             geneSymbol: element[4],
-                        });
+                        });888
 
                         minLOD = Math.min(minLOD, element[7]);
                         maxLOD = Math.max(maxLOD, element[7]);
@@ -1226,7 +1189,7 @@
 
                 let currentLOD = minLOD;
 
-                console.log('minLOD=', minLOD, 'maxLOD=', maxLOD);
+                logDebug('minLOD=', minLOD, 'maxLOD=', maxLOD);
 
                 html = html + `
                     <div class="form-group row">
@@ -1265,7 +1228,6 @@
                         $('#lodSliderValue').val(leftValue);
                     },
                     user_mouseup_callback: function(minValue, maxValue, isLeftGrip, didValuesChange) {
-                        //console.log(minValue, maxValue, isLeftGrip, didValuesChange);
                         updatePeaks(minValue);
                     }
                 });
@@ -1356,7 +1318,7 @@
                 };
 
                 clickFunction = function (event) {
-                    console.log('clickFunction:', this.geneID, null, g.dataSetID, this.covar);
+                    logDebug('clickFunction:', this.geneID, null, g.dataSetID, this.covar);
                     selectGeneProtein(this.geneID, null, g.dataSetID, this.covar);
                 };
 
@@ -1366,7 +1328,7 @@
                         return `LOD: ${this.point.lod}<br>Gene ID: ${this.point.geneID}<br>Symbol: ${this.point.geneSymbol}<br>Gene Location: ${this.point.geneChr.chromosome}:${this.point.genePos}<br>Marker ID: ${this.point.markerID}<br>Marker Location: ${this.point.markerChr.chromosome}:${this.point.markerPos}`;
                     }
                 };
-            } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+            } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                 // [marker_id, chrom, position, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
                 // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
@@ -1440,7 +1402,6 @@
                         </div>
                     </div>`;
 
-                console.log('divLODPeaks=', html);
                 $('#divLODPeaks').html(html);
 
                 let nstSlider = $('.nstSlider').nstSlider({
@@ -1449,7 +1410,7 @@
                         $('#lodSliderValue').val(leftValue);
                     },
                     user_mouseup_callback: function(minValue, maxValue, isLeftGrip, didValuesChange) {
-                        //console.log(minValue, maxValue, isLeftGrip, didValuesChange);
+                        //dbg(minValue, maxValue, isLeftGrip, didValuesChange);
                         updatePeaks(minValue);
                     }
                 });
@@ -1540,7 +1501,7 @@
                 };
 
                 clickFunction = function (event) {
-                    console.log('clickFunction: ', this.geneID, this.proteinID, g.dataSetID, this.covar);
+                    // dbg('clickFunction: ', this.geneID, this.proteinID, g.dataSetID, this.covar);
                     selectGeneProtein(this.geneID, this.proteinID, g.dataSetID, this.covar);
                 };
 
@@ -1550,7 +1511,7 @@
                         return `LOD: ${this.point.lod}<br>Protein ID: ${this.point.proteinID}<br>Gene ID: ${this.point.geneID}<br>Symbol: ${this.point.geneSymbol}<br>Gene Location: ${this.point.geneChr.chromosome}:${this.point.genePos}<br>Marker ID: ${this.point.markerID}<br>Marker Location: ${this.point.markerChr.chromosome}:${this.point.markerPos}`;
                     }
                 };
-            } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
+            } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                 // ["5_137006393","5",137.0064,"MEcyan","MEcyan","MEcyan",9.1161],[
 
                 let seriesData = {};
@@ -1583,20 +1544,20 @@
                     maxLOD = Math.max(maxLOD, element[6]);
                 });
 
-                console.log('minLOD=', minLOD, 'maxLOD=', maxLOD);
+                logDebug('minLOD=', minLOD, 'maxLOD=', maxLOD);
 
                 minLOD = Math.floor(minLOD);
                 maxLOD = Math.ceil(maxLOD);
 
-                console.log('ADJUSTED: minLOD=', minLOD, 'maxLOD=', maxLOD);
+                logDebug('ADJUSTED: minLOD=', minLOD, 'maxLOD=', maxLOD);
 
                 $('#divLODPeaks').html(html);
 
-                console.log('seriesData=', seriesData);
+                // dbg('seriesData=', seriesData);
 
                 series = [];
                 $.each(seriesData, function(index, element) {
-                    //console.log(index, element);
+                    // dbg(index, element);
                     series.push({
                         data: element,
                         name: index,
@@ -1645,10 +1606,8 @@
                     showLastLabel: true
                 };
 
-                console.log('yAxis=', yAxis);
-
                 clickFunction = function (event) {
-                    console.log('clickFunction: ', this.phenoDataName, g.dataSetID, this.covar);
+                    // dbg('clickFunction: ', this.phenoDataName, g.dataSetID, this.covar);
                     selectPhenotype(this.phenoDataName, g.dataSetID, this.covar);
                 };
 
@@ -1661,7 +1620,7 @@
 
             } else {
                 // TODO: handle error
-                console.error('WHAT TO DO????????????????????????????');
+                logError('WHAT TO DO????????????????????????????');
             }
 
             g.chartPeaks = Highcharts.chart('plotLodPeaks', {
@@ -1724,17 +1683,17 @@
                 yAxis: yAxis,
             });
 
-            if ((g.DATASETS[g.dataSetID].dataType === 'mRNA') ||
-                (g.DATASETS[g.dataSetID].dataType === 'protein')) {
+            if ((g.DATASETS[g.dataSetID].datatype === 'mrna') ||
+                (g.DATASETS[g.dataSetID].datatype === 'protein')) {
                 // this hack is awful and needs to be fixed
                 // this is the only way I could get the tooltips to appear
                 // without manually moving the slider
                 // I'm guessing it has something to do with canvas vs svg
                 setTimeout(function () {
-                    console.log('updatingPeaks 1');
+                    // dbg('updatingPeaks 1');
                     updatePeaks(maxLOD);
                     setTimeout(function () {
-                        console.log('updatingPeaks 2');
+                        // dbg('updatingPeaks 2');
                         updatePeaks(minLOD);
                     }, 250);
                 }, 250);
@@ -1756,10 +1715,10 @@
                 title: 'Processing...',
                 width: '20rem',
                 onClose: function() {
-                      console.log('onClose', this);
+                    logDebug('onClose', this);
                 }
             }).then((result) => {
-                console.log('then called');
+                logDebug('then called');
                 // result.dismiss can be 'cancel', 'overlay',
                 // 'close', and 'timer'
                 if (result.dismiss === 'close') {
@@ -1967,40 +1926,33 @@ function syncronizeCrossHairs(chart) {
         }
 
 
-
         /**
          * Plot the SNP Association plot.
          * @param {Array} snpData - array of SNP information
          * @param {Array} geneData - array of gene objects
          */
         function plotSNPAssoc(snpData, geneData, id, chromosome, location) {
-            console.log('plotSNPAssoc', chromosome, location);
-
-
+            logDebug('plotSNPAssoc', chromosome, location);
 
             let windowSize = 1000000;
             let minPos = Math.max(location * 1000000 - windowSize, 0);
             let maxPos = location * 1000000 + windowSize;
-
-
-
-
             let maxLODScore = null;
             let plotTitle = '';
             let currentID = '';
 
-            if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+            if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                 plotTitle = `${g.geneID} (${g.gene.gene[g.geneID].symbol})`;
                 currentID = g.geneID;
-            } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+            } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                 plotTitle = `${g.proteinID} (${g.gene.gene[g.geneID].symbol})`;
                 currentID = g.proteinID;
-            } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
+            } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                 plotTitle = g.phenotypeID;
                 currentID = g.phenotypeID;
             } else {
                 // TODO: handle error
-                console.error('MAJOR PROBLEM');
+                logError('MAJOR PROBLEM');
             }
 
             $('#snpWindowMenu').html(`
@@ -2067,12 +2019,12 @@ function syncronizeCrossHairs(chart) {
 
             maxLODScore += 1;
 
-            dbg('maxLODScore', maxLODScore);
-            dbg('minn', minn);
-            dbg('maxx', maxx);
+            logDebug('maxLODScore', maxLODScore);
+            logDebug('minn', minn);
+            logDebug('maxx', maxx);
 
-            dbg('minPos', minPos);
-            dbg('maxPos', maxPos);
+            logDebug('minPos', minPos);
+            logDebug('maxPos', maxPos);
 
 
             let exporting = appendExportButton('Download CSV', function() {
@@ -2162,7 +2114,7 @@ function syncronizeCrossHairs(chart) {
                     /*
                     tooltip: {
                         pointFormatter: function(a,b,c) {
-                            console.log(a,b,c);
+                            logDebug(a,b,c);
                             return 'hello';
                         }
                     },
@@ -2207,7 +2159,7 @@ function syncronizeCrossHairs(chart) {
                     enabled: true,
                     formatter: function () {
                         let text = '';
-                        console.log('this.series.name=', this.series.name);
+                        // dbg('this.series.name=', this.series.name);
                         if (this.series.name === 'seriesSNPs') {
                             let csq = this.point.csq.split(',');
                             let csqs = csq.join('<br/>');
@@ -2225,7 +2177,7 @@ function syncronizeCrossHairs(chart) {
                                  Position: ${this.point.match_value} (${this.point.strand})`;
 
                         }
-                        console.log(text);
+                        // dbg(text);
                         return text;
                     }
                 },
@@ -2247,38 +2199,34 @@ function syncronizeCrossHairs(chart) {
             });
 
 
-        console.log('geneData = ', geneData);
+        // dbg('geneData = ', geneData);
         let tempGenes = configureGenes(g.chartSNPAssocSNPS, geneData);
-        console.log('tempGenes = ', tempGenes);
+        // dbg('tempGenes = ', tempGenes);
         let newGenes = [];
         let cats  = {};
-$.each(tempGenes, function(key, value) {
-    //console.log(key, value);
-    let slot = key;
-    cats[key] = key;
-    $.each(value.elements, function(i, element) {
 
-        console.log(element);
-        console.log(key, element.start, element.end, element.end - element.start);
+        $.each(tempGenes, function(key, value) {
+            let slot = key;
+            cats[key] = key;
 
-        element.x = element.start;
-        element.x2 = element.position_end;
-        element.y = slot ;
-        newGenes.push(element);
-    });
+            $.each(value.elements, function(i, element) {
+                element.x = element.start;
+                element.x2 = element.position_end;
+                element.y = slot ;
+                newGenes.push(element);
+            });
 
-});
+        });
 
-var newCats = [];
-$.each(cats, function(key, value) {
-    newCats.push(+value);
-});
-newCats = newCats.sort(function(a, b){return a-b});
+        var newCats = [];
+        $.each(cats, function(key, value) {
+            newCats.push(+value);
+        });
+        newCats = newCats.sort(function(a, b){return a-b});
 
 
-console.log('newGenes = ', newGenes);
-g.GENESREDRAWENABLED=true;
-g.chartSNPAssocGenes = Highcharts.chart({
+        g.GENESREDRAWENABLED = true;
+        g.chartSNPAssocGenes = Highcharts.chart({
             chart: {
                 animation: false,
                 renderTo: 'plotSNPAssocGenes',
@@ -2288,31 +2236,28 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 marginTop: 0,
                 height: 100,  // this will be overridden on load
                 events: {
-            load: function() {
-                let chart = this,
-                plotAreaOffset = chart.chartHeight - chart.plotHeight,
-                maxPointHeight = 0,
-                catAmount = chart.yAxis[0].categories.length,// * 2,
-                pointsOffset = 20;
+                    load: function() {
+                        let chart = this,
+                        plotAreaOffset = chart.chartHeight - chart.plotHeight,
+                        maxPointHeight = 0,
+                        catAmount = chart.yAxis[0].categories.length,// * 2,
+                        pointsOffset = 20;
 
-              chart.series.forEach(function(series) {
-                  //console.log(series);
-                series.points.forEach(function(point) {
-                    //console.log(point, point.shapeArgs.height);
-                  maxPointHeight = (point.shapeArgs.height > maxPointHeight) ? point.shapeArgs.height : maxPointHeight;
-                });
-              });
-              maxPointHeight = 10;
+                        chart.series.forEach(function(series) {
+                            series.points.forEach(function(point) {
+                                maxPointHeight = (point.shapeArgs.height > maxPointHeight) ? point.shapeArgs.height : maxPointHeight;
+                            });
+                        });
+                        maxPointHeight = 10;
 
-              console.log('height=', maxPointHeight, catAmount, plotAreaOffset, pointsOffset, catAmount);
-              console.log('height=', maxPointHeight * catAmount + plotAreaOffset + pointsOffset * catAmount);
-              chart.update({
-                chart: {
-                  height: maxPointHeight * catAmount + plotAreaOffset + pointsOffset * catAmount
-                }
-              }, true, false, false);
-            },
-
+                        // dbg('height=', maxPointHeight, catAmount, plotAreaOffset, pointsOffset, catAmount);
+                        // dbg('height=', maxPointHeight * catAmount + plotAreaOffset + pointsOffset * catAmount);
+                        chart.update({
+                            chart: {
+                                height: maxPointHeight * catAmount + plotAreaOffset + pointsOffset * catAmount
+                            }
+                        }, true, false, false);
+                    },
                     render: function() {
                         if (this.series.length !== 1) {
                             return;
@@ -2334,12 +2279,6 @@ g.chartSNPAssocGenes = Highcharts.chart({
                                 } else {
                                     point.dataLabel.show();
                                 }
-
-
-                                console.log(point.name, point);
-                                console.log(height);
-
-
                             });
 
                             chart.series[0].isDirty = true;
@@ -2479,8 +2418,6 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 enabled: true,
                 formatter: function() {
                     let text = '';
-                    console.log('this.series.name=', this.series.name);
-                    console.log(this.point);
                     if (this.series.name === 'seriesSNPs') {
                         let csq = ['this.point.csq.'].split(',');
                         let csqs = csq.join('<br/>');
@@ -2502,7 +2439,6 @@ g.chartSNPAssocGenes = Highcharts.chart({
                                          `;
 
                     }
-                    console.log(text);
                     return text;
                 }
             },
@@ -2556,11 +2492,11 @@ g.chartSNPAssocGenes = Highcharts.chart({
             let minPos = Math.max(newLocation - windowSize, 0);
             let maxPos = newLocation + windowSize;
 
-            let snpAssocURL = `{{ config.API_R_BASE }}/snpassoc?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&location=${newLocation}&windowSize=${windowSize}`;
+            let snpAssocURL = `{{ config.API_R_BASE }}/snpassoc?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&location=${newLocation}&window.size=${windowSize}`;
             let genesURL = `http://churchill-lab.jax.org/ensimpl/api/search?species=${g.SPECIES_ID}&version=${g.ENSEMBL_VERSION}&term=${chromosome}:${minPos}-${maxPos}`;
 
             {% if config.API_R_NUM_CORES %}
-            snpAssocURL += '&nCores={{ config.API_R_NUM_CORES }}';
+            snpAssocURL += '&cores={{ config.API_R_NUM_CORES }}';
             {% endif %}
 
             let submitData = {
@@ -2587,15 +2523,12 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 contentType: 'application/json',
                 data: JSON.stringify(submitData),
                 success: function(data, status, request) {
-                    console.log('data=', data);
-                    console.log('status=', status);
-                    console.log('request=', request);
-                    console.log('data.group_id=', data.group_id);
+                    logDebug('data=', data);
                     updateSNPAssocData(data.group_id, id, chromosome, location);
                 },
                 error: function() {
                     // TODO: handle
-                    alert('Unexpected error');
+                    logError('Unexpected error');
                 }
             });
         }
@@ -2607,8 +2540,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
          */
         function updateSNPAssocData(groupID, id, chromosome, location) {
             // send GET request to status URL
-            console.log('updateSNPAssocData');
-            console.log(groupID);
+            logDebug('updateSNPAssocData: ', groupID);
 
             if (g.runningTask) {
                 let statusURL = '{{ url_for('api.api_status', group_id='', _external=True) }}' + groupID;
@@ -2616,7 +2548,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     type: 'GET',
                     url: statusURL,
                     success: function (data, status, request) {
-                        console.log('DATA=======', data);
+                        logDebug('DATA=======', data);
                         if (data.status === 'DONE') {
                             if ('error' in data) {
                                 // MAJOR ERROR
@@ -2657,7 +2589,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                             }
                         } else {
                             // rerun in 1 seconds
-                            console.log('Not done, keep checking...');
+                            logDebug('Not done, keep checking...');
                             setTimeout(function () {
                                 updateSNPAssocData(groupID, id, chromosome, location);
                             }, 1000);  // TODO: change to 1000 (1 second)
@@ -2666,10 +2598,9 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 });
             } else {
                 // TODO: cleanup
-                console.log('canceling');
+                logDebug('canceling');
                 let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
-                    console.log(data);
                     g.chartSNPAssocSNPS = null;
                     g.chartSNPAssocGenes = null;
                     $('#plotSNPAssocSNPS').html('');
@@ -2702,8 +2633,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
          * @param {Object} effectData - the effect data
          */
         function plotEffectData(effectData, lodData, chromosome, covar) {
-            console.log('plotEffectData');
-            console.log(effectData, lodData, covar);
+            logDebug('plotEffectData() ', effectData, lodData, covar);
 
             if (covar === 'additive') {
                 plotEffectChart(effectData[covar], null, covar, null, chromosome);
@@ -2716,8 +2646,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
         }
 
         function plotEffectChart(effectData, lodData, covar, category, chromosome) {
-            console.log('Plotting effect data');
-            console.log(effectData, lodData, covar, category);
+            logDebug('plotEffectChart() ', effectData, lodData, covar, category);
 
             let strainInfo = {};
             {%- for s in config.PLOT_EFFECT_STRAINS %}
@@ -2733,7 +2662,6 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
             if (covar === 'additive') {
                 renderTo = 'plotEffect';
-
                 // get the data from the lod chart, but filter for just the chromosome
                 lodData = g.LODChartData[covar];
             } else {
@@ -2745,9 +2673,9 @@ g.chartSNPAssocGenes = Highcharts.chart({
                                                 <div id="${renderTo}"></div>
                                             </div></div>`);
 
-            console.log('covar=', covar);
-            console.log('isCovar=', isCovar);
-            console.log('renderTo=', renderTo);
+            logDebug('covar=', covar);
+            logDebug('isCovar=', isCovar);
+            logDebug('renderTo=', renderTo);
 
             let allEffectValues = [];
 
@@ -2770,9 +2698,8 @@ g.chartSNPAssocGenes = Highcharts.chart({
             let effectMinValue = Math.floor(Math.min.apply(null, allEffectValues));
             let effectMaxValue = Math.ceil(Math.max.apply(null, allEffectValues));
 
-
-            console.log('effectMinValue=', effectMinValue);
-            console.log('effectMaxValue=', effectMaxValue);
+            logDebug('effectMinValue=', effectMinValue);
+            logDebug('effectMaxValue=', effectMaxValue);
 
             /*
             if ((effectMaxValue > 30.0) || (effectMinValue < -30.0)) {
@@ -2781,7 +2708,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
             }
             */
 
-            console.log('strainInfo=', strainInfo);
+            logDebug('strainInfo=', strainInfo);
 
             let xAxisTickNum = Math.floor(g.CHROMOSOMES.chr[chromosome].length / 20000000);
             let xAxisTickVals = [];
@@ -2821,18 +2748,18 @@ g.chartSNPAssocGenes = Highcharts.chart({
             let plotTitle = '';
             let currentID = '';
 
-            if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+            if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                 plotTitle = `${g.geneID} (${g.gene.gene[g.geneID].symbol})`;
                 currentID = g.geneID;
-            } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+            } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                 plotTitle = `${g.proteinID} (${g.gene.gene[g.geneID].symbol})`;
                 currentID = g.proteinID;
-            } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
+            } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                 plotTitle = g.phenotypeID;
                 currentID = g.phenotypeID;
             } else {
                 // TODO: handle error
-                console.error('MAJOR PROBLEM');
+                logError('MAJOR PROBLEM');
             }
 
             let newLodData = [];
@@ -2863,10 +2790,6 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     lodMaxValue = Math.max(element.y, lodMaxValue);
                 }
             });
-
-            //console.log('newLodData=', newLodData);
-            //console.log('lodMinValue=', lodMinValue);
-            //console.log('lodMaxValue=', lodMaxValue);
 
             series.push({
                 animation: false,
@@ -3008,9 +2931,9 @@ g.chartSNPAssocGenes = Highcharts.chart({
         function exportMediationData(id, data) {
             let csvContent = `"gene_id","symbol","chromosome","position","lod"\n`;
             let protein = false;
-            if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+            if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                 protein = false;
-            } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+            } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                 protein = true;
                 csvContent = '"protein_id",' + csvContent;
             }
@@ -3034,7 +2957,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
         function plotMediation(mediationData, dsMediateAgainst) {
             let newData = [];
 
-            if (g.DATASETS[dsMediateAgainst].dataType === 'mRNA') {
+            if (g.DATASETS[dsMediateAgainst].datatype === 'mrna') {
                 // ["ENSMUSG00000000001", "Gnai3", "3", 108.1267, 140.1666]
                 $.each(mediationData, function(index, element) {
                     if (element[2] in g.CHROMOSOMES.chr) {
@@ -3052,11 +2975,11 @@ g.chartSNPAssocGenes = Highcharts.chart({
                             y: element[4]
                         });
                     } else {
-                        //console.log(element);
+                        //logDebug(element);
                     }
                 });
 
-            } else if (g.DATASETS[dsMediateAgainst].dataType === 'protein') {
+            } else if (g.DATASETS[dsMediateAgainst].datatype === 'protein') {
                 // ["ENSMUSP00000000001", "ENSMUSG00000000001", "Gnai3", "3", 108.126713, 7.1102046955]
                 $.each(mediationData, function(index, element) {
                     if (element[3] in g.CHROMOSOMES.chr) {
@@ -3075,12 +2998,12 @@ g.chartSNPAssocGenes = Highcharts.chart({
                             y: element[5]
                         });
                     } else {
-                        //console.log(element);
+                        //logDebug(element);
                     }
                 });
             } else {
                 // TODO: handle error
-                console.error('MAJOR PROBLEM');
+                logError('MAJOR PROBLEM');
             }
 
             let axisTickVals = [];
@@ -3117,18 +3040,18 @@ g.chartSNPAssocGenes = Highcharts.chart({
             let plotTitle = '';
             let currentID = '';
 
-            if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+            if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                 plotTitle = `${g.geneID} (${g.gene.gene[g.geneID].symbol})`;
                 currentID = g.geneID;
-            } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+            } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                 plotTitle = `${g.proteinID} (${g.gene.gene[g.geneID].symbol})`;
                 currentID = g.proteinID;
-            } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
+            } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                 plotTitle = g.phenotypeID;
                 currentID = g.phenotypeID;
             } else {
                 // TODO: handle error
-                console.error('MAJOR PROBLEM');
+                logError('MAJOR PROBLEM');
             }
 
             let exporting = appendExportButton('Download CSV', function() {
@@ -3236,7 +3159,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
          */
         function generateMediationPlot(id, markerID) {
             let mediateAgainst = $('#dsMediateAgainstID').val();
-            let mediateURL = `{{ config.API_R_BASE }}/mediate?dataset=${g.dataSetID}&id=${id}&mid=${markerID}&datasetMediate=${mediateAgainst}`;
+            let mediateURL = `{{ config.API_R_BASE }}/mediate?dataset=${g.dataSetID}&id=${id}&marker.id=${markerID}&dataset.mediate=${mediateAgainst}`;
 
             let submitData = {
                 urls:[{
@@ -3256,15 +3179,13 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 contentType: 'application/json',
                 data: JSON.stringify(submitData),
                 success: function(data, status, request) {
-                    console.log('data=', data);
-                    console.log('status=', status);
-                    console.log('request=', request);
-                    console.log('data.group_id=', data.group_id);
+                    logInfo('Mediation');
+                    logDebug('data = ', data);
                     updateMediationData(data.group_id, mediateAgainst);
                 },
                 error: function() {
                     // TODO: handle
-                    alert('Unexpected error');
+                    logError('Mediation: Unexpected error');
                 }
             });
         }
@@ -3276,8 +3197,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
          */
         function updateMediationData(groupID, dsMediateAgainst) {
             // send GET request to status URL
-            console.log('updateMediationData');
-            console.log(groupID);
+            logDebug('updateMediationData{} ', groupID);
 
             if (g.runningTask) {
                 let statusURL = '{{ url_for('api.api_status', group_id='', _external=True) }}' + groupID;
@@ -3285,7 +3205,8 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     type: 'GET',
                     url: statusURL,
                     success: function (data, status, request) {
-                        console.log('DATA=======', data);
+                        logDebug('mediation data = ', data);
+
                         if (data.status === 'DONE') {
                             if ('error' in data) {
                                 // MAJOR ERROR
@@ -3318,13 +3239,14 @@ g.chartSNPAssocGenes = Highcharts.chart({
                                     showErrorMessage(message, errorMessages);
                                 } else {
                                     // show result, there will be 1 datasets to get
+                                    logInfo('mediation');
                                     plotMediation(data.response_data.mediate.response.result, dsMediateAgainst);
                                     stopTask();
                                 }
                             }
                         } else {
                             // rerun in 1 seconds
-                            console.log('Not done, keep checking...');
+                            logDebug('Mediation not done, keep checking...');
                             setTimeout(function () {
                                 updateMediationData(groupID, dsMediateAgainst);
                             }, 1000);  // TODO: change to 1000 (1 second)
@@ -3333,10 +3255,10 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 });
             } else {
                 // TODO: cleanup
-                console.log('canceling');
+                logDebug('canceling');
                 let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
-                    console.log(data);
+                    logDebug(data);
                     g.chartMediation = null;
                     $('#plotMediation').html('');
                 });
@@ -3348,14 +3270,14 @@ g.chartSNPAssocGenes = Highcharts.chart({
          *
          */
         function generateEffectPlot(id, chromosome, covar) {
-            let effectURL = `{{ config.API_R_BASE }}/foundercoefs?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&intCovar=${covar}`;
-            effectURL += '&blup=' + $('#performBLUP').bootstrapSwitch('state');
+            let effectURL = `{{ config.API_R_BASE }}/foundercoefs?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&interactive.covar=${covar}`;
+            effectURL += '&blup=' + $('#performBLUP').is(':checked');
 
-            let lodURL = `{{ config.API_R_BASE }}/lodscansamples?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&intCovar=${covar}`;
+            let lodURL = `{{ config.API_R_BASE }}/lodscansamples?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&interactive.covar=${covar}`;
 
             {% if config.API_R_NUM_CORES %}
-            effectURL += '&nCores={{ config.API_R_NUM_CORES }}';
-            lodURL += '&nCores={{ config.API_R_NUM_CORES }}';
+            effectURL += '&cores={{ config.API_R_NUM_CORES }}';
+            lodURL += '&cores={{ config.API_R_NUM_CORES }}';
             {% endif %}
 
             let submitData = {
@@ -3400,8 +3322,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
          */
         function updateEffectData(groupID, id, chromosome, covar) {
             // send GET request to status URL
-            console.log('updateEffectData');
-            console.log(groupID);
+            logDebug('updateEffectData() ', groupID);
 
             if (g.runningTask) {
                 let statusURL = '{{ url_for('api.api_status', group_id='', _external=True) }}' + groupID;
@@ -3409,7 +3330,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     type: 'GET',
                     url: statusURL,
                     success: function (data, status, request) {
-                        console.log('DATA=======', data);
+                        logDebug('DATA=======', data);
                         if (data.status === 'DONE') {
                             if ('error' in data) {
                                 // MAJOR ERROR
@@ -3445,8 +3366,8 @@ g.chartSNPAssocGenes = Highcharts.chart({
                                     if (covar === 'additive') {
                                         plotEffectData(data.response_data.effect.response.result, null, chromosome, covar);
                                     } else {
-                                        plotEffectData(data.response_data.effect.response.result, 
-                                                       data.response_data.lodSamples.response.result, 
+                                        plotEffectData(data.response_data.effect.response.result,
+                                                       data.response_data.lodSamples.response.result,
                                                        chromosome, covar);
                                     }
 
@@ -3455,7 +3376,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                             }
                         } else {
                             // rerun in 1 seconds
-                            console.log('Not done, keep checking...');
+                            logDebug('Not done, keep checking...');
                             setTimeout(function () {
                                 updateEffectData(groupID, id, chromosome, covar);
                             }, 1000);
@@ -3464,10 +3385,10 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 });
             } else {
                 // TODO: cleanup
-                console.log('canceling');
+                logDebug('canceling');
                 let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
-                    console.log(data);
+                    logDebug(data);
                     g.chartEffect = null;
                     $('#allEffectPlots').html('');
                 });
@@ -3477,8 +3398,8 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
         function updateCorrelateDataSet(groupID) {
             // send GET request to status URL
-            console.log('updateCorrelateDataSet');
-            console.log(groupID);
+            logDebug('updateCorrelateDataSet');
+            logDebug(groupID);
 
             if (g.runningTask) {
                 let statusURL = '{{ url_for('api.api_status', group_id='', _external=True) }}' + groupID;
@@ -3486,7 +3407,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     type: 'GET',
                     url: statusURL,
                     success: function (data, status, request) {
-                        console.log('DATA=======', data);
+                        logDebug('DATA=======', data);
                         if (data.status === 'DONE') {
                             if ('error' in data) {
                                 // MAJOR ERROR
@@ -3525,7 +3446,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                             }
                         } else {
                             // rerun in 1 seconds
-                            console.log('Not done, keep checking...');
+                            logDebug('Not done, keep checking...');
                             setTimeout(function () {
                                 updateCorrelateDataSet(groupID);
                             }, 1000);  // TODO: change to 1000 (1 second)
@@ -3534,10 +3455,10 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 });
             } else {
                 // TODO: cleanup
-                console.log('canceling');
+                logDebug('canceling');
                 let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
-                    console.log(data);
+                    logDebug(data);
                     g.chartCorrelation = null;
                     $('#correlationDataTable').html('');
                     $('#plotCorrelation').html('');
@@ -3554,18 +3475,18 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
             let currentID = '';
 
-            if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+            if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                 currentID = g.geneID;
-            } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+            } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                 currentID = g.proteinID;
-            } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
+            } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                 currentID = g.phenotypeID;
             } else {
                 // TODO: handle error
                 console.error('MAJOR PROBLEM');
             }
 
-            let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${g.dataSetID}&id=${currentID}&datasetCorrelate=${dataSetID}`;
+            let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${g.dataSetID}&id=${currentID}&dataset.correlate=${dataSetID}`;
 
             let submitData = {
                 urls:[{
@@ -3582,12 +3503,12 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 data: JSON.stringify(submitData),
                 success: function(data, status, request) {
                     g.runningTask = true;
-                    console.log('data=', data);
-                    console.log('status=', status);
-                    console.log('request=', request);
+                    logDebug('data=', data);
+                    logDebug('status=', status);
+                    logDebug('request=', request);
                     //let status_url = request.getResponseHeader('Location');
-                    //console.log('status_url=', status_url);
-                    console.log('data.group_id=', data.group_id);
+                    //logDebug('status_url=', status_url);
+                    logDebug('data.group_id=', data.group_id);
                     updateCorrelateDataSet(data.group_id);
                 },
                 error: function() {
@@ -3621,7 +3542,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
             $('#div_current_item_information_body').html('');
             $('#divProfilePlotOptions').html('');
 
-            configureCovarFactors(true);
+            configureCovarInfo(true);
 
             // submitLODPeaks calls setDataSet
             //submitLODPeaks(dataSetID);
@@ -3633,10 +3554,10 @@ g.chartSNPAssocGenes = Highcharts.chart({
          * @param {Object} geneData - gene information
          */
         function setDataSet(dataSetID, force) {
-            console.log('setDataSet=', dataSetID);
+            logDebug('setDataSet=', dataSetID);
 
             if (!(force) && (QTL.g.dataSetID === dataSetID)) {
-                console.log('Same dataset selected, do nothing');
+                logDebug('Same dataset selected, do nothing');
                 return;
             }
 
@@ -3644,8 +3565,6 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
             let ds = g.DATASETS[dataSetID];
             g.dataSetID = dataSetID;
-
-            console.log('ds=', ds);
 
             // clear LOD Plot
             // TODO: clear LOD PLOT, Profile PLOT
@@ -3663,7 +3582,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
             $('#navPheno').hide();
 
             // show the correct tab
-            if ((ds.dataType === 'mRNA') || (ds.dataType === 'protein')) {
+            if ((ds.datatype === 'mrna') || (ds.datatype === 'protein')) {
                 $('#navGene').show();
                 $('#navGene').tab('show');
 
@@ -3674,12 +3593,25 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 $('#searchResultsDiv').html('');
                 $('#searchResultsTableInfo').html('');
 
-            } else if (ds.dataType === 'phenotype') {
+            } else if (ds.datatype === 'pheno') {
                 $('#navPheno').show();
                 $('#navPheno').tab('show');
 
                 // hide some secondary plots
-                $('#navPlotMediation').hide();
+
+                // phenotype data can only mediate against mrna or protein (not itself)
+                let showMed = false;
+                $.each(QTL.g.DATASETS, function(k, v) {
+                    if ((v.datatype === 'mrna') || (v.datatype === 'protein')) {
+                        showMed = true;
+                    }
+                });
+
+                if (showMed) {
+                    $('#navPlotMediation').show();
+                } else {
+                    $('#navPlotMediation').hide();
+                }
 
                 $('#searchPheno').html('');
                 $('#searchPhenoCategoryText').html('');
@@ -3693,19 +3625,19 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 let categories = new Set([]);
                 let newPhenotypes = [];
                 $.each(ds.phenotypes, function(index, element) {
-                    if ((element.isPheno) && (element.isNumeric)) {
+                    if ((element['is.pheno']) && (element['is.numeric'])) {
                         categories.add(element.category);
-                        element.display = element.shortName;
-                        newPhenotypes.push({phenotype_id: element.dataName, // use for id
-                                            phenotype: element.shortName,   // display on screen
+                        element.display = element['short.name'];
+                        newPhenotypes.push({phenotype_id: element['data.name'], // use for id
+                                            phenotype: element['short.name'],   // display on screen
                                             category: element.category,
-                                            desc: element.desc});
+                                            desc: element.description});
                     }
                 });
 
                 // build the search area
                 if (categories.size === 0) {
-                    console.log('No categories - ERROR');
+                    logError('No categories - ERROR');
                 } else {
                     $('#searchPheno').html('<input type="text" id="searchTermPheno" name="searchTermPheno" class="form-control" placeholder="Please enter a phenotype to filter results...">');
 
@@ -3755,7 +3687,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     if (categories.length > 1) {
                         $('#searchPhenoCategoryText').html('Category Filter');
 
-                        let htmlOptions = '<select id="phenoCategorySelect" data-btn-class="btn-primary btn-block" class="form-control">';
+                        let htmlOptions = '<select id="phenoCategorySelect" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">';
                         htmlOptions += '<option>All</option>';
                         $.each(categories, function (i, val) {
                             htmlOptions += `<option>${val}</option>`;
@@ -3763,13 +3695,10 @@ g.chartSNPAssocGenes = Highcharts.chart({
                         htmlOptions += '</select>';
                         $('#searchPhenoCategory').html(htmlOptions);
 
-                        $('#phenoCategorySelect').select2({
-                            minimumResultsForSearch: Infinity,
-                            width: '100%',
-                        });
+                        $('#phenoCategorySelect').selectpicker();
 
-                        $('#phenoCategorySelect').on('change', function () {
-                            const selected = $(this).find(':selected').text();
+                        $('#phenoCategorySelect').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+                            let selected = $(this).find(':selected').val();
                             if (selected === 'All') {
                                 g.phenoDynaTable.queries.remove('category');
                             } else {
@@ -3799,11 +3728,11 @@ g.chartSNPAssocGenes = Highcharts.chart({
                         if (q) {
                             g.phenoDynaTable.queries.add('phenotype', q);
                         } else {
-                            console.log('removing');
+                            logDebug('removing');
                             g.phenoDynaTable.queries.remove('phenotype');
                         }
 
-                        console.log('g.phenoDynaTable.process()');
+                        logDebug('g.phenoDynaTable.process()');
                         g.phenoDynaTable.process();
                         $('#phenotypesTable tbody a').on('click', function (evt) {
                             evt.preventDefault();
@@ -3824,23 +3753,22 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
             } else {
                 // TODO: handle error
-                console.log('ERROR in setDataSet:', ds);
+                logDebug('ERROR in setDataSet:', ds);
             }
 
 
             // hide or show the mediation based upon if there are datasets that can mediate against
             let allDS = [];
             $.each(g.DATASETS, function(key, value) {
-                if (value.dataType !== 'phenotype') {
+                if (value.datatype !== 'pheno') {
                     allDS.push(value);
                 }
             });
-            console.log('allDS=', allDS)
 
             $('#divMediationSelect').html('');
 
             if (allDS.length === 1) {
-                $('#divMediationSelect').html(`Mediating against: ${allDS[0].displayName}`);
+                $('#divMediationSelect').html(`Mediating against: ${allDS[0]['display.name']}`);
                 $('#divMediationSelect').append(`<input type="hidden" id="dsMediateAgainstID" value="${allDS[0].id}"/>`);
             } else if (allDS.length > 1) {
 
@@ -3849,20 +3777,15 @@ g.chartSNPAssocGenes = Highcharts.chart({
                                            Mediate Against
                                       </div>
                                       <div class="col-9">
-                                          <select id="dsMediateAgainstID" data-btn-class="btn-secondary btn-sm">`;
+                                          <select id="dsMediateAgainstID" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">`;
 
                 $.each(allDS, function(idx, elem) {
-                    console.log(idx, elem);
-                    htmlMediate += `<option value="${elem.id}">${elem.displayName}</option>`;
+                    logDebug(idx, elem);
+                    htmlMediate += `<option value="${elem.id}">${elem['display.name']}</option>`;
                 });
                 htmlMediate += '</select></div></div>';
 
                 $('#divMediationSelect').html(htmlMediate);
-
-                $('#dsMediateAgainstID').select2({
-                    minimumResultsForSearch: Infinity,
-                    width: '100%',
-                });
             }
         }
 
@@ -3892,7 +3815,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
          * @param {string} id - the unique identifier
          */
         function plotProfile(id) {
-            dbg(`plotProfile(${id})`);
+            logDebug(`plotProfile(${id})`);
 
             // profiles are covar_factors
             let data = g.expressionData;
@@ -3902,8 +3825,8 @@ g.chartSNPAssocGenes = Highcharts.chart({
             // using this so plots have same jitter
             Math.seedrandom('profileplot');
 
-            dbg('categories=', categories);
-            dbg('categorySeries=', categorySeries);
+            logDebug('categories=', categories);
+            logDebug('categorySeries=', categorySeries);
 
 
             let newData = {};
@@ -3932,23 +3855,24 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
 
             } else {
-                $.each(g.DATASETS[g.dataSetID].covarFactors, function(idx, elem) {
-                    cfMap[elem['column.name']] = elem['display.name'];
+                $.each(g.DATASETS[g.dataSetID]['covar.info'], function(idx, elem) {
+                    cfMap[elem['sample.column']] = elem['display.name'];
                 });
 
 
                 let title = [];
 
                 $.each(categories, function(idx, elem) {
+                    logDebug('elem=',elem);
                     newData[elem] = [];
-                    allCategories.push(data.dataTypes[elem]);
+                    allCategories.push(data.datatypes[elem]);
                     title.push(cfMap[elem]);
                 });
 
                 chartTitle = title.join(' x ');
                 allCategories = permutateArrays(allCategories);
 
-                dbg('allCategories=', allCategories);
+                logDebug('allCategories=', allCategories);
 
                 $.each(allCategories, function(idx, elem) {
                     let catName = elem.join(':');
@@ -3970,22 +3894,21 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     pointToLabel[start + (idx * stepAmount)] = catName;
                 });
 
-                $.each(data.dataTypes[categorySeries], function(idx, val) {
+                $.each(data.datatypes[categorySeries], function(idx, val) {
                     seriesData[val] = { values: [] };
                 });
 
 
                 $.each(data.data, function(idx, val) {
-                    $.each(data.dataTypes[categorySeries], function(i, v) {
+                    $.each(data.datatypes[categorySeries], function(i, v) {
                         let abc = [];
                         $.each(categories, function(_i, _elem) {
-                            //console.log(_i, _elem);
                             abc.push(val[_elem]);
                         });
                         let catName = abc.join(':');
 
                         if (val.expression === undefined) {
-                            //console.log('Undefined data=', val);
+                            //logDebug('Undefined data=', val);
                         } else {
                             newCategories[catName].values.push(val.expression);
 
@@ -4003,7 +3926,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 });
             }
 
-            dbg('seriesData=', seriesData);
+            logDebug('seriesData=', seriesData);
 
             // convert from object, to array
 
@@ -4041,7 +3964,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
             });
 
             let exporting = appendExportButton('Download CSV', function() {
-                exportProfileData(id, data, g.DATASETS[g.dataSetID].covarFactors);
+                exportProfileData(id, data, g.DATASETS[g.dataSetID]['covar.info']);
             });
             exporting.filename = id + '_PROFILE';
 
@@ -4098,7 +4021,15 @@ g.chartSNPAssocGenes = Highcharts.chart({
                             headerFormat: null,
                             pointFormatter: function() {
                                 let val = this.options.val;
-                                return `<b>${val.mouse_id}</><br><p>${val.expression}</p>`;
+                                logDebug(val);
+
+                                let hoverText = `<b>${val['mouse.id']}</><br><p>${val.expression}</p>`;
+
+                                $.each(data.datatypes, function(i, e) {
+                                    hoverText += `<br><p>${cfMap[i]}: ${val[i]}</p>`;
+                                });
+
+                                return hoverText;
                             }
                         }
                     }
@@ -4129,7 +4060,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 limit: 100
             };
 
-            console.log(options);
+            logDebug(options);
 
             startTask();
             g.ENSIMPL.search(searchVal, options, searchCallback);
@@ -4139,7 +4070,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
          * Populate the search results.
          */
         function searchCallback() {
-            console.log(g.ENSIMPL);
+            logDebug(g.ENSIMPL);
 
             if (g.ENSIMPL.response.result.matches === null) {
                 $('#searchResultsDiv').html('');
@@ -4175,13 +4106,13 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 let row = '<tr>';
                 searchResults[match.ensembl_gene_id] = match;
 
-                if (currentDataSet.dataType === 'mRNA') {
+                if (currentDataSet.datatype === 'mrna') {
                     if (currentDataSet.gene_ids[match.ensembl_gene_id]) {
                         row += `<td class="text-nowrap"><i id="matchInfo" geneID="${match.ensembl_gene_id}" class="fas fa-info-circle"></i> <a href="#" geneID="${match.ensembl_gene_id}">${match.ensembl_gene_id}</a></td>`;
                     } else {
                         row += `<td class="text-nowrap"><i id="matchInfo" geneID="${match.ensembl_gene_id}" class="fas fa-info-circle"></i> ${match.ensembl_gene_id}</td>`;
                     }
-                } else if (currentDataSet.dataType === 'protein') {
+                } else if (currentDataSet.datatype === 'protein') {
                     if (currentDataSet.gene_ids[match.ensembl_gene_id]) {
                         let ps = [];
                         row += `<td><div class="text-nowrap"><i id="matchInfo" geneID="${match.ensembl_gene_id}" class="fas fa-info-circle"></i> ${match.ensembl_gene_id}</data>`;
@@ -4199,7 +4130,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     }
                 } else {
                     // TODO: handle error
-                    console.error('THIS SHOULD NOT HAPPEN');
+                    logError('THIS SHOULD NOT HAPPEN');
                 }
 
                 row += `<td>${match.symbol}</td>`;
@@ -4278,7 +4209,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
         }
 
         function generateSecondaryPlot(plot, id, markerID, chromosome, location, covar) {
-            console.log('Generating Secondary Plot');
+            logDebug('Generating Secondary Plot');
             if (plot === 'navPlotMediation') {
                 generateMediationPlot(id, markerID);
             } else if (plot === 'navPlotEffect') {
@@ -4357,28 +4288,28 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 //
             }
 
-            console.log('dataLOD=', dataLOD);
-            console.log('covar=', covar);
-            console.log('dataDiff=', dataDiff);
-            console.log('renderTo=', renderTo);
+            logDebug('dataLOD=', dataLOD);
+            logDebug('covar=', covar);
+            logDebug('dataDiff=', dataDiff);
+            logDebug('renderTo=', renderTo);
 
             if (dataLOD !== null) {
                 maxLOD = dataLOD[0][3];
                 minLOD = -2;
 
-                if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+                if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                     currentID = g.geneID;
                     xAxisTitle = g.geneID + ' (' + g.gene.gene[g.geneID].symbol + ')';
 
-                } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+                } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                     currentID = g.proteinID;
                     xAxisTitle = g.proteinID + ' (' + g.gene.gene[g.geneID].symbol + ')';
-                } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
+                } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                     // pheno
                     xAxisTitle = g.phenotypeID;
                     currentID = g.phenotypeID;
-                    if (currentID !== g.DATASETS[g.dataSetID].phenotypes[currentID].shortName) {
-                        xAxisTitle += (' (' + g.DATASETS[g.dataSetID].phenotypes[currentID].shortName + ')');
+                    if (currentID !== g.DATASETS[g.dataSetID].phenotypes[currentID]['short.name']) {
+                        xAxisTitle += (' (' + g.DATASETS[g.dataSetID].phenotypes[currentID]['short.name'] + ')');
                     }
                 } else {
                     // TODO: handle error
@@ -4418,16 +4349,16 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     }
                 });
 
-                console.log('MAX LOD = ', maxLOD);
+                logDebug('MAX LOD = ', maxLOD);
 
                 maxLOD = Math.ceil(maxLOD) + 1;
 
-                console.log('MAX LOD = ', maxLOD);
+                logDebug('MAX LOD = ', maxLOD);
             }
 
             newLodData.sort(compareX);
 
-            console.log('newLodData=', newLodData);
+            logDebug('newLodData=', newLodData);
 
             //
             // build the vertical chromosome bars
@@ -4450,7 +4381,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                         to: element.end
                     });
 
-                    console.log(fillColor);
+                    logDebug(fillColor);
                 }
             });
 
@@ -4558,7 +4489,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                             g.secondaryPlotLocation = location;
                             g.secondaryPlotCovar = covar;                            
 
-                            console.log('event', markerID, chromosome, location, this.hoverPoint.covar);
+                            logDebug('event', markerID, chromosome, location, this.hoverPoint.covar);
 
                             generateSecondaryPlot(plot, currentID, markerID, chromosome, location, covar);
                         }
@@ -4571,7 +4502,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                         cursor: 'pointer',
                         events: {
                             click: function(event) {
-                                console.log('plotOptions, series', event);
+                                logDebug('plotOptions, series', event);
                                 
                                 let plot = $('#secondaryPlotTabs').find('.active').attr('id');
                                 let markerID = event.point.id;
@@ -4584,7 +4515,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                                 g.secondaryPlotLocation = location;
                                 g.secondaryPlotCovar = covar;                            
 
-                                console.log('series', markerID, chromosome, location, event.point.covar);
+                                logDebug('series', markerID, chromosome, location, event.point.covar);
 
                                 generateSecondaryPlot(plot, currentID, markerID, chromosome, location, covar);
                                 
@@ -4688,13 +4619,13 @@ g.chartSNPAssocGenes = Highcharts.chart({
         }
 
 
-        function configureCovarFactors(resetPeaks) {
+        function configureCovarInfo(resetPeaks) {
             // current dataset
-            dbg('configureCovarFactors', resetPeaks);
+            logDebug('configureCovarInfo', resetPeaks);
             let ds = g.DATASETS[g.dataSetID];
 
-            if (ds.covarFactors == null) {
-                dbg('NO COVAR FACTORS');
+            if (ds['covar.info'] == null) {
+                logDebug('NO COVAR INFO');
 
                 let profilePlotOptionsHTML = `
                 <input type="hidden" id="factorSeries" value="additive"/>
@@ -4713,28 +4644,27 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 return;
             }
 
-
             let profilePlotOptionsHTML = `
+                                  <div class="col">
                                     <div class="row">
-                                        <div class="col font-weight-bold">
+                                        <div class="col">
                                             Select your factors
                                         </div>
                                     </div>
+
                                     <div class="row">
-                                        <div class="col-8">
+                                        <div class="col">
                                             <div id="factor-view-select-wrapper">
-                                                <select id="factor-view-select" data-style="btn-secondary" multiple="multiple">
+                                                <select id="factor-view-select" multiple="multiple">
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-4">
-                                            <button id="btnFactPlot" type="button" class="btn btn-flat btn-primary">
-                                                <i class="fas fa-sync"></i> Update</button>
-                                        </div>
                                     </div>
 
+                                    <div class="row row-spacer"></div>
+
                                     <div class="row">
-                                        <div class="col font-weight-bold">
+                                        <div class="col">
                                             Select a series to color
                                         </div>
                                     </div>
@@ -4744,12 +4674,14 @@ g.chartSNPAssocGenes = Highcharts.chart({
                                         </div>
                                     </div>
 
-                                    <div class="row row-spacer"></div>`;
+                                    <div class="row row-spacer"></div>
+</div>`;
 
             $('#divProfilePlotOptions').html(profilePlotOptionsHTML);
-            g.orderCount = ds.covarFactors.length;
+            g.orderCount = ds['covar.info'].length;
 
-            console.log('g.orderCount=',g.orderCount);
+            logDebug('g.orderCount=',g.orderCount);
+
 
             $('#factor-view-select').multiselect({
                 onChange: function(option, checked) {
@@ -4760,11 +4692,25 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     else {
                         $(option).attr('order', '');
                     }
+
+
+
+                    if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
+                        plotProfile(g.geneID);
+                    } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
+                        plotProfile(g.proteinID);
+                    } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
+                        plotProfile(g.phenotypeID);
+                    } else {
+                        // TODO: major error
+                        console.error('MAJOR ERROR');
+                    }
+
                 },
                 maxHeight: 400,
                 dropUp: false,
                 buttonWidth: '100%',
-                buttonClass: 'btn btn-secondary',
+                buttonClass: 'text-left btn btn-sm btn-secondary',
                 buttonText: function(options) {
                     if (options.length === 0) {
                         return 'None selected';
@@ -4782,7 +4728,8 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
                         let text = '';
                         for (let i = 0; i < selected.length; i++) {
-                            text += ((i+1) + ': ' + selected[i][0] + ', ');
+                            // text += ((i+1) + ': ' + selected[i][0] + ', ');  // with numbers
+                            text += (selected[i][0] + ', ');  // without numbers
                         }
 
                         return text.substr(0, text.length - 2);
@@ -4790,22 +4737,23 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 }
             });
 
+
             let selectOptions = [];
-            let html = '<select id="factorSeries">';
-            let htmlCorrelation = '<select id="factorSeriesCorrelation">';
+            let html = '<select id="factorSeries" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">';
+            let htmlCorrelation = '<select id="factorSeriesCorrelation" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">';
             let htmlInteractiveCovariatesLOD = `<div class="row">
                                                     <div class="col-3 align-self-center font-weight-bold">
                                                         <span>Plots</span>
                                                     </div>
                                                     <div class="col-9">
-                                                        <select id="interactiveCovarLODS" data-btn-class="btn-secondary btn-sm">
+                                                        <select id="interactiveCovarLODS" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">
                                                 `;
             let htmlInteractiveCovariatesPeaks = `<div class="row">
                                                       <div class="col-3 align-self-center">
                                                         <span>Plot type</span>
                                                       </div>
                                                       <div class="col-9">
-                                                          <select id="interactiveCovarPeaks" data-btn-class="btn-secondary btn-sm">
+                                                          <select id="interactiveCovarPeaks" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">
                                             `;
 
             g.interactiveCovariates = [];
@@ -4813,27 +4761,27 @@ g.chartSNPAssocGenes = Highcharts.chart({
             htmlInteractiveCovariatesLOD += `<option value="additive">Additive</option>`;
             htmlInteractiveCovariatesPeaks += `<option value="additive">Additive</option>`;
 
-            $.each(ds.covarFactors, function(index, element) {
-                console.log(index, element);
+            $.each(ds['covar.info'], function(index, element) {
                 selectOptions.push({
                     label: element['display.name'],
                     order: index,
-                    selected: true,
+                    selected: element.primary,
                     title: element['display.name'],
-                    value: element['column.name'],
+                    value: element['sample.column'],
                 });
 
-                html += `<option value="${element['column.name']}">${element['display.name']}</option>`;
-                htmlCorrelation += `<option value="${element['column.name']}">${element['display.name']}</option>`;
+                html += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
+                htmlCorrelation += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
 
                 // interactive covariates
-                if ('int.covar' in element) {
+                if (element['interactive']) {
+                    logDebug('push');
                     g.interactiveCovariates.push(element);
-                    htmlInteractiveCovariatesLOD += `<option value="${element['column.name']}">${element['display.name']}</option>`;
-                    htmlInteractiveCovariatesPeaks += `<option value="${element['column.name']}">${element['display.name']}</option>`;
+                    htmlInteractiveCovariatesLOD += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
+                    htmlInteractiveCovariatesPeaks += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
                 }
-
             });
+
             html += '</select>';
             htmlCorrelation += '</select>';
             htmlInteractiveCovariatesLOD += '</select></div></div>';
@@ -4845,7 +4793,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
             $('#divFactorSeriesCorrelation').html(htmlCorrelation);
 
 
-            console.log('g.interactiveCovariates=', g.interactiveCovariates);
+            logDebug('g.interactiveCovariates=', g.interactiveCovariates);
 
             // display a selection if we have interactive covariates, nothing if not
             if (g.interactiveCovariates.length > 0) {
@@ -4853,28 +4801,22 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
                 $('#divInteractiveCovariatesLOD').html(htmlInteractiveCovariatesLOD);
 
-                $('#interactiveCovarLODS').select2({
-                    minimumResultsForSearch: Infinity,
-                    width: '100%',
-                });
-                $('#interactiveCovarLODS').on('change', function (evt) {
-                    changeCovariate(evt.target.value);
+                $('#interactiveCovarLODS').selectpicker();
+
+                $('#interactiveCovarLODS').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+                    let selected = $(this).find(':selected').val();
+                    changeCovariate(e.target.value);
                 });
 
                 if (resetPeaks) {
                     $('#divInteractiveCovariatesPeaks').html(htmlInteractiveCovariatesPeaks);
 
-                    $('#interactiveCovarPeaks').select2({
-                        minimumResultsForSearch: Infinity,
-                        width: '100%',
-                    });
-                    $('#interactiveCovarPeaks').on('change', function (evt) {
-                        console.log(evt.target.value);
+                    $('#interactiveCovarPeaks').selectpicker();
+
+                    $('#interactiveCovarPeaks').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
                         updatePeaks(+$('#lodSliderValue').val());
                     });
                 }
-
-
             } else {
                 $('#divInteractiveCovariatesLOD').html(`<input type="hidden" id="interactiveCovarLODS" value="additive"/>`);
 
@@ -4882,17 +4824,15 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     $('#divInteractiveCovariatesPeaks').html(`<input type="hidden" id="interactiveCovarPeaks" value="additive"/>`);
                 }
             }
-            $('#factorSeries').select2({
-                minimumResultsForSearch: Infinity,
-                width: '100%',
-            });
 
-            $('#factorSeries').on('change', function () {
-                if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+            $('#factorSeries').selectpicker();
+
+            $('#factorSeries').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+                if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                     plotProfile(g.geneID);
-                } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+                } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                     plotProfile(g.proteinID);
-                } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
+                } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                     plotProfile(g.phenotypeID);
                 } else {
                     // TODO: major error
@@ -4900,28 +4840,10 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 }
             });
 
-            $('#factorSeriesCorrelation').select2({
-                minimumResultsForSearch: Infinity,
-                width: '100%',
-            });
+            $('#factorSeriesCorrelation').selectpicker();
 
-            $('#factorSeriesCorrelation').on('change', function (evt) {
+            $('#factorSeriesCorrelation').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
                 plotCorrelationChart();
-            });
-
-
-            $('#btnFactPlot').on('click', function(evt) {
-                dbg('btnFactPlot clicked');
-                if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
-                    plotProfile(g.geneID);
-                } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
-                    plotProfile(g.proteinID);
-                } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
-                    plotProfile(g.phenotypeID);
-                } else {
-                    // TODO: major error
-                    console.error('MAJOR ERROR');
-                }
             });
 
             $('#btnDownloadCorrelationData').on('click', function(evt) {
@@ -4929,27 +4851,27 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     let csvContent = '';
                     let id = '';
 
-                    if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+                    if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                         id = g.geneID;
-                    } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+                    } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                         id = g.proteinID;
-                    } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
+                    } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                         id = g.phenotypeID;
                     } else {
                         console.error('MAJOR ERROR');
                     }
 
-                    if (g.DATASETS[g.correlationDatasetID].dataType === 'mRNA') {
+                    if (g.DATASETS[g.correlationDatasetID].datatype === 'mrna') {
                         csvContent = '"id","symbol","chr","start","end","correlation"\n';
                         $.each(g.correlationData, function (k, v) {
                             csvContent += `"${v.id}","${v.symbol}","${v.chr}",${v.start},${v.end},${v.cor}\n`;
                         });
-                    } else if (g.DATASETS[g.correlationDatasetID].dataType === 'protein') {
+                    } else if (g.DATASETS[g.correlationDatasetID].datatype === 'protein') {
                         csvContent = '"id","symbol","chr","start","end","correlation"\n';
                         $.each(g.correlationData, function (k, v) {
                             csvContent += `"${v.id}","${v.symbol}","${v.chr}",${v.start},${v.end},${v.cor}\n`;
                         });
-                    } else if (g.DATASETS[g.correlationDatasetID].dataType === 'phenotype') {
+                    } else if (g.DATASETS[g.correlationDatasetID].datatype === 'pheno') {
                         csvContent = '"id","correlation"\n';
                         $.each(g.correlationData, function (k, v) {
                             csvContent += `"${v.id}",${v.cor}\n`;
@@ -4961,7 +4883,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
                     downloadCSV(csvContent, `${id}_correlation.csv`, 'text/csv;encoding:utf-8');
                 } else {
-                    console.log('no correlation data?');
+                    logDebug('no correlation data?');
                 }
             });
 
@@ -4974,29 +4896,29 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
         function displayCorrelation(correlationData) {
             $('#correlationDataTable').html('');
-            console.log('displayCorrelation()');
-            console.log('correlationData=', correlationData);
+            logDebug('displayCorrelation()');
+            logDebug('correlationData=', correlationData);
             g.correlationData = correlationData;
 
-            console.log('g.DATASETS[g.correlationDatasetID].dataType=', g.DATASETS[g.correlationDatasetID].dataType);
+            logDebug('g.DATASETS[g.correlationDatasetID].datatype=', g.DATASETS[g.correlationDatasetID].datatype);
 
             let htmlBody = '<table id="corTable" class="table table-sm table-sm-text">';
 
-            if (g.DATASETS[g.correlationDatasetID].dataType === 'mRNA') {
+            if (g.DATASETS[g.correlationDatasetID].datatype === 'mrna') {
                 htmlBody += '<tr><td><strong>Value</strong></td><td><strong>Symbol</strong></td><td><strong>Location</strong></td></tr>';
                 $.each(correlationData, function(idx, value) {
                     if (idx < 1000) {
                         htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}:` + formatStrToNum(value.start, 2) + '-' + formatStrToNum(value.end, 2) + '</td></tr>';
                     }
                 });
-            } else if (g.DATASETS[g.correlationDatasetID].dataType === 'protein') {
+            } else if (g.DATASETS[g.correlationDatasetID].datatype === 'protein') {
                 htmlBody += '<tr><td><strong>Value</strong></td><td><strong>Symbol</strong></td><td><strong>Chr</strong></td></tr>';
                 $.each(correlationData, function(idx, value) {
                     if (idx < 1000) {
                         htmlBody += '<tr><td>' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}:` + formatStrToNum(value.start, 2) + '-' + formatStrToNum(value.end, 2) + '</td></tr>';
                     }
                 });
-            } else if (g.DATASETS[g.correlationDatasetID].dataType === 'phenotype') {
+            } else if (g.DATASETS[g.correlationDatasetID].datatype === 'pheno') {
                 htmlBody += '<tr><td><strong>Value</strong></td><td><strong>ID</strong></td></tr>';
                 $.each(correlationData, function(idx, value) {
                     if (idx < 1000) {
@@ -5016,11 +4938,11 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 let that = $(this);
                 let cid = null;
 
-                if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+                if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                     cid = g.geneID;
-                } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+                } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                     cid = g.proteinID;
-                } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
+                } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                     cid = g.phenotypeID;
                 }
 
@@ -5030,10 +4952,10 @@ g.chartSNPAssocGenes = Highcharts.chart({
         }
 
         function exportCorrelationPlotData(id, idCorrelate, data) {
-            let csvContent = `"mouse_id","${id}","${idCorrelate}"\n`;
+            let csvContent = `"mouse.id","${id}","${idCorrelate}"\n`;
 
             $.each(data, function(k, v) {
-                csvContent += `"${v.mouse_id}",${v.x},${v.y}\n`;
+                csvContent += `"${v['mouse.id']}",${v.x},${v.y}\n`;
             });
 
             downloadCSV(csvContent, `${id}_${idCorrelate}_CORRELATION.csv`, 'text/csv;encoding:utf-8');
@@ -5042,15 +4964,15 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
         function plotCorrelationChart() {
             let data = g.correlationChartData;
-            console.log('plotCorrelationChart, data=', data);
+            logDebug('plotCorrelationChart, data=', data);
 
             let categorySeries = $('#divFactorSeriesCorrelation').find(':selected').val();
-            console.log('categorySeries=', categorySeries);
+            logDebug('categorySeries=', categorySeries);
 
             let seriesData = {};
 
             // need to pass  back factors or use global?
-            $.each(data.dataTypes[categorySeries], function(idx, val) {
+            $.each(data.datatypes[categorySeries], function(idx, val) {
                 seriesData[val] = { values: [] };
             });
 
@@ -5064,8 +4986,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     maxValue = Math.max(maxValue, element.x);
                     maxValue = Math.max(maxValue, element.y);
 
-                    //console.log('Looping through ', data.dataTypes[categorySeries]);
-                    $.each(data.dataTypes[categorySeries], function (i, v) {
+                    $.each(data.datatypes[categorySeries], function (i, v) {
                         // put the data in the correct buckets
                         if (v === element[categorySeries]) {
                             seriesData[v].values.push(element);
@@ -5074,7 +4995,10 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 }
             });
 
-            //console.log('seriesData=', seriesData);
+            let cfMap = {};
+            $.each(g.DATASETS[g.dataSetID]['covar.info'], function(idx, elem) {
+                cfMap[elem['sample.column']] = elem['display.name'];
+            });
 
             // convert from object, to array
 
@@ -5096,12 +5020,11 @@ g.chartSNPAssocGenes = Highcharts.chart({
             minValue = Math.floor(minValue);
             maxValue = Math.ceil(maxValue);
 
-            console.log('minValue=', minValue);
-            console.log('maxValue=', maxValue);
+            logDebug('minValue=', minValue);
+            logDebug('maxValue=', maxValue);
+            logDebug('series=', series);
 
-            console.log('series=', series);
-
-            let yAxisTitle = data.idCorrelate;
+            let yAxisTitle = data['id.correlate'];
 
             /*
             if (correlateSymbol !== '') {
@@ -5110,12 +5033,13 @@ g.chartSNPAssocGenes = Highcharts.chart({
             */
 
             let exporting = appendExportButton('Download CSV', function() {
-                exportCorrelationPlotData(data.id, data.idCorrelate, data.data);
+                exportCorrelationPlotData(data.id, data['id.correlate'], data.data);
             });
-            exporting.filename = data.id + '_' + data.idCorrelate + '_CORRELATION';
+            exporting.filename = data.id + '_' + data['id.correlate'] + '_CORRELATION';
 
             g.chartCorrelation = Highcharts.chart({
                 chart: {
+                    type: 'scatter',
                     renderTo: 'plotCorrelation',
                     zoomType: 'xy',
                     height: 350,
@@ -5124,6 +5048,19 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 exporting: exporting,
                 plotOptions: {
                     scatter: {
+                        tooltip: {
+                            headerFormat: null,
+                            pointFormatter: function() {
+                                let val = this.options;
+                                let hoverText = `<b>${val['mouse.id']}</>`;
+
+                                $.each(data.datatypes, function(i, e) {
+                                    hoverText += `<br><p>${cfMap[i]}: ${val[i]}</p>`;
+                                });
+
+                                return hoverText;
+                            }
+                        },
                         marker: {
                             radius: 5,
                             states: {
@@ -5145,26 +5082,6 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 series: series,
                 title: {
                     text: '',
-                },
-                tooltip: {
-                    useHTML: true,
-                    formatter: function () {
-                        return `<b>${this.point.mouse_id}</b>`;
-                    },
-                    positioner: function(labelWidth, labelHeight, point){
-                        let tooltipX, tooltipY;
-                        let chart = g.chartCorrelation;
-                        if (point.plotX + labelWidth > chart.plotWidth) {
-                            tooltipX = point.plotX + chart.plotLeft - labelWidth - 20;
-                        } else {
-                            tooltipX = point.plotX + chart.plotLeft + 20;
-                        }
-                        tooltipY = point.plotY + chart.plotTop - 20;
-                        return {
-                            x: tooltipX,
-                            y: tooltipY
-                        };
-                    },
                 },
                 xAxis: {
                     endOnTick: true,
@@ -5192,8 +5109,8 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
         function updateCorrelationData(groupID, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol) {
             // send GET request to status URL
-            console.log('updateCorrelationData');
-            console.log(currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
+            logDebug('updateCorrelationData');
+            logDebug(currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
 
             if (g.runningTask) {
                 let statusURL = '{{ url_for('api.api_status', group_id='', _external=True) }}' + groupID;
@@ -5201,7 +5118,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     type: 'GET',
                     url: statusURL,
                     success: function (data, status, request) {
-                        console.log('DATA=======', data);
+                        logDebug('DATA=======', data);
                         if (data.status === 'DONE') {
                             if ('error' in data) {
                                 // MAJOR ERROR
@@ -5240,7 +5157,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                             }
                         } else {
                             // rerun in 1 seconds
-                            console.log('Not done, keep checking...');
+                            logDebug('Not done, keep checking...');
                             setTimeout(function () {
                                 updateCorrelationData(groupID, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
                             }, 1000);  // TODO: change to 1000 (1 second)
@@ -5249,10 +5166,10 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 });
             } else {
                 // TODO: cleanup
-                console.log('canceling');
+                logDebug('canceling');
                 let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
-                    console.log(data);
+                    logDebug(data);
                     g.chartCorrelation = null;
                     $('#correlationDataTable').html('');
                     $('#plotCorrelation').html('');
@@ -5262,8 +5179,8 @@ g.chartSNPAssocGenes = Highcharts.chart({
         }
 
         function generateCorrelationPlot(currentDataset, currentID, correlateDataset, correlateID, correlateSymbol) {
-            console.log('Generating correlation plot:', currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
-            let urlCorrelationPlot = `{{ config.API_R_BASE }}/correlationPlotData?dataset=${currentDataset}&id=${currentID}&datasetCorrelate=${correlateDataset}&idCorrelate=${correlateID}`;
+            logDebug('Generating correlation plot:', currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
+            let urlCorrelationPlot = `{{ config.API_R_BASE }}/correlationplot?dataset=${currentDataset}&id=${currentID}&dataset.correlate=${correlateDataset}&id.correlate=${correlateID}`;
             let submitData = {
                 urls:[{
                     url_id: 'correlationPlot',
@@ -5307,9 +5224,9 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
         function updateGeneSelect(groupID, geneID, proteinID, dataSetID, covar) {
             // send GET request to status URL
-            console.log('update progress, calling .ajax');
+            logDebug('update progress, calling .ajax');
 
-            console.log(groupID);
+            logDebug(groupID);
 
             if (g.runningTask) {
                 let statusURL = `{{ url_for('api.api_status', group_id='', _external=True) }}${groupID}`;
@@ -5317,7 +5234,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     type: 'GET',
                     url: statusURL,
                     success: function (data, status, request) {
-                        console.log('DATA=======', data);
+                        logDebug('DATA=======', data);
 
                         /* A response will be like this:
 
@@ -5421,17 +5338,17 @@ g.chartSNPAssocGenes = Highcharts.chart({
                                                      data.response_data.lod.response.result);
                                     }
 
-                                    $('#interactiveCovarLODS').val(covar).trigger('change.select2');
+                                    $('#interactiveCovarLODS').selectpicker('val', covar);
 
                                     // 3. Expression information
                                     g.expressionData = data.response_data.expression.response.result;
 
-                                    if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+                                    if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                                         plotProfile(g.geneID);
-                                    } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+                                    } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                                         plotProfile(g.proteinID);
                                     } else {
-                                        console.log('ERROR');
+                                        logDebug('ERROR');
                                     }
 
                                     // 4. Correlation
@@ -5449,7 +5366,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                         }
                         else {
                             // rerun in 1 seconds
-                            console.log('Not done, keep checking...');
+                            logDebug('Not done, keep checking...');
                             setTimeout(function () {
                                 updateGeneSelect(groupID, geneID, proteinID, dataSetID, covar);
                             }, 1000);
@@ -5458,10 +5375,10 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 });
             } else {
                 // TODO: cleanup
-                console.log('canceling');
+                logDebug('canceling');
                 let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
-                    console.log(data);
+                    logDebug(data);
                 });
             }
         }
@@ -5492,18 +5409,18 @@ g.chartSNPAssocGenes = Highcharts.chart({
             g.LODChartData.additive = null;
 
             // reset the covariate pickers
-            configureCovarFactors(false);
+            configureCovarInfo(false);
 
             $.each(g.interactiveCovariates, function(idx, value) {
                 g.LODChartData[value['column.name']] = null;
             });
 
             if (covar === 'additive') {
-                urlLOD += '&intCovar=additive';
+                urlLOD += '&interactive.covar=additive';
                 urlLODCovar = null;
             } else {
-                urlLOD += '&intCovar=additive';
-                urlLODCovar += ('&intCovar=' + covar);
+                urlLOD += '&interactive.covar=additive';
+                urlLODCovar += ('&interactive.covar=' + covar);
             }
 
 
@@ -5511,9 +5428,9 @@ g.chartSNPAssocGenes = Highcharts.chart({
             //URL += '&ncores=' + _G.api_cores;
             {% if config.API_R_NUM_CORES %}
             if (urlLODCovar != null) {
-                urlLODCovar += '&nCores={{ config.API_R_NUM_CORES }}';
+                urlLODCovar += '&cores={{ config.API_R_NUM_CORES }}';
             }
-            urlLOD += '&nCores={{ config.API_R_NUM_CORES }}';
+            urlLOD += '&cores={{ config.API_R_NUM_CORES }}';
             {% endif %}
 
             let submitData = {
@@ -5535,7 +5452,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 });
             }
 
-            console.log('submitData=', submitData);
+            logDebug('submitData=', submitData);
 
             startTask();
 
@@ -5565,12 +5482,12 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 data: JSON.stringify(submitData),
                 success: function(data, status, request) {
                     g.runningTask = true;
-                    console.log('data=', data);
-                    console.log('status=', status);
-                    console.log('request=', request);
+                    logDebug('data=', data);
+                    logDebug('status=', status);
+                    logDebug('request=', request);
                     //let status_url = request.getResponseHeader('Location');
-                    //console.log('status_url=', status_url);
-                    console.log('data.group_id=', data.group_id);
+                    //logDebug('status_url=', status_url);
+                    logDebug('data.group_id=', data.group_id);
                     updatePhenotypeSelect(data.group_id, dataSetID, covar);
                 },
                 error: function() {
@@ -5618,9 +5535,9 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
         function updatePhenotypeSelect(groupID, datasetID, covar) {
             // send GET request to status URL
-            console.log('update progress, calling .ajax');
+            logDebug('update progress, calling .ajax');
 
-            console.log(groupID);
+            logDebug(groupID);
 
             if (g.runningTask) {
                 let statusURL = `{{ url_for('api.api_status', group_id='', _external=True) }}${groupID}`;
@@ -5628,7 +5545,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     type: 'GET',
                     url: statusURL,
                     success: function (data, status, request) {
-                        console.log('DATA=======', data);
+                        logDebug('DATA=======', data);
 
                         /* A response will be like this:
 
@@ -5715,8 +5632,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                                                      data.response_data.lod.response.result);
                                     }
 
-                                    $('#interactiveCovarLODS').val(covar).trigger('change.select2');
-
+                                    $('#interactiveCovarLODS').selectpicker('val', covar);
 
                                     // 2. Correlation
                                     displayCorrelation(data.response_data.correlation.response.result);
@@ -5737,7 +5653,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                         }
                         else {
                             // rerun in 1 seconds
-                            console.log('Not done, keep checking...');
+                            logDebug('Not done, keep checking...');
                             setTimeout(function () {
                                 updatePhenotypeSelect(groupID, datasetID, covar);
                             }, 1000);  // TODO: change to 1000 (1 second)
@@ -5746,10 +5662,10 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 });
             } else {
                 // TODO: cleanup
-                console.log('canceling');
+                logDebug('canceling');
                 let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
-                    console.log(data);
+                    logDebug(data);
                 });
             }
         }
@@ -5758,7 +5674,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
          * Perform gene search.
          */
         function selectGeneProtein(geneID, proteinID, dataSetID, covar) {
-            console.log(`selectGeneProtein(${geneID}, ${proteinID}, ${dataSetID}, ${covar})`);
+            logDebug(`selectGeneProtein(${geneID}, ${proteinID}, ${dataSetID}, ${covar})`);
 
             let urlGeneData = `http://churchill-lab.jax.org/ensimpl/api/gene?id=${geneID}&species=${g.SPECIES_ID}&version=${g.ENSEMBL_VERSION}`;
             let urlExpression = `{{ config.API_R_BASE }}/expression?dataset=${dataSetID}&id=`;
@@ -5784,7 +5700,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
             });
 
             // reset the covariate pickers
-            configureCovarFactors(false);
+            configureCovarInfo(false);
 
             if ((proteinID === undefined) || (proteinID == null)) {
                 urlExpression += geneID;
@@ -5799,22 +5715,20 @@ g.chartSNPAssocGenes = Highcharts.chart({
             }
 
             if (covar === 'additive') {
-                urlLOD += '&intCovar=additive';
+                urlLOD += '&interactive.covar=additive';
                 urlLODCovar = null;
             } else {
-                urlLOD += '&intCovar=additive';
-                urlLODCovar += ('&intCovar=' + covar);
+                urlLOD += '&interactive.covar=additive';
+                urlLODCovar += ('&interactive.covar=' + covar);
             }
-
-            //urlLOD += ('&intcovar=' + $('#interactiveCovarLODS').val());
 
             // TODO: add ncores?, regress_local? to urlLOD, or handle backend?
             //URL += '&ncores=' + _G.api_cores;
             {% if config.API_R_NUM_CORES %}
             if (urlLODCovar != null) {
-                urlLODCovar += '&nCores={{ config.API_R_NUM_CORES }}';
+                urlLODCovar += '&cores={{ config.API_R_NUM_CORES }}';
             }
-            urlLOD += '&nCores={{ config.API_R_NUM_CORES }}';
+            urlLOD += '&cores={{ config.API_R_NUM_CORES }}';
             {% endif %}
 
             let submitData = {
@@ -5839,7 +5753,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 });
             }
 
-            console.log('submitData=', submitData);
+            logDebug('submitData=', submitData);
 
             startTask();
 
@@ -5869,12 +5783,12 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 data: JSON.stringify(submitData),
                 success: function(data, status, request) {
                     g.runningTask = true;
-                    console.log('data=', data);
-                    console.log('status=', status);
-                    console.log('request=', request);
+                    logDebug('data=', data);
+                    logDebug('status=', status);
+                    logDebug('request=', request);
                     //let status_url = request.getResponseHeader('Location');
-                    //console.log('status_url=', status_url);
-                    console.log('data.group_id=', data.group_id);
+                    //logDebug('status_url=', status_url);
+                    logDebug('data.group_id=', data.group_id);
                     updateGeneSelect(data.group_id, geneID, proteinID, dataSetID, covar);
                 },
                 error: function() {
@@ -5885,9 +5799,9 @@ g.chartSNPAssocGenes = Highcharts.chart({
 
         function updateChangeCovariate(groupID, covar) {
             // send GET request to status URL
-            console.log('update progress, calling .ajax');
+            logDebug('update progress, calling .ajax');
 
-            console.log(groupID);
+            logDebug(groupID);
 
             if (g.runningTask) {
                 let statusURL = `{{ url_for('api.api_status', group_id='', _external=True) }}${groupID}`;
@@ -5895,7 +5809,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     type: 'GET',
                     url: statusURL,
                     success: function (data, status, request) {
-                        console.log('DATA=======', data);
+                        logDebug('DATA=======', data);
 
                         /* A response will be like this:
 
@@ -5964,7 +5878,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                         }
                         else {
                             // rerun in 1 seconds
-                            console.log('Not done, keep checking...');
+                            logDebug('Not done, keep checking...');
                             setTimeout(function () {
                                 updateChangeCovariate(groupID, covar);
                             }, 1000);  // TODO: change to 1000 (1 second)
@@ -5973,10 +5887,10 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 });
             } else {
                 // TODO: cleanup
-                console.log('canceling');
+                logDebug('canceling');
                 let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
-                    console.log(data);
+                    logDebug(data);
                 });
             }
         }
@@ -5985,11 +5899,11 @@ g.chartSNPAssocGenes = Highcharts.chart({
          * Change covar LOD plot.
          */
          function changeCovariate(covariate) {
-            console.log('changeCovariate(', covariate, ')')
+            logDebug('changeCovariate(', covariate, ')')
 
             if (covariate === 'additive') {
                 // remove all other graphs
-                console.log('additive, clear others')
+                logDebug('additive, clear others')
                 g.chartLODCovariateFull = null;
                 g.chartLODCovariateDiff = null;
                 $('#lodPlotChartCovariateFull').html('');
@@ -6007,7 +5921,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
             // check to see if we have the data, if so, plot it
             // else go get it
             if (g.LODChartData[covariate] != null) {
-                console.log('covar in g.LODChartData, so just add it')
+                logDebug('covar in g.LODChartData, so just add it')
                 if (covariate === 'additive') {
                     plotLODChart(g.LODChartData[covariate], covariate, null);
                 } else {
@@ -6015,7 +5929,7 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     plotLODChart(g.LODChartData[covariate], covariate, g.LODChartData.additive);
                 }
             } else {
-                console.log('covar NOT in g.LODChartData, so go get it')
+                logDebug('covar NOT in g.LODChartData, so go get it')
                 let urlLOD = `{{ config.API_R_BASE }}/lodscan?dataset=${g.dataSetID}&id=`;
 
                 g.secondaryPlotMarkerID = null;
@@ -6023,23 +5937,23 @@ g.chartSNPAssocGenes = Highcharts.chart({
                 g.secondaryPlotLocation = null;
                 g.secondaryPlotCovar = null;
 
-                if (g.DATASETS[g.dataSetID].dataType === 'mRNA') {
+                if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                     urlLOD += `${g.geneID}`;
-                } else if (g.DATASETS[g.dataSetID].dataType === 'protein') {
+                } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                     urlLOD += `${g.proteinID}`;
-                } else if (g.DATASETS[g.dataSetID].dataType === 'phenotype') {
+                } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                     urlLOD += `${g.phenotypeID}`;
                 } else {
                     // TODO: handle error
                     console.error('MAJOR PROBLEM');
                 }
 
-                urlLOD += ('&intCovar=' + covariate);
+                urlLOD += ('&interactive.covar=' + covariate);
 
                 // TODO: add ncores?, regress_local? to urlLOD, or handle backend?
                 //URL += '&ncores=' + _G.api_cores;
                 {% if config.API_R_NUM_CORES %}
-                urlLOD += '&nCores={{ config.API_R_NUM_CORES }}';
+                urlLOD += '&cores={{ config.API_R_NUM_CORES }}';
                 {% endif %}
 
                 let submitData = {
@@ -6064,12 +5978,12 @@ g.chartSNPAssocGenes = Highcharts.chart({
                     data: JSON.stringify(submitData),
                     success: function(data, status, request) {
                         g.runningTask = true;
-                        console.log('data=', data);
-                        console.log('status=', status);
-                        console.log('request=', request);
+                        logDebug('data=', data);
+                        logDebug('status=', status);
+                        logDebug('request=', request);
                         //let status_url = request.getResponseHeader('Location');
-                        //console.log('status_url=', status_url);
-                        console.log('data.group_id=', data.group_id);
+                        //logDebug('status_url=', status_url);
+                        logDebug('data.group_id=', data.group_id);
                         updateChangeCovariate(data.group_id, covariate);
                     },
                     error: function() {
@@ -6089,8 +6003,6 @@ g.chartSNPAssocGenes = Highcharts.chart({
     }();
 
     $().ready(function () {
-        $.fn.select2.defaults.set('theme', 'bootstrap4');
-
         QTL.init();
 
         // handle search
@@ -6108,8 +6020,6 @@ g.chartSNPAssocGenes = Highcharts.chart({
             QTL.findGene(term.val().trim().toUpperCase());
             return false;
         });
-
-        $('#performBLUP').bootstrapSwitch();
 
         // set some global options for Highcharts
         Highcharts.setOptions({

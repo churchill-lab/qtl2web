@@ -54,3 +54,6 @@ data
 
 # publication directory
 publication
+
+.DS_Store
+
