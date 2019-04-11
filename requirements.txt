@@ -21,7 +21,7 @@ flower==0.9.3
 Flask-Compress==1.4.0
 
 # Others.
-requests==2.19.1
+requests==2.20.0
 requests-cache==0.4.13
 psutil==5.4.3
 
