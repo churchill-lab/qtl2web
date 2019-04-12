@@ -24,9 +24,6 @@
           href="{{ url_for('static', filename='vendor/please-wait-0.0.5/please-wait.css', _external=True) }}">
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='vendor/jquery-nstslider-1.0.13/dist/jquery.nstSlider.css', _external=True) }}">
-
-    <link rel="stylesheet"
           href="{{ url_for('static', filename='vendor/dynatables-0.3.1/jquery.dynatable.css', _external=True) }}">
 
     <link rel="stylesheet"
@@ -490,8 +487,6 @@
 
     <!-- Extra //-->
     <script src="{{ url_for('static', filename='vendor/sweetalert2.all.js') }}"></script>
-    <script src="{{ url_for('static', filename='vendor/seedrandom-2.4.3/seedrandom.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='vendor/jquery-nstslider-1.0.13/dist/jquery.nstSlider.js') }}"></script>
     <script src="{{ url_for('static', filename='vendor/dynatables-0.3.1/jquery.dynatable.js') }}"></script>
     <script src="{{ url_for('static', filename='vendor/bootstrap-multiselect-0.9.15/dist/js/bootstrap-multiselect.js') }}"></script>
     <script src="{{ url_for('static', filename='js/utilities.js') }}"></script>
@@ -573,7 +568,7 @@
             callback(null, data);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             logError(description, textStatus);
-            console.error(description, textStatus, errorThrown);
+            logError(description, textStatus, errorThrown);
             callback(errorThrown, null);
         });
     }
@@ -638,7 +633,7 @@
                     logDebug('dataSetsData=', data);
 
                     if (error) {
-                        console.error(error);
+                        logError(error);
                         {% if not debug -%}
                         // ?debug=1 will prevent forwarding on error
                         window.location = '{{ url_for('page.error') }}';
@@ -690,7 +685,7 @@
                             });
                         } else {
                             // TODO: handle error
-                            console.error('ERROR in dataset data:', ds);
+                            logError('ERROR in dataset data:', ds);
                         }
 
                         // don't need the extra annotations laying around
@@ -765,7 +760,6 @@
                             switchCorrelationDataSet(selected);
                         });
                     }
-
 
                     g.ENSIMPL = new ensimpl({
                         search_limit: 100,
@@ -1182,7 +1176,7 @@
                 minLOD = Math.max(0, Math.floor(minLOD));
 
                 // maxLOD will be 80% of max lod score
-                maxLOD = maxLOD * 0.8;
+                // maxLOD = maxLOD * 0.8;
 
                 // round up to nearest 10, 11->20, 7->10, 88->90
                 maxLOD = Math.ceil(maxLOD / 10) * 10;
@@ -1192,15 +1186,10 @@
                 logDebug('minLOD=', minLOD, 'maxLOD=', maxLOD);
 
                 html = html + `
-                    <div class="form-group row">
-                        <label for="lodSliderValue" class="col-sm-6 col-form-label">LOD Threshold</label>
-                        <div class="col-sm">
-                            <div class="input-group">
-                                <input type="number" min="${minLOD}" max="${maxLOD}" step="1" class="form-control form-control-sm" id="lodSliderValue" placeholder="">
-                                <span class="input-group-btn">
-                                    <button id="btnLODSet" class="btn btn-primary btn-sm">Set</i></button>
-                                </span>
-                            </div>
+                    <div class="row">
+                        <div class="col-sm-auto font-weight-bold">LOD Threshold: </div>
+                        <div class="col-sm-auto" id="lodSliderValue">
+                            ${currentLOD}
                         </div>
                     </div>
                     <div class="row">
@@ -1208,12 +1197,7 @@
                             <span>${minLOD}</span>
                         </div>
                         <div class="col-8">
-                            <div class="nstSlider w-100"
-                                 data-range_min="${minLOD}"
-                                 data-range_max="${maxLOD}"
-                                 data-cur_min="${currentLOD}">
-                                 <div class="leftGrip"></div>
-                            </div>
+                            <input type="range" class="custom-range" value="${currentLOD}" min="${minLOD}" max="${maxLOD}" id="lodRange">
                         </div>
                         <div class="col-2 text-left">
                             <span>${maxLOD}</span>
@@ -1222,39 +1206,13 @@
 
                 $('#divLODPeaks').html(html);
 
-                let nstSlider = $('.nstSlider').nstSlider({
-                    left_grip_selector: '.leftGrip',
-                    value_changed_callback: function(cause, leftValue, rightValue) {
-                        $('#lodSliderValue').val(leftValue);
-                    },
-                    user_mouseup_callback: function(minValue, maxValue, isLeftGrip, didValuesChange) {
-                        updatePeaks(minValue);
-                    }
+
+                $('#lodRange').on('change', function(evt) {
+                    logDebug(evt);
+                    $('#lodSliderValue').html(evt.target.value);
+                    updatePeaks(evt.target.value);
                 });
 
-                $('#btnLODSet').on('click', function(evt) {
-                    evt.preventDefault();
-                    let sliderVal = $('#lodSliderValue').val().trim();
-
-                    if (sliderVal) {
-                        sliderVal = +sliderVal;
-                        if (sliderVal < minLOD) {
-                            sliderVal = minLOD;
-                        } else if (sliderVal > maxLOD) {
-                            sliderVal = maxLOD;
-                        }
-                        $('.nstSlider').nstSlider('set_position', sliderVal);
-                        updatePeaks(sliderVal);
-                    }
-                });
-
-                $('#lodSliderValue').keypress(function(evt) {
-                    let code = evt.which ? evt.which : evt.keyCode;
-                    if (code === 13) {
-                        $(this).blur();
-                        $('#btnLODSet').focus().click();
-                    }
-                });
 
                 series = [{
                     data: data,
@@ -1324,6 +1282,7 @@
 
                 tooltip = {
                     followPointer: false,
+                    outside: true,
                     formatter: function (a) {
                         return `LOD: ${this.point.lod}<br>Gene ID: ${this.point.geneID}<br>Symbol: ${this.point.geneSymbol}<br>Gene Location: ${this.point.geneChr.chromosome}:${this.point.genePos}<br>Marker ID: ${this.point.markerID}<br>Marker Location: ${this.point.markerChr.chromosome}:${this.point.markerPos}`;
                     }
@@ -1366,7 +1325,7 @@
                 minLOD = Math.max(0, Math.floor(minLOD));
 
                 // maxLOD will be 80% of max lod score
-                maxLOD = maxLOD * 0.8;
+                // maxLOD = maxLOD * 0.8;
 
                 // round up to nearest 10, 11->20, 7->10, 88->90
                 maxLOD = Math.ceil(maxLOD / 10) * 10;
@@ -1374,15 +1333,10 @@
                 let currentLOD = minLOD;
 
                 html = html + `
-                    <div class="form-group row">
-                        <label for="lodSliderValue" class="col-sm-6 col-form-label">LOD Threshold</label>
-                        <div class="col-sm">
-                            <div class="input-group">
-                                <input type="number" min="${minLOD}" max="${maxLOD}" step="1" class="form-control form-control-sm" id="lodSliderValue" placeholder="">
-                                <span class="input-group-btn">
-                                    <button id="btnLODSet" class="btn btn-primary btn-sm">Set</i></button>
-                                </span>
-                            </div>
+                    <div class="row">
+                        <div class="col-sm-auto font-weight-bold">LOD Threshold: </div>
+                        <div class="col-sm-auto" id="lodSliderValue">
+                            ${currentLOD}
                         </div>
                     </div>
                     <div class="row">
@@ -1390,53 +1344,20 @@
                             <span>${minLOD}</span>
                         </div>
                         <div class="col-8">
-                            <div class="nstSlider w-100"
-                                 data-range_min="${minLOD}"
-                                 data-range_max="${maxLOD}"
-                                 data-cur_min="${currentLOD}">
-                                 <div class="leftGrip"></div>
-                            </div>
+                            <input type="range" class="custom-range" value="${currentLOD}" min="${minLOD}" max="${maxLOD}" id="lodRange">
                         </div>
                         <div class="col-2 text-left">
                             <span>${maxLOD}</span>
                         </div>
                     </div>`;
 
+
                 $('#divLODPeaks').html(html);
 
-                let nstSlider = $('.nstSlider').nstSlider({
-                    left_grip_selector: '.leftGrip',
-                    value_changed_callback: function(cause, leftValue, rightValue) {
-                        $('#lodSliderValue').val(leftValue);
-                    },
-                    user_mouseup_callback: function(minValue, maxValue, isLeftGrip, didValuesChange) {
-                        //dbg(minValue, maxValue, isLeftGrip, didValuesChange);
-                        updatePeaks(minValue);
-                    }
-                });
-
-                $('#btnLODSet').on('click', function(evt) {
-                    evt.preventDefault();
-                    let sliderVal = $('#lodSliderValue').val().trim();
-
-                    if (sliderVal) {
-                        sliderVal = +sliderVal;
-                        if (sliderVal < minLOD) {
-                            sliderVal = minLOD;
-                        } else if (sliderVal > maxLOD) {
-                            sliderVal = maxLOD;
-                        }
-                        $('.nstSlider').nstSlider('set_position', sliderVal);
-                        updatePeaks(sliderVal);
-                    }
-                });
-
-                $('#lodSliderValue').keypress(function(evt) {
-                    let code = evt.which ? evt.which : evt.keyCode;
-                    if (code === 13) {
-                        $(this).blur();
-                        $('#btnLODSet').focus().click();
-                    }
+                $('#lodRange').on('change', function(evt) {
+                    logDebug(evt);
+                    $('#lodSliderValue').html(evt.target.value);
+                    updatePeaks(evt.target.value);
                 });
 
                 series = [{
@@ -1507,6 +1428,7 @@
 
                 tooltip = {
                     followPointer: false,
+                    outside: true,
                     formatter: function (a) {
                         return `LOD: ${this.point.lod}<br>Protein ID: ${this.point.proteinID}<br>Gene ID: ${this.point.geneID}<br>Symbol: ${this.point.geneSymbol}<br>Gene Location: ${this.point.geneChr.chromosome}:${this.point.genePos}<br>Marker ID: ${this.point.markerID}<br>Marker Location: ${this.point.markerChr.chromosome}:${this.point.markerPos}`;
                     }
@@ -1613,13 +1535,13 @@
 
                 tooltip = {
                     followPointer: false,
+                    outside: true,
                     formatter: function () {
                         return `LOD: ${this.point.lod}<br>Phenotype: ${this.point.phenoShortName}<br>Category: ${this.series.name}<br><br>Marker ID: ${this.point.markerID}<br>Marker Location:${this.point.markerChr.chromosome}:${this.point.markerPos}`;
                     }
                 };
 
             } else {
-                // TODO: handle error
                 logError('WHAT TO DO????????????????????????????');
             }
 
@@ -2132,27 +2054,7 @@ function syncronizeCrossHairs(chart) {
                 }],
 
                 tooltip: {
-                    positioner: function(labelWidth, labelHeight, point) {
-                        let tooltipX, tooltipY;
-                        let chart = g.chartSNPAssocGenes;
-
-                        if (point.plotX + labelWidth > chart.plotWidth) {
-                            tooltipX = point.plotX + chart.plotLeft - labelWidth - 20;
-                        } else {
-                            tooltipX = point.plotX + chart.plotLeft + 20;
-                        }
-
-                        if (point.plotY + labelHeight > chart.plotHeight) {
-                            tooltipY = point.plotY + chart.plotTop - labelHeight - 20;
-                        } else {
-                            tooltipY = point.plotY + chart.plotTop - 20;
-                        }
-
-                        return {
-                            x: tooltipX,
-                            y: tooltipY
-                        };
-                    },
+                    outside: true,
                     useHTML: true,
                     shared: false,
                     followPointer: true,
@@ -2386,36 +2288,12 @@ function syncronizeCrossHairs(chart) {
                 },
             },
 
-
-
             tooltip: {
-                /*
-                              positioner: function(labelWidth, labelHeight, point) {
-                                  let tooltipX, tooltipY;
-                                  let chart = chart2;
-
-                                  if (point.plotX + labelWidth > chart.plotWidth) {
-                                      tooltipX = point.plotX + chart.plotLeft - labelWidth - 20;
-                                  } else {
-                                      tooltipX = point.plotX + chart.plotLeft + 20;
-                                  }
-
-                                  if (point.plotY + labelHeight > chart.plotHeight) {
-                                      tooltipY = point.plotY + chart.plotTop - labelHeight - 20;
-                                  } else {
-                                      tooltipY = point.plotY + chart.plotTop - 20;
-                                  }
-
-                                  return {
-                                      x: tooltipX,
-                                      y: tooltipY
-                                  };
-                              },
-                              */
                 useHTML: true,
                 shared: false,
                 followPointer: true,
                 enabled: true,
+                outside: true,
                 formatter: function() {
                     let text = '';
                     if (this.series.name === 'seriesSNPs') {
@@ -2526,9 +2404,8 @@ function syncronizeCrossHairs(chart) {
                     logDebug('data=', data);
                     updateSNPAssocData(data.group_id, id, chromosome, location);
                 },
-                error: function() {
-                    // TODO: handle
-                    logError('Unexpected error');
+                error: function(jqXHR, textStatus, errorThrown) {
+                    showErrorMessage(errorThrown, textStatus);
                 }
             });
         }
@@ -2879,6 +2756,9 @@ function syncronizeCrossHairs(chart) {
                 title: {
                     text: plotTitle,
                 },
+                tooltip: {
+                    outside: true,
+                },
                 xAxis: {
                     crosshair: true,
                     gridLineWidth: 1,
@@ -3111,28 +2991,7 @@ function syncronizeCrossHairs(chart) {
                             return `<b>${p.gene_id}</b><br/>Symbol: ${p.symbol}<br/>Chromosome: ${p.chr}<br/>Location: ${p.pos}<br/>LOD: ${p.LOD}`;
                         }
                     },
-                    positioner: function(labelWidth, labelHeight, point) {
-                        let tooltipX, tooltipY;
-                        let chart = g.chartMediation;
-
-                        if (point.plotX + labelWidth > chart.plotWidth) {
-                            tooltipX = point.plotX + chart.plotLeft - labelWidth - 20;
-                        } else {
-                            tooltipX = point.plotX + chart.plotLeft + 20;
-                        }
-
-                        if (point.plotY + labelHeight > chart.plotHeight) {
-                            tooltipY = point.plotY + chart.plotTop - labelHeight - 20;
-                        } else {
-                            tooltipY = point.plotY + chart.plotTop - 20;
-                        }
-
-                        return {
-                            x: tooltipX,
-                            y: tooltipY
-                        };
-
-                    },
+                    outside: true,
                 },
                 xAxis: {
                     gridLineWidth: 0,
@@ -3183,9 +3042,8 @@ function syncronizeCrossHairs(chart) {
                     logDebug('data = ', data);
                     updateMediationData(data.group_id, mediateAgainst);
                 },
-                error: function() {
-                    // TODO: handle
-                    logError('Mediation: Unexpected error');
+                error: function(jqXHR, textStatus, errorThrown) {
+                    showErrorMessage(errorThrown, textStatus);
                 }
             });
         }
@@ -3307,9 +3165,8 @@ function syncronizeCrossHairs(chart) {
                 success: function(data, status, request) {
                     updateEffectData(data.group_id, id, chromosome, covar);
                 },
-                error: function() {
-                    // TODO: handle
-                    alert('Unexpected error');
+                error: function(jqXHR, textStatus, errorThrown) {
+                    showErrorMessage(errorThrown, textStatus);
                 }
             });
         }
@@ -3483,7 +3340,7 @@ function syncronizeCrossHairs(chart) {
                 currentID = g.phenotypeID;
             } else {
                 // TODO: handle error
-                console.error('MAJOR PROBLEM');
+                logError('MAJOR PROBLEM');
             }
 
             let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${g.dataSetID}&id=${currentID}&dataset.correlate=${dataSetID}`;
@@ -3506,13 +3363,11 @@ function syncronizeCrossHairs(chart) {
                     logDebug('data=', data);
                     logDebug('status=', status);
                     logDebug('request=', request);
-                    //let status_url = request.getResponseHeader('Location');
-                    //logDebug('status_url=', status_url);
                     logDebug('data.group_id=', data.group_id);
                     updateCorrelateDataSet(data.group_id);
                 },
-                error: function() {
-                    alert('Unexpected error');
+                error: function(jqXHR, textStatus, errorThrown) {
+                    showErrorMessage(errorThrown, textStatus);
                 }
             });
         }
@@ -3791,16 +3646,16 @@ function syncronizeCrossHairs(chart) {
 
         function exportProfileData(id, data, factors) {
             // TODO: look into changing 'column.name', 'display.name'
-            let csvContent = '"mouse_id","expression"';
+            let csvContent = '"mouse.id","expression"';
             $.each(factors, function(k, v) {
                 csvContent += `,"${v['display.name']}"`;
             });
             csvContent += '\n';
 
             $.each(data.data, function(k, v) {
-                let line = `"${v.mouse_id}",${v.expression}`;
+                let line = `"${v['mouse.id']}",${v.expression}`;
                 $.each(factors, function(fk, fv) {
-                    line += `,"${v[fv['column.name']]}"`;
+                    line += `,"${v[fv['sample.column']]}"`;
                 });
 
                 csvContent += `${line}\n`;
@@ -3817,224 +3672,199 @@ function syncronizeCrossHairs(chart) {
         function plotProfile(id) {
             logDebug(`plotProfile(${id})`);
 
-            // profiles are covar_factors
             let data = g.expressionData;
-            let categories = getFactorOrder();
-            let categorySeries = $('#factorSeries').find(':selected').val();
 
-            // using this so plots have same jitter
-            Math.seedrandom('profileplot');
+            // categories will be the order the user selected
+            let selectedCovars = getFactorOrder();
 
-            logDebug('categories=', categories);
-            logDebug('categorySeries=', categorySeries);
+            // categorySeries will be how to color
+            let seriesToColor = $('#factorSeries').find(':selected').val();
 
+            logDebug('selectedCovars=', selectedCovars);
+            logDebug('seriesToColor=', seriesToColor);
 
-            let newData = {};
-            let allCategories = [];
-            let cfMap = {};
-            let chartTitle = null;
-            let seriesData = {};
-
-            // this will give us 9 points per "category"
-            let jitter = 5;
-            let jitterPad = 2;
-            let point = [];
-            let pointToLabel = {};
-            let start = jitterPad + jitter + 1;
-            let stepAmount = (jitterPad * 2) + (jitter * 2) + 1;
-            let newCategories = {};
-            let newCategoriesOrder = [];
-
-
-            if ((categories == null) || (categories.length === 0)) {
+            if ((selectedCovars == null) || (selectedCovars.length === 0)) {
                 // this is the case when there are no covar factors
 
                 // do we just have 1 series of data here?
-
-
-
-
             } else {
-                $.each(g.DATASETS[g.dataSetID]['covar.info'], function(idx, elem) {
+                // just mapping column name to display name
+                let cfMap = {};
+
+                $.each(g.DATASETS[g.dataSetID]['covar.info'], function (idx, elem) {
                     cfMap[elem['sample.column']] = elem['display.name'];
                 });
 
-
                 let title = [];
 
-                $.each(categories, function(idx, elem) {
-                    logDebug('elem=',elem);
-                    newData[elem] = [];
-                    allCategories.push(data.datatypes[elem]);
+                let covarPermutations = [];
+
+                $.each(selectedCovars, function (idx, elem) {
+                    covarPermutations.push(data.datatypes[elem]);
                     title.push(cfMap[elem]);
                 });
 
-                chartTitle = title.join(' x ');
-                allCategories = permutateArrays(allCategories);
+                let chartTitle = title.join(' x ');
+                covarPermutations = permutateArrays(covarPermutations);
 
-                logDebug('allCategories=', allCategories);
+                logDebug('covarPermutations=', covarPermutations);
 
-                $.each(allCategories, function(idx, elem) {
+                let covarCategories = [];
+                let covarCategoriesMap = {};
+                let categoryData = {};  // for box plot
+
+                $.each(covarPermutations, function (idx, elem) {
                     let catName = elem.join(':');
-                    let combo = {};
-                    $.each(elem, function(i, e) {
-                        combo[categories[i]] = e;
-                    });
-                    newCategories[catName] = {
-                        id: catName,
-                        categoryValues: elem,
-                        combo: combo,
-                        x: idx,
-                        start: start + (idx * stepAmount),
-                        values: []
-                    };
-
-                    newCategoriesOrder.push(catName);
-                    point.push(start + (idx * stepAmount));
-                    pointToLabel[start + (idx * stepAmount)] = catName;
+                    covarCategories.push(catName);
+                    covarCategoriesMap[catName] = idx;
+                    categoryData[catName] = [];
                 });
 
-                $.each(data.datatypes[categorySeries], function(idx, val) {
-                    seriesData[val] = { values: [] };
+                logDebug('covarCategories=', covarCategories);
+                logDebug('covarCategoriesMap=', covarCategoriesMap);
+
+                let seriesData = {};
+
+                $.each(data.datatypes[seriesToColor], function (idx, val) {
+                    seriesData[val] = {values: []};
                 });
 
 
-                $.each(data.data, function(idx, val) {
-                    $.each(data.datatypes[categorySeries], function(i, v) {
-                        let abc = [];
-                        $.each(categories, function(_i, _elem) {
-                            abc.push(val[_elem]);
+
+                $.each(data.data, function (idx, val) {
+                    if (val.expression !== undefined) {
+                        let t = [];
+
+                        $.each(selectedCovars, function (i, v) {
+                            t.push(val[v]);
                         });
-                        let catName = abc.join(':');
 
-                        if (val.expression === undefined) {
-                            //logDebug('Undefined data=', val);
-                        } else {
-                            newCategories[catName].values.push(val.expression);
+                        let catName = t.join(':');
 
-                            // put the data in the correct buckets
-                            if (v === val[categorySeries]) {
-                                seriesData[v].values.push({
-                                    type: 'scatter',
-                                    val: val,
-                                    x: newCategories[catName].start + getRandomInt(-1 * jitter, jitter),
-                                    y: val.expression
-                                });
+                        seriesData[val[seriesToColor]].values.push({
+                            x: covarCategoriesMap[catName],
+                            y: val.expression,
+                            obj: val
+                        });
+
+                        categoryData[catName].push(val.expression);
+                    }
+                });
+
+                logDebug('seriesData=', seriesData);
+
+                // convert from object, to array
+
+                let series = [];
+                let colors = ['#7cb5ec', '#ed3215', '#8085e9', '#f7a35c', '#90ed7d',
+                    '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
+
+                let boxSeries = [];
+
+                $.each(seriesData, function (key, val) {
+                    series.push({
+                        data: val.values,
+                        name: key,
+                        marker: {
+                            radius: 2
+                        },
+                        color: colors[series.length % colors.length],
+                        jitter: {
+                            x: 0.24
+                        },
+                        zIndex: 10
+                    });
+                });
+
+                $.each(categoryData, function (key, val) {
+                    if (val.length > 0) {
+                        let boxValues = getBoxValues(val);
+
+                        boxValues.x = covarCategoriesMap[key];
+                        boxValues.name = key;
+                        boxValues.enableMouseTracking = false;
+                        boxSeries.push(boxValues);
+                    }
+                });
+
+                series.push({
+                    type: 'boxplot',
+                    data: boxSeries,
+                    showInLegend: false,
+                    zIndex: 1,
+                });
+
+                let exporting = appendExportButton('Download CSV', function () {
+                    exportProfileData(id, data, g.DATASETS[g.dataSetID]['covar.info']);
+                });
+                exporting.filename = id + '_PROFILE';
+
+                Highcharts.chart({
+                    chart: {
+                        type: 'scatter',
+                        renderTo: 'profilePlotChart',
+                    },
+
+                    title: {
+                        text: chartTitle,
+                        verticalAlign: 'bottom'
+                    },
+
+                    xAxis: {
+                        // min and max forces the "categories" to be shown even when no data is available
+                        //min: 0,
+                        //max: point[point.length-1] + jitter + jitterPad,
+                        //tickPositions: point,
+                        categories: covarCategories,
+                        labels: {
+                            rotation: -45
+                        }
+                    },
+
+                    yAxis: {
+                        title: {
+                            text: id
+                        }
+                    },
+
+                    series: series,
+
+                    exporting: exporting,
+
+                    plotOptions: {
+                        boxplot: {
+                            color: '#000000',
+                            enableMouseTracking: false,
+                            lineWidth: 1,
+                            medianColor: '#000000',
+                            medianWidth: 1,
+                            stemColor: '#000000',
+                            stemWidth: 1,
+                            whiskerColor: '#000000',
+                            whiskerLength: '50%',
+                            whiskerWidth: 1
+                        },
+                        scatter: {
+                            tooltip: {
+                                headerFormat: null,
+                                outside: true,
+                                pointFormatter: function () {
+                                    let val = this.obj;
+                                    let hoverText = `<b>${val['mouse.id']}</><br><p>${val.expression}</p>`;
+
+                                    $.each(data.datatypes, function (i, e) {
+                                        hoverText += `<br><p>${cfMap[i]}: ${val[i]}</p>`;
+                                    });
+
+                                    return hoverText;
+                                }
+
+
                             }
                         }
-                    });
+                    }
                 });
             }
-
-            logDebug('seriesData=', seriesData);
-
-            // convert from object, to array
-
-            let series = [];
-            let colors = ['#7cb5ec', '#ed3215', '#8085e9', '#f7a35c', '#90ed7d',
-                '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
-            
-            $.each(seriesData, function(key, val) {
-                series.push({
-                    data: val.values,
-                    name: key,
-                    marker: {
-                        radius: 2
-                    },
-                    color: colors[series.length % colors.length]
-                });
-            });
-
-            let boxSeries = [];
-
-            $.each(newCategories, function(key, val) {
-                if (val.values.length > 0) {
-                    let boxValues = getBoxValues(val.values);
-                    boxValues.x = val.start;
-                    boxValues.name = val.id;
-                    boxValues.enableMouseTracking = false;
-                    boxSeries.push(boxValues);
-                }
-            });
-
-            series.push({
-                type: 'boxplot',
-                data: boxSeries,
-                showInLegend: false,
-            });
-
-            let exporting = appendExportButton('Download CSV', function() {
-                exportProfileData(id, data, g.DATASETS[g.dataSetID]['covar.info']);
-            });
-            exporting.filename = id + '_PROFILE';
-
-            Highcharts.chart({
-                chart: {
-                    type: 'scatter',
-                    renderTo: 'profilePlotChart',
-                },
-
-                title: {
-                    text: chartTitle,
-                    verticalAlign: 'bottom'
-                },
-
-                xAxis: {
-                    // min and max forces the "categories" to be shown even when no data is available
-                    min: 0,
-                    max: point[point.length-1] + jitter + jitterPad,
-                    tickPositions: point,
-                    labels: {
-                        formatter: function () {
-                            return pointToLabel[this.value];
-                        },
-                        rotation: -45
-                    }
-
-                },
-
-                yAxis: {
-                    title: {
-                        text: id
-                    }
-                },
-
-                series: series,
-
-                exporting: exporting,
-
-                plotOptions: {
-                    boxplot: {
-                        color: '#000000',
-                        enableMouseTracking: false,
-                        lineWidth: 1,
-                        medianColor: '#000000',
-                        medianWidth: 1,
-                        stemColor: '#000000',
-                        stemWidth: 1,
-                        whiskerColor: '#000000',
-                        whiskerLength: '50%',
-                        whiskerWidth: 1
-                    },
-                    scatter: {
-                        tooltip: {
-                            headerFormat: null,
-                            pointFormatter: function() {
-                                let val = this.options.val;
-                                logDebug(val);
-
-                                let hoverText = `<b>${val['mouse.id']}</><br><p>${val.expression}</p>`;
-
-                                $.each(data.datatypes, function(i, e) {
-                                    hoverText += `<br><p>${cfMap[i]}: ${val[i]}</p>`;
-                                });
-
-                                return hoverText;
-                            }
-                        }
-                    }
-                }
-            });
 
         }
 
@@ -4217,7 +4047,7 @@ function syncronizeCrossHairs(chart) {
             } else if (plot === 'navPlotSNPs') {
                 generateSNPAssocPlot(id, chromosome, location);
             } else {
-                console.error('Unknown plot ', plot);
+                logError('Unknown plot ', plot);
             }
         }
 
@@ -4313,7 +4143,7 @@ function syncronizeCrossHairs(chart) {
                     }
                 } else {
                     // TODO: handle error
-                    console.error('MAJOR PROBLEM');
+                    logError('MAJOR PROBLEM');
                 }
 
                 if (isCovar) {                    
@@ -4532,6 +4362,8 @@ function syncronizeCrossHairs(chart) {
                     text: xAxisSubTitle
                 },
                 tooltip: {
+                    outside: true,
+                    /*
                     positioner: function(labelWidth, labelHeight, point) {
                         let tooltipX, tooltipY;
                         let chart = chartLOD;
@@ -4553,6 +4385,7 @@ function syncronizeCrossHairs(chart) {
                             y: tooltipY
                         };
                     },
+                    */
                     useHTML: true,
                     formatter: function () {
                         let p = this.point;
@@ -4703,7 +4536,7 @@ function syncronizeCrossHairs(chart) {
                         plotProfile(g.phenotypeID);
                     } else {
                         // TODO: major error
-                        console.error('MAJOR ERROR');
+                        logError('MAJOR ERROR');
                     }
 
                 },
@@ -4836,7 +4669,7 @@ function syncronizeCrossHairs(chart) {
                     plotProfile(g.phenotypeID);
                 } else {
                     // TODO: major error
-                    console.error('MAJOR ERROR');
+                    logError('MAJOR ERROR');
                 }
             });
 
@@ -4858,7 +4691,7 @@ function syncronizeCrossHairs(chart) {
                     } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                         id = g.phenotypeID;
                     } else {
-                        console.error('MAJOR ERROR');
+                        logError('MAJOR ERROR');
                     }
 
                     if (g.DATASETS[g.correlationDatasetID].datatype === 'mrna') {
@@ -4878,7 +4711,7 @@ function syncronizeCrossHairs(chart) {
                         });
                     } else {
                         // TODO: major error
-                        console.error('MAJOR ERROR');
+                        logError('MAJOR ERROR');
                     }
 
                     downloadCSV(csvContent, `${id}_correlation.csv`, 'text/csv;encoding:utf-8');
@@ -4927,7 +4760,7 @@ function syncronizeCrossHairs(chart) {
                 });
             } else {
                 // TODO: major error
-                console.error('MAJOR ERROR');
+                logError('MAJOR ERROR');
             }
 
             htmlBody += '</table>';
@@ -5050,6 +4883,7 @@ function syncronizeCrossHairs(chart) {
                     scatter: {
                         tooltip: {
                             headerFormat: null,
+                            outside: true,
                             pointFormatter: function() {
                                 let val = this.options;
                                 let hoverText = `<b>${val['mouse.id']}</>`;
@@ -5201,9 +5035,8 @@ function syncronizeCrossHairs(chart) {
                 success: function(data, status, request) {
                     updateCorrelationData(data.group_id, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
                 },
-                error: function() {
-                    // TODO: handle
-                    alert('Unexpected error');
+                error: function(jqXHR, textStatus, errorThrown) {
+                    showErrorMessage(errorThrown, textStatus);
                 }
             });
         }
@@ -5490,8 +5323,8 @@ function syncronizeCrossHairs(chart) {
                     logDebug('data.group_id=', data.group_id);
                     updatePhenotypeSelect(data.group_id, dataSetID, covar);
                 },
-                error: function() {
-                    alert('Unexpected error');
+                error: function(jqXHR, textStatus, errorThrown) {
+                    showErrorMessage(errorThrown, textStatus);
                 }
             });
         }
@@ -5791,8 +5624,8 @@ function syncronizeCrossHairs(chart) {
                     logDebug('data.group_id=', data.group_id);
                     updateGeneSelect(data.group_id, geneID, proteinID, dataSetID, covar);
                 },
-                error: function() {
-                    alert('Unexpected error');
+                error: function(jqXHR, textStatus, errorThrown) {
+                    showErrorMessage(errorThrown, textStatus);
                 }
             });
         }
@@ -5945,7 +5778,7 @@ function syncronizeCrossHairs(chart) {
                     urlLOD += `${g.phenotypeID}`;
                 } else {
                     // TODO: handle error
-                    console.error('MAJOR PROBLEM');
+                    logError('MAJOR PROBLEM');
                 }
 
                 urlLOD += ('&interactive.covar=' + covariate);
@@ -5986,8 +5819,8 @@ function syncronizeCrossHairs(chart) {
                         logDebug('data.group_id=', data.group_id);
                         updateChangeCovariate(data.group_id, covariate);
                     },
-                    error: function() {
-                        alert('Unexpected error');
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        showErrorMessage(errorThrown, textStatus);
                     }
                 });
             }

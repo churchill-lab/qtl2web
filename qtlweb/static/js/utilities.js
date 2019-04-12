@@ -190,9 +190,9 @@ function addItems(shelves, items, width) {
         return (b.position_end - b.position_start) - (a.position_end - a.position_start);
     });
 
-    console.log('ADD ITEMS');
+    //console.log('ADD ITEMS');
     $.each(items, function(i, item) {
-        console.log('ITEM=', item.name, item.position_end - item.position_start)
+        //console.log('ITEM=', item.name, item.position_end - item.position_start)
         let shelved = false;
         $.each(shelves, function(x, shelf) {
 
