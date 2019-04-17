@@ -101,7 +101,7 @@ def extensions(app):
     :return: None
     """
     compress.init_app(app)
-    requests_cache.install_cache(os.getenv('API_CACHE', 'cache'))
+    requests_cache.install_cache(os.getenv('DIR_QTLVIEWER_CACHE', 'cache'))
 
     return None
 

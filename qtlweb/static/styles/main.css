@@ -17,6 +17,21 @@
     font-size: 80%;
 }
 
+
+.wrapper {
+  position: relative;
+  flex: 1 1 auto;
+}
+.scroll {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  overflow-y: auto;
+  width: 100%;
+}
+
+
+
 .results-wrapper {
     overflow-y: scroll;
     height: 500px;

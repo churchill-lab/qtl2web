@@ -10,8 +10,8 @@
           crossorigin="anonymous">
 
     <link rel="stylesheet"
-          href="//use.fontawesome.com/releases/v5.2.0/css/all.css" 
-          integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" 
+          href="//use.fontawesome.com/releases/v5.8.1/css/all.css"
+          integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
           crossorigin="anonymous">
 
     <link rel="stylesheet"
@@ -342,7 +342,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class"row no-gutters">
+                                    <div class="row no-gutters">
                                         <div class="col" id="allEffectPlots">
                                         </div>
                                     </div>
@@ -418,13 +418,11 @@
         </span>
       </li>
     </ul>
-    {%- if config.SHOW_VERSION %}
     <ul class="navbar-nav ml-auto">
         <li class="nav-item">
             <span class="text-light">v{{ app_version }}</span>
         </li>
     </ul>
-    {%- endif -%}
 </nav>
 <!-- end Main Footer -->
 
@@ -1002,7 +1000,7 @@
                         markerID: element[0],
                         covar: covar
                     });
-                    
+
                     minLOD = Math.min(minLOD, element[6]);
                     maxLOD = Math.max(maxLOD, element[6]);
                 });
@@ -1024,7 +1022,7 @@
                 g.chartPeaks.yAxis[0].update({
                     min: minLOD,
                     max: maxLOD,
-                }); 
+                });
 
                 g.chartPeaks.redraw(true);
             }
@@ -1187,19 +1185,19 @@
 
                 html = html + `
                     <div class="row">
-                        <div class="col-sm-auto font-weight-bold">LOD Threshold: </div>
-                        <div class="col-sm-auto" id="lodSliderValue">
+                        <div class="col-auto font-weight-bold">LOD Threshold: </div>
+                        <div class="col" id="lodSliderValue">
                             ${currentLOD}
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-2 text-right">
+                    <div class="row justify-content-center">
+                        <div class="col text-right">
                             <span>${minLOD}</span>
                         </div>
                         <div class="col-8">
                             <input type="range" class="custom-range" value="${currentLOD}" min="${minLOD}" max="${maxLOD}" id="lodRange">
                         </div>
-                        <div class="col-2 text-left">
+                        <div class="col text-left">
                             <span>${maxLOD}</span>
                         </div>
                     </div>`;
@@ -2458,8 +2456,8 @@ function syncronizeCrossHairs(chart) {
                                     showErrorMessage(message, errorMessages);
                                 } else {
                                     // show result, there will be 2 datasets to get
-                                    plotSNPAssoc(data.response_data.snpAssoc.response.result, 
-                                                 data.response_data.genes.response.result, 
+                                    plotSNPAssoc(data.response_data.snpAssoc.response.result,
+                                                 data.response_data.genes.response.result,
                                                  id, chromosome, location);
                                     stopTask();
                                 }
@@ -2516,7 +2514,7 @@ function syncronizeCrossHairs(chart) {
                 plotEffectChart(effectData[covar], null, covar, null, chromosome);
             } else {
                 $.each(effectData, function(key, value) {
-                    // key = category value, i.e for sex would be M,F                
+                    // key = category value, i.e for sex would be M,F
                     plotEffectChart(value, lodData[key], covar, key, chromosome);
                 });
             }
@@ -2650,7 +2648,7 @@ function syncronizeCrossHairs(chart) {
                 if ((element[1] in g.CHROMOSOMES.chr) && (element[1] === chromosome)) {
 
                     let chr = g.CHROMOSOMES.chr[element[1]];
-                    let x = element[2] * 1000000.0;//Math.round(chr.start + (element[2] * 1000000.0));                        
+                    let x = element[2] * 1000000.0;//Math.round(chr.start + (element[2] * 1000000.0));
                     let y = element[3];
 
                     let d = {
@@ -2715,7 +2713,7 @@ function syncronizeCrossHairs(chart) {
                 exporting.filename = currentID + '_EFFECT_' + category;
                 plotTitle += (' (' + category + ')');
             }
-            
+
             g.chartEffect[category] = Highcharts.chart({
                 boost: {
                     useGPUTranslations: true
@@ -3251,7 +3249,7 @@ function syncronizeCrossHairs(chart) {
                 });
             }
         }
-        
+
 
         function updateCorrelateDataSet(groupID) {
             // send GET request to status URL
@@ -3576,8 +3574,8 @@ function syncronizeCrossHairs(chart) {
                         }
                         let q = $(this).val();
 
-                        if (q === '') { 
-                            q = undefined; 
+                        if (q === '') {
+                            q = undefined;
                         }
 
                         if (q) {
@@ -3623,15 +3621,15 @@ function syncronizeCrossHairs(chart) {
             $('#divMediationSelect').html('');
 
             if (allDS.length === 1) {
-                $('#divMediationSelect').html(`Mediating against: ${allDS[0]['display.name']}`);
+                $('#divMediationSelect').html(`<p class="font-weight-bold">Mediating against: </p>${allDS[0]['display.name']}`);
                 $('#divMediationSelect').append(`<input type="hidden" id="dsMediateAgainstID" value="${allDS[0].id}"/>`);
             } else if (allDS.length > 1) {
 
                 let htmlMediate = `<div class="row">
-                                       <div class="col-3 align-self-center font-weight-bold">
+                                       <div class="col-auto align-self-center font-weight-bold">
                                            Mediate Against
                                       </div>
-                                      <div class="col-9">
+                                      <div class="col">
                                           <select id="dsMediateAgainstID" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">`;
 
                 $.each(allDS, function(idx, elem) {
@@ -4146,7 +4144,7 @@ function syncronizeCrossHairs(chart) {
                     logError('MAJOR PROBLEM');
                 }
 
-                if (isCovar) {                    
+                if (isCovar) {
                     xAxisSubTitle = `${covar} ${exportName}`;
                 }
 
@@ -4157,7 +4155,7 @@ function syncronizeCrossHairs(chart) {
                     if (element[1] in g.CHROMOSOMES.chr) {
 
                         let chr = g.CHROMOSOMES.chr[element[1]];
-                        let x = Math.round(chr.start + (element[2] * 1000000.0));                        
+                        let x = Math.round(chr.start + (element[2] * 1000000.0));
                         let y = element[3];
 
                         if (!isFull) {
@@ -4317,7 +4315,7 @@ function syncronizeCrossHairs(chart) {
                             g.secondaryPlotMarkerID = markerID;
                             g.secondaryPlotChromosome = chromosome;
                             g.secondaryPlotLocation = location;
-                            g.secondaryPlotCovar = covar;                            
+                            g.secondaryPlotCovar = covar;
 
                             logDebug('event', markerID, chromosome, location, this.hoverPoint.covar);
 
@@ -4333,7 +4331,7 @@ function syncronizeCrossHairs(chart) {
                         events: {
                             click: function(event) {
                                 logDebug('plotOptions, series', event);
-                                
+
                                 let plot = $('#secondaryPlotTabs').find('.active').attr('id');
                                 let markerID = event.point.id;
                                 let chromosome = event.point.chr;
@@ -4343,12 +4341,12 @@ function syncronizeCrossHairs(chart) {
                                 g.secondaryPlotMarkerID = markerID;
                                 g.secondaryPlotChromosome = chromosome;
                                 g.secondaryPlotLocation = location;
-                                g.secondaryPlotCovar = covar;                            
+                                g.secondaryPlotCovar = covar;
 
                                 logDebug('series', markerID, chromosome, location, event.point.covar);
 
                                 generateSecondaryPlot(plot, currentID, markerID, chromosome, location, covar);
-                                
+
                             }
                         }
                     }
@@ -4480,7 +4478,7 @@ function syncronizeCrossHairs(chart) {
             let profilePlotOptionsHTML = `
                                   <div class="col">
                                     <div class="row">
-                                        <div class="col">
+                                        <div class="col font-weight-bold">
                                             Select your factors
                                         </div>
                                     </div>
@@ -4497,7 +4495,7 @@ function syncronizeCrossHairs(chart) {
                                     <div class="row row-spacer"></div>
 
                                     <div class="row">
-                                        <div class="col">
+                                        <div class="col font-weight-bold">
                                             Select a series to color
                                         </div>
                                     </div>
@@ -4575,17 +4573,17 @@ function syncronizeCrossHairs(chart) {
             let html = '<select id="factorSeries" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">';
             let htmlCorrelation = '<select id="factorSeriesCorrelation" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">';
             let htmlInteractiveCovariatesLOD = `<div class="row">
-                                                    <div class="col-3 align-self-center font-weight-bold">
+                                                    <div class="col-auto align-self-center font-weight-bold">
                                                         <span>Plots</span>
                                                     </div>
-                                                    <div class="col-9">
+                                                    <div class="col">
                                                         <select id="interactiveCovarLODS" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">
                                                 `;
             let htmlInteractiveCovariatesPeaks = `<div class="row">
-                                                      <div class="col-3 align-self-center">
+                                                      <div class="col-auto align-self-center">
                                                         <span>Plot type</span>
                                                       </div>
-                                                      <div class="col-9">
+                                                      <div class="col">
                                                           <select id="interactiveCovarPeaks" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">
                                             `;
 
@@ -5162,12 +5160,12 @@ function syncronizeCrossHairs(chart) {
                                         g.LODChartData.additive = data.response_data.lod.response.result;
                                         g.LODChartData[covar] = data.response_data.lodCovar.response.result;
 
-                                        plotLODChart(data.response_data.lodCovar.response.result, 
-                                                     covar, 
+                                        plotLODChart(data.response_data.lodCovar.response.result,
+                                                     covar,
                                                      null);
 
-                                        plotLODChart(data.response_data.lodCovar.response.result, 
-                                                     covar, 
+                                        plotLODChart(data.response_data.lodCovar.response.result,
+                                                     covar,
                                                      data.response_data.lod.response.result);
                                     }
 
@@ -5456,12 +5454,12 @@ function syncronizeCrossHairs(chart) {
                                         g.LODChartData.additive = data.response_data.lod.response.result;
                                         g.LODChartData[covar] = data.response_data.lodCovar.response.result;
 
-                                        plotLODChart(data.response_data.lodCovar.response.result, 
-                                                     covar, 
+                                        plotLODChart(data.response_data.lodCovar.response.result,
+                                                     covar,
                                                      null);
 
-                                        plotLODChart(data.response_data.lodCovar.response.result, 
-                                                     covar, 
+                                        plotLODChart(data.response_data.lodCovar.response.result,
+                                                     covar,
                                                      data.response_data.lod.response.result);
                                     }
 
@@ -5697,11 +5695,11 @@ function syncronizeCrossHairs(chart) {
                                 } else {
                                     // show result, there will be 1
 
-                                    plotLODChart(data.response_data.lod.response.result, 
-                                                 covar, 
+                                    plotLODChart(data.response_data.lod.response.result,
+                                                 covar,
                                                  null);
 
-                                    plotLODChart(data.response_data.lod.response.result, 
+                                    plotLODChart(data.response_data.lod.response.result,
                                                  covar,
                                                  g.LODChartData.additive);
 
@@ -5796,9 +5794,6 @@ function syncronizeCrossHairs(chart) {
                     }]};
 
                 startTask();
-
-                //g.chartLOD = null;
-                //$('#lodPlotChart').html('');
 
                 $('#fact-svg-chart').html('');
 

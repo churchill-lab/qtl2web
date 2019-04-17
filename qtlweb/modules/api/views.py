@@ -1,21 +1,12 @@
 from flask import (
     Blueprint,
-    redirect,
     jsonify,
-    request,
-    url_for,
-    Response,
-    render_template)
-from datetime import datetime
+    request)
 import time
 import requests
 from qtlweb.utils import format_time
 import json
 from celery import group, current_app, chord
-from celery.result import GroupResult
-# INSTALL CACHE
-#import requests_cache
-#requests_cache.install_cache()
 
 api = Blueprint('api', __name__, template_folder='templates', url_prefix='/api')
 
@@ -28,7 +19,6 @@ def split_url(url):
     return proto, host, uri
 
 
-
 def parse_url(url):
     """Parses out Referer info indicating the request is from a previously proxied page.
     For example, if:
@@ -36,16 +26,12 @@ def parse_url(url):
     then the result is:
         ("google.com", "search?q=foo")
     """
-
-
     proto, host, uri = split_url(url)
 
-    print('url=', url)
-    print('proto=', proto)
-    print('host=', host)
-    print('uri=', uri)
-
-
+    #print('url=', url)
+    #print('proto=', proto)
+    #print('host=', host)
+    #print('uri=', uri)
 
     if uri.find("/") < 0:
         return None
@@ -61,11 +47,6 @@ class Cache:
 
 
 CACHE = Cache()
-
-
-
-
-
 
 
 @api.route('/get/<path:url>', methods=['GET'])
@@ -96,12 +77,6 @@ def api_get(url):
     except Exception as e:
         print('Error in JSON: ', str(e))
 
-
-
-    #current_app.g.error(
-    #    "[REQUEST] ['{}'] [{}] [{}] [{}]".format(request.url, request_time,
-    #                                             transfer_time, total_time))
-
     return jsonify(response_data)
 
 
@@ -126,14 +101,8 @@ def api_submit():
     # class 'celery.result.GroupResult'>
     result = job.apply_async()
 
-
-    #print('type(job)=', type(job))
-    #print('type(result)=', type(result))
-
     # save the result to get in next request
     result.save()
-
-    #print(result)
 
     return jsonify({'group_id': result.id})
 
@@ -152,58 +121,69 @@ def api_status(group_id):
     """
     print('status called for: ', group_id)
     from qtlweb.modules.api.tasks import celery
-    try:
-        # get the GroupResult
-        # celery.result.GroupResult
-        rs = celery.GroupResult.restore(group_id)
-        #rs = current_app.GroupResult.restore(group_id)
-        from qtlweb.modules.api.tasks import call_api
 
-        #print('ready()=', rs.ready())
-        #print('waiting()=', rs.waiting())
-        #print('successful()=', rs.successful())
-        #print('failed()=', rs.failed())
+    # there is a rare occasion when an exception would be raised
+    # code was added to make 5 attempts to enable more robust or
+    # better fail-safe for calls made to get the status
 
-        if rs.ready():
-            results = rs.get(propagate=False)
+    attempts = 5
+    done = False
 
-            data = {}
-            error_count = 0
-            for idx, res in enumerate(results):
-                if 'error' in res:
-                    error_count += 1
-                data[res['url_id']] = res
+    while not done:
+
+        try:
+            # get the GroupResult
+            rs = celery.GroupResult.restore(group_id)
+            from qtlweb.modules.api.tasks import call_api
+
+            if rs.ready():
+                results = rs.get(propagate=False)
+
+                data = {}
+                error_count = 0
+                for idx, res in enumerate(results):
+                    if 'error' in res:
+                        error_count += 1
+                    data[res['url_id']] = res
+
+                response_data = {
+                    'task_id': group_id,
+                    'status': 'DONE',
+                    'number_tasks_submitted': len(rs.results),
+                    'number_tasks_completed': rs.completed_count(),
+                    'number_tasks_errors': error_count,
+                    'response_data': data
+                }
+
+                # delete all the task_ids for this group_id from redis
+                rs.forget()
+
+                # group_id still exists, delete it from redis
+                rs.delete()
+
+            else:
+                response_data = {
+                    'task_id': group_id,
+                    'status': 'RUNNING',
+                    'number_tasks_submitted': len(rs.results),
+                    'number_tasks_completed': rs.completed_count(),
+                    'response_data': ''
+                }
+
+            done = True
+
+        except Exception as exc:
+            print('Major Error: ', str(exc))
+            attempts -= 1
+            if attempts <= 0:
+                done = True
 
             response_data = {
                 'task_id': group_id,
                 'status': 'DONE',
-                'number_tasks_submitted': len(rs.results),
-                'number_tasks_completed': rs.completed_count(),
-                'number_tasks_errors': error_count,
-                'response_data': data
+                'error': 'UNKNOWN ERROR'
             }
 
-            # delete all the task_ids for this group_id from redis
-            rs.forget()
-
-            # group_id still exists, delete it from redis
-            rs.delete()
-
-        else:
-            response_data = {
-                'task_id': group_id,
-                'status': 'RUNNING',
-                'number_tasks_submitted': len(rs.results),
-                'number_tasks_completed': rs.completed_count(),
-                'response_data': ''
-            }
-    except Exception as exc:
-        print('Major Error: ', str(exc))
-        response_data = {
-            'task_id': group_id,
-            'status': 'DONE',
-            'error': 'UNKNOWN ERROR'
-        }
 
     # TODO: loop through results and app to CACHE
     '''

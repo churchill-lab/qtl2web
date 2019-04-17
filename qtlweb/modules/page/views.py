@@ -9,17 +9,7 @@ from flask import session
 from flask import url_for
 
 
-from qtlweb import utils, __version__
-
-
-
-
-
-
-
-
-
-
+from qtlweb import utils
 
 
 import os
@@ -32,7 +22,6 @@ page = Blueprint('page', __name__, template_folder='templates')
 @page.route('/ping')
 def ping():
     return 'OK!!!!'
-
 
 
 @page.route('/favicon.ico')
@@ -76,9 +65,11 @@ def index():
     datasetid = request.values.get('datasetid', '')
     debug = utils.str2bool(request.values.get('debug', ''))
 
+    app_version = os.getenv('DOCKER_QTLWEB_VERSION', '')
+
     return render_template('page/index.html',
                            search_term=search_term, datasetid=datasetid,
-                           debug=debug, app_version=__version__)
+                           debug=debug, app_version=app_version)
 
 
 '''

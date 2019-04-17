@@ -13,7 +13,7 @@ Click==6.7
 
 # Data and workers.
 redis==3.2.1
-celery==4.2.1
+celery==4.3.0
 flower==0.9.3
 
 # Extensions.

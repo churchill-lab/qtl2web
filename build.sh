@@ -6,7 +6,10 @@ USERNAME=mattjvincent
 # image name
 IMAGE=qtlweb
 
-docker build -t $USERNAME/$IMAGE:latest .
+version=`cat VERSION`
+echo "version: $version"
+
+docker build -t $USERNAME/$IMAGE:$version .
 
 
 
