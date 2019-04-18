@@ -32,6 +32,7 @@
     <link rel="stylesheet"
           href="{{ url_for('static', filename='styles/main.css', _external=True) }}">
 
+
 {% endblock %}
 
 {% block body %}
@@ -183,7 +184,7 @@
                         <div class="col">
                             <div class="card h-100">
                                 <div class="card-header" id="lod">
-                                    <i class="fas fa-chart-area"></i> LOD Plot
+                                    <i class="fas fa-chart-area"></i> {{ config.LOD_CARD_TITLE |safe }}
                                 </div>
                                 <div class="card-body">
 
@@ -231,10 +232,10 @@
                         <div class="card-header" id="profilePlot">
                             <ul id="infoTabs" class="nav nav-tabs" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link active" id="navProfile" data-toggle="tab" href="#tabProfile"><i class="fas fa-calculator"></i> Profile Plot</a>
+                                    <a class="nav-link active" id="navProfile" data-toggle="tab" href="#tabProfile"><i class="fas fa-calculator"></i> {{ config.TAB_PROFILE_PLOT_TEXT|safe }}</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="navCorrelation" data-toggle="tab" href="#tabCorrelation"><i class="fas fa-barcode"></i> Correlation</a>
+                                    <a class="nav-link" id="navCorrelation" data-toggle="tab" href="#tabCorrelation"><i class="fas fa-barcode"></i> {{ config.TAB_CORRELATION_TEXT|safe }}</a>
                                 </li>
                             </ul>
                         </div>
@@ -256,7 +257,7 @@
                                 <div role="tabpanel" class="tab-pane" id="tabCorrelation">
                                     <div class="row">
                                         <div class="col font-weight-bold">
-                                            <span class="align-bottom">Select Correlation Dataset</span>
+                                            <span class="align-bottom">{{ config.CORRELATION_SELECT_DATASET_TEXT|safe }}</span>
                                         </div>
                                     </div>
 
@@ -277,7 +278,7 @@
                                     <div class="row">
                                         <div class="col">
                                             <button id="btnDownloadCorrelationData" type="button" class="btn btn-sm btn-flat btn-primary">
-                                                <i class="fas fa-download"></i> Download Correlations</button>
+                                                <i class="fas fa-download"></i> {{ config.CORRELATION_BUTTON_DOWNLOAD_TEXT|safe }}</button>
                                         </div>
                                     </div>
 
@@ -285,7 +286,7 @@
 
                                     <div class="row">
                                         <div class="col">
-                                            Select an ID from above to plot the correlation data.
+                                            {{ config.CORRELATION_SELECT_ID_TEXT|safe }}
                                         </div>
                                     </div>
                                     <div class="row">
@@ -298,7 +299,7 @@
 
                                     <div class="row">
                                         <div class="col font-weight-bold">
-                                            Select a series to color
+                                            {{ config.CORRELATION_SELECT_SERIES_TEXT|safe }}
                                         </div>
                                     </div>
 
@@ -321,13 +322,13 @@
                         <div class="card-header">
                             <ul id="secondaryPlotTabs" class="nav nav-tabs" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link active" id="navPlotEffect" data-toggle="tab" href="#tabPlotEffect"><i class="fas fa-chart-line"></i> Effect</a>
+                                    <a class="nav-link active" id="navPlotEffect" data-toggle="tab" href="#tabPlotEffect"><i class="fas fa-chart-line"></i> {{ config.TAB_EFFECT_PLOT_TEXT|safe }}</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="navPlotMediation" data-toggle="tab" href="#tabPlotMediation"><i class="far fa-calendar-alt fa-rotate-180"></i> Mediation</a>
+                                    <a class="nav-link" id="navPlotMediation" data-toggle="tab" href="#tabPlotMediation"><i class="far fa-calendar-alt fa-rotate-180"></i> {{ config.TAB_MEDIATION_PLOT_TEXT|safe }}</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="navPlotSNPs" data-toggle="tab" href="#tabPlotSNPs"><i class="fas fa-signal fa-rotate-90"></i> SNP Association</a>
+                                    <a class="nav-link" id="navPlotSNPs" data-toggle="tab" href="#tabPlotSNPs"><i class="fas fa-signal fa-rotate-90"></i> {{ config.TAB_SNP_ASSOCIATION_TEXT|safe }}</a>
                                 </li>
                             </ul>
                         </div>
@@ -338,7 +339,7 @@
                                         <div class="col">
                                             <div class="custom-control custom-switch">
                                                 <input type="checkbox" class="custom-control-input" id="performBLUP">
-                                                <label class="custom-control-label" for="performBLUP">Best Linear Unbiased Predictors (BLUPs)</label>
+                                                <label class="custom-control-label" for="performBLUP">{{ config.SWITCH_BLUP_TEXT|safe }}</label>
                                             </div>
                                         </div>
                                     </div>
@@ -414,7 +415,7 @@
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
         <span class="text-muted">
-            <strong>Created by <a href="{{ config.LAB_URL }}">{{ config.LAB_NAME }}</a>.</strong>
+            <strong>{{ config.CREATED_BY_TEXT|safe }} <a href="{{ config.LAB_URL }}">{{ config.LAB_NAME }}</a>.</strong>
         </span>
       </li>
     </ul>
@@ -499,6 +500,67 @@
     var logInfo = console.info.bind(window.console);
     var logError = console.error.bind(window.console);
 
+    /**
+     * Create a global getSVG method that takes an array of charts as an argument. The SVG is returned as an argument in the callback.
+     */
+    Highcharts.getSVG = function (charts, options, callback) {
+        console.log('getSVG options=', options);
+        var svgArr = [],
+            top = 0,
+            width = 0,
+            addSVG = function (svgres) {
+                // Grab width/height from exported chart
+                let svgWidth = svgres.match(
+                    /^<svg[^>]*width\s*=\s*\"?(\d+)\"?[^>]*>/
+                );
+                svgWidth = +svgWidth[1];
+
+                let svgHeight = svgres.match(
+                    /^<svg[^>]*height\s*=\s*\"?(\d+)\"?[^>]*>/
+                );
+                svgHeight = +svgHeight[1];
+
+                // Offset the position of this chart in the final SVG
+                let svg = svgres.replace('<svg', '<g transform="translate(0,' + top + ')" ');
+                svg = svg.replace('</svg>', '</g>');
+                top += svgHeight;
+                width = Math.max(width, svgWidth);
+                svgArr.push(svg);
+            },
+            exportChart = function (i) {
+                if (i === charts.length) {
+                    return callback('<svg height="' + top + '" width="' + width +
+                      '" version="1.1" xmlns="http://www.w3.org/2000/svg">' + svgArr.join('') + '</svg>');
+                }
+                charts[i].getSVGForLocalExport(options, {}, function () {
+                    console.log("Failed to get SVG");
+                }, function (svg) {
+                    addSVG(svg);
+                    return exportChart(i + 1); // Export next only when this SVG is received
+                });
+            };
+        exportChart(0);
+    };
+
+    /**
+     * Create a global exportCharts method that takes an array of charts as an argument,
+     * and exporting options as the second argument
+     */
+    Highcharts.exportCharts = function (charts, options) {
+        console.log('options a', options);
+        options = Highcharts.merge(Highcharts.getOptions().exporting, options);
+        console.log('options b', options);
+
+        // Get SVG asynchronously and then download the resulting SVG
+        Highcharts.getSVG(charts, options, function (svg) {
+
+            Highcharts.downloadSVGLocal(svg, options, function (a,b,c) {
+                console.log('downloadSVGLocal',options);
+                console.log("Failed to export on client side");
+                console.log(a,b,c);
+            });
+        });
+    };
 
     /**
      * Add a button to the Highcharts export menu.
@@ -520,6 +582,7 @@
             buttons: myButtons
         };
     }
+
 
     /**
      *  Extended disable function
@@ -1782,23 +1845,24 @@ function syncronizeCrossHairs(chart) {
             id: "myPlotLineId",
             zIndex: 5
         });
-
+/*
         Highcharts.each(g.chartSNPAssocGenes.series[0].points, function(point) {
 
             if (point.x < xVal && point.x2 > xVal) {
                 //chart2.tooltip.refresh(point);
-                /*
-                point.update({
-                  color: '#4879b2'
-                });
-                */
+
+                //point.update({
+                 // color: '#4879b2'
+                //});
+
             } else {
-                /*point.update({
-                  color: '#fff'
-                });
-                */
+                //point.update({
+                //  color: '#fff'
+                //});
+
             }
         });
+    */
         /*
             var xAxis3 = chart3.xAxis[0];
             var points3 = chart3.series[0].points;
@@ -1947,10 +2011,93 @@ function syncronizeCrossHairs(chart) {
             logDebug('maxPos', maxPos);
 
 
-            let exporting = appendExportButton('Download CSV', function() {
-                exportSNPAssocData(currentID, snps, geneData);
-            });
-            exporting.filename = currentID + '_SNPASSOC';
+            let exporting = {
+                menuItemDefinitions: {
+                    downloadPNGSNP: {
+                        onclick: function () {
+                            let xAxis1 = g.chartSNPAssocSNPS.xAxis[0];
+                            xAxis1.removePlotLine("myPlotLineId");
+                            let xAxis2 = g.chartSNPAssocGenes.xAxis[0];
+                            xAxis2.removePlotLine("myPlotLineId");
+                            Highcharts.exportCharts([
+                                    g.chartSNPAssocSNPS, g.chartSNPAssocGenes
+                                ],
+                                {
+                                    filename: currentID + '_SNPASSOC'
+                                });
+                        },
+                        text: 'Download PNG image'
+                    },
+                    downloadJPEGSNP: {
+                        onclick: function () {
+                            let xAxis1 = g.chartSNPAssocSNPS.xAxis[0];
+                            xAxis1.removePlotLine("myPlotLineId");
+                            let xAxis2 = g.chartSNPAssocGenes.xAxis[0];
+                            xAxis2.removePlotLine("myPlotLineId");
+                            Highcharts.exportCharts([
+                                    g.chartSNPAssocSNPS, g.chartSNPAssocGenes
+                                ],
+                                {
+                                    filename: currentID + '_SNPASSOC',
+                                    type: 'image/jpeg'
+                                });
+                        },
+                        text: 'Download JPEG image'
+                    },
+                    downloadSVGSNP: {
+                        onclick: function () {
+                            let xAxis1 = g.chartSNPAssocSNPS.xAxis[0];
+                            xAxis1.removePlotLine("myPlotLineId");
+                            let xAxis2 = g.chartSNPAssocGenes.xAxis[0];
+                            xAxis2.removePlotLine("myPlotLineId");
+                            Highcharts.exportCharts([
+                                    g.chartSNPAssocSNPS, g.chartSNPAssocGenes
+                                ],
+                                {
+                                    filename: currentID + '_SNPASSOC',
+                                    type: 'image/svg+xml'
+                                });
+                        },
+                        text: 'Download SVG vector image'
+                    },
+                    downloadPDFSNP: {
+                        // THERE IS AN ERROR EXPORTING, NOT SURE WHY
+                        onclick: function () {
+                            let xAxis1 = g.chartSNPAssocSNPS.xAxis[0];
+                            xAxis1.removePlotLine("myPlotLineId");
+                            let xAxis2 = g.chartSNPAssocGenes.xAxis[0];
+                            xAxis2.removePlotLine("myPlotLineId");
+                            Highcharts.exportCharts([
+                                    g.chartSNPAssocSNPS, g.chartSNPAssocGenes
+                                ],
+                                {
+                                    filename: currentID + '_SNPASSOC',
+                                    type: 'application/pdf'
+                                });
+                        },
+                        text: 'Download PDF document'
+                    },
+                    downloadCSVSNP: {
+                        onclick: function () {
+                            console.log(currentID);
+                            exportSNPAssocData(currentID, snps, geneData);
+                        },
+                        text: 'Download CSV'
+                    }
+                },
+                buttons: {
+                    contextButton: {
+                        menuItems: [
+                            'downloadPNGSNP',
+                            'downloadJPEGSNP',
+                            'downloadSVGSNP',
+                            'separator',
+                            'downloadCSVSNP'
+                        ]
+                    }
+                },
+                filename: currentID + '_SNPASSOC'
+            };
 
             g.chartSNPAssocSNPS = Highcharts.chart({
                 boost: {
@@ -2193,7 +2340,6 @@ function syncronizeCrossHairs(chart) {
             },
             exporting: {
                 enabled: false,
-                sourceWidth: 1200
             },
             credits: {
                 enabled: false
@@ -5830,6 +5976,8 @@ function syncronizeCrossHairs(chart) {
         }
     }();
 
+
+
     $().ready(function () {
         QTL.init();
 
@@ -5868,11 +6016,11 @@ function syncronizeCrossHairs(chart) {
                             'downloadPNG',
                             'downloadJPEG',
                             'downloadPDF',
-                            'downloadSVG'
+                            'downloadSVG',
+                            'separator'
                         ]
                     }
                 },
-                //fallbackToExportServer: false,
             },
         });
     });

@@ -1,4 +1,4 @@
-FROM python:3.7-slim
+FROM python:3.7.3-slim
 LABEL maintainer="Matthew Vincent <mattjvincent@gmail.com>" \
 	  version="1.0"
 

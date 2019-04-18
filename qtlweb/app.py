@@ -11,6 +11,8 @@ from flask import url_for
 import requests
 import requests_cache
 
+
+
 from qtlweb.modules.api.views import api
 from qtlweb.modules.page.views import page
 from qtlweb.extensions import compress
@@ -30,10 +32,11 @@ def create_celery_app(app=None):
     :param app: Flask app
     :return: Celery app
     """
-    #print('create_celery_app called')
+    # print('create_celery_app called')
+
     app = app or create_app()
 
-    #print('createceleryapp=', app.config)
+    # print('createceleryapp=', app.config)
 
     celery = Celery(app.import_name,
                     broker=app.config['CELERY_BROKER_URL'],
@@ -62,19 +65,19 @@ def create_app(settings_override=None):
     :param settings_override: Override settings
     :return: Flask app
     """
-    #print('create_app called')
+    # print('create_app called')
     app = Flask(__name__, instance_relative_config=True)
 
     app.config.from_object('config.settings')
 
-    #print('\n\n\n\n\n\n\nconfig=', app.config)
+    # print('config=', app.config)
     
     if app.config.from_envvar('QTLVIEWER_SETTINGS', silent=True):
         env_settings = os.environ['QTLVIEWER_SETTINGS']
-        #print('env_settings=', env_settings)
+        # print('env_settings=', env_settings)
         app.logger.info('Using QTLVIEWER_SETTINGS: {}'.format(env_settings))
 
-    #print('\n\n\n\n\n\n\nnew_config=', app.config)
+    # print('new_config=', app.config)
 
     if settings_override:
         app.logger.info('Overriding settings with parameters')
@@ -101,7 +104,15 @@ def extensions(app):
     :return: None
     """
     compress.init_app(app)
-    requests_cache.install_cache(os.getenv('DIR_QTLVIEWER_CACHE', 'cache'))
+
+    try:
+        cache_dir = os.environ['QTLVIEWER_CACHE']
+        cache_name = os.environ['CACHE_NAME']
+        cache_path = os.path.join(cache_dir, cache_name)
+    except:
+        cache_path = None
+
+    requests_cache.install_cache(cache_path)
 
     return None
 

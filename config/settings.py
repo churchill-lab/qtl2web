@@ -1,35 +1,106 @@
-# host to listen on, 0.0.0.0 means allow anyone to connect
-HOST = '0.0.0.0'
-
-# port to use, make sure you have permission
-PORT = 9000
-
-# single threaded = False
-THREADED = True
-
-# to debug or not debug, that is the question
-DEBUG = False
-
-# secret key, probably just leave alone
-SECRET_KEY = 'QTLWEB-SECRET'
-
-LOG_LEVEL = 'DEBUG' # CRITICAL / ERROR / WARNING / INFO / DEBUG
-
-result_backend = 'redis://redis:6379/0'
-broker_url = 'redis://redis:6379/0'
-
 ###############################################################################
 #
 # API CONFIGURATION
 #
 ###############################################################################
 
-API_R_BASE = 'http://myapiisawesome:8000'
+API_R_BASE = 'http://qtlapi:8001'
 
 ###############################################################################
 #
-# DISPLAY CONFIGURATION
+# DISPLAY CONFIGURATION (Overrides)
 #
 ###############################################################################
 
-MAIN_TITLE = 'QTL Viewer'
+# HTML PAGE TITLE
+MAIN_TITLE = 'Attie Islet Secretion'
+
+# NAV TEXT
+NAV_TITLE = 'Attie Islet Secretion'
+NAV_DATASET = 'Current Data Set'
+
+# OPENING PAGE TEXT
+JUMBO_TITLE = 'Attie Islet Secretion'
+JUMBO_TEXT = 'Please search for a term of interest.'
+
+# SEARCH SECTION
+TAB_SEARCH_MRNA_PROTEIN_TEXT = 'Search'
+TAB_SEARCH_PHENOTYPE_TEXT = 'Phenotypes'
+TAB_LOD_PEAKS_TEXT = 'LOD Peaks'
+SEARCH_BOX_TEXT = 'Please type a term to search for...'
+
+# LOD CARD
+LOD_CARD_TITLE = 'LOD Plot'
+
+
+
+TAB_PROFILE_PLOT_TEXT = 'Profile Plot'
+TAB_CORRELATION_TEXT = 'Correlation'
+
+CORRELATION_SELECT_DATASET_TEXT = 'Select Correlation Dataset'
+CORRELATION_BUTTON_DOWNLOAD_TEXT = 'Download Correlations'
+CORRELATION_SELECT_ID_TEXT = 'Select an ID from above to plot the correlation data.'
+CORRELATION_SELECT_SERIES_TEXT = 'Select a series to color'
+
+TAB_EFFECT_PLOT_TEXT = 'Effect'
+TAB_MEDIATION_PLOT_TEXT = 'Mediation'
+TAB_SNP_ASSOCIATION_TEXT = 'SNP Association'
+
+SWITCH_BLUP_TEXT = 'Best Linear Unbiased Predictors (BLUPs)'
+
+CREATED_BY_TEXT = 'Created by'
+
+# FOOTER
+LAB_URL ='http://churchill-lab.jax.org'
+LAB_NAME = 'The Churchill Lab'
+
+CHROMOSOMES = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+               '11', '12', '13', '14', '15', '16', '17', '18', '19',
+               'X']
+
+#PLOT_LOD_LINES = [
+#    {'val':6.52, 'color':'#DAA520', 'text':'80%'},
+#    {'val':7.38, 'color':'red', 'text':'95%'}
+#]
+
+PLOT_LOD_XAXIS_TEXT = 'LOD'
+
+PLOT_EFFECT_STRAINS = [
+    {'key':'A', 'color':"#f9c922", 'name':"A/J"},
+    {'key':'B', 'color':"#888888", 'name':"C57BL/6J"},
+    {'key':'C', 'color':"#F08080", 'name':"129S1/SvImJ"},
+    {'key':'D', 'color':"#0064C9", 'name':"NOD/ShiLtJ"},
+    {'key':'E', 'color':"#7FDBFF", 'name':"NZO/H1LtJ"},
+    {'key':'F', 'color':"#2ECC40", 'name':"CAST/EiJ"},
+    {'key':'G', 'color':"#FF4136", 'name':"PWK/PhJ"},
+    {'key':'H', 'color':"#B10DC9", 'name':"WSB/EiJ"}
+]
+LOGIN_REQUIRED=False
+LOGIN_USERID='ADMIN'
+LOGIN_PASSWORD='PASSWORD'
+
+
+PLOT_BLUP = False
+
+API_R_NUM_CORES=5
+
+# host to listen on, 0.0.0.0 means allow anyone to connect
+HOST = '0.0.0.0'
+#
+# # port to use, make sure you have permission
+PORT = 8080
+#
+#
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+
+
+LOG_LEVEL = 'DEBUG' # CRITICAL / ERROR / WARNING / INFO / DEBUG
+
+COMPRESS_MIMETYPES = [
+    'text/html',
+    'text/css',
+    'text/xml',
+    'application/json',
+    'application/javascript'
+]
