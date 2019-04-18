@@ -21,16 +21,16 @@
           href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='vendor/please-wait-0.0.5/please-wait.css', _external=True) }}">
+          href="{{ url_for('static', filename='vendor/please-wait-0.0.5/please-wait.css') }}">
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='vendor/dynatables-0.3.1/jquery.dynatable.css', _external=True) }}">
+          href="{{ url_for('static', filename='vendor/dynatables-0.3.1/jquery.dynatable.css')}}">
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='vendor/bootstrap-multiselect-0.9.15/dist/css/bootstrap-multiselect.css', _external=True) }}">
+          href="{{ url_for('static', filename='vendor/bootstrap-multiselect-0.9.15/dist/css/bootstrap-multiselect.css') }}">
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='styles/main.css', _external=True) }}">
+          href="{{ url_for('static', filename='styles/main.css') }}">
 
 
 {% endblock %}
@@ -461,7 +461,7 @@
 
 
     <!-- ENSIMPL API -->
-    <script src="//churchill-lab.jax.org/ensimpl/api/js/ensimpl.js"></script>
+    <script src="//churchilllab.jax.org/ensimpl/api/js/ensimpl.js"></script>
 
     {% if debug %}
     <!-- Highcharts/Highstock //-->
@@ -687,6 +687,8 @@
 
             // for tasks
             g.runningTask = false;
+
+            g.PROTOCOL = window.location.protocol;
 
             d3.queue()
                 .defer(downloadDataSets)
@@ -1716,7 +1718,7 @@
         }
 
         function downloadChromosomes(version, species, callback) {
-            let chromosomeURL = `{{ url_for('api.api_get', url='', _external=True) }}http://churchill-lab.jax.org/ensimpl/api/chromosomes?version=${version}`;
+            let chromosomeURL = `{{ url_for('api.api_get', url='', _external=False) }}${g.PROTOCOL}//churchill-lab.jax.org/ensimpl/api/chromosomes?version=${version}`;
             if (species != null) {
                 chromosomeURL += '&species=' + species;
             }
@@ -1724,12 +1726,12 @@
         }
 
         function downloadLODPeaks(dataSetID, callback) {
-            let lodPeaksURL = `{{ url_for('api.api_get', url=config.API_R_BASE + '/lodpeaksall', _external=True) }}?dataset=${dataSetID}`;
+            let lodPeaksURL = `{{ url_for('api.api_get', url=config.API_R_BASE + '/lodpeaksall', _external=False) }}?dataset=${dataSetID}`;
             downloadData(lodPeaksURL, 'LODPeaks', callback);
         }
 
         function downloadDataSets(callback) {
-            let dataSetsURL = '{{ url_for('api.api_get', url=config.API_R_BASE + '/datasets', _external=True) }}';
+            let dataSetsURL = '{{ url_for('api.api_get', url=config.API_R_BASE + '/datasets', _external=False) }}';
             downloadData(dataSetsURL, 'dataSets', callback);
         }
 
@@ -2541,7 +2543,7 @@ function syncronizeCrossHairs(chart) {
 
             $.ajax({
                 type: 'POST',
-                url: '{{ url_for('api.api_submit', _external=True) }}',
+                url: '{{ url_for('api.api_submit', _external=False) }}',
                 contentType: 'application/json',
                 data: JSON.stringify(submitData),
                 success: function(data, status, request) {
@@ -2564,7 +2566,7 @@ function syncronizeCrossHairs(chart) {
             logDebug('updateSNPAssocData: ', groupID);
 
             if (g.runningTask) {
-                let statusURL = '{{ url_for('api.api_status', group_id='', _external=True) }}' + groupID;
+                let statusURL = '{{ url_for('api.api_status', group_id='', _external=False) }}' + groupID;
                 $.ajax({
                     type: 'GET',
                     url: statusURL,
@@ -2620,7 +2622,7 @@ function syncronizeCrossHairs(chart) {
             } else {
                 // TODO: cleanup
                 logDebug('canceling');
-                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
+                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=False) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
                     g.chartSNPAssocSNPS = null;
                     g.chartSNPAssocGenes = null;
@@ -3178,7 +3180,7 @@ function syncronizeCrossHairs(chart) {
 
             $.ajax({
                 type: 'POST',
-                url: '{{ url_for('api.api_submit', _external=True) }}',
+                url: '{{ url_for('api.api_submit', _external=False) }}',
                 contentType: 'application/json',
                 data: JSON.stringify(submitData),
                 success: function(data, status, request) {
@@ -3202,7 +3204,7 @@ function syncronizeCrossHairs(chart) {
             logDebug('updateMediationData{} ', groupID);
 
             if (g.runningTask) {
-                let statusURL = '{{ url_for('api.api_status', group_id='', _external=True) }}' + groupID;
+                let statusURL = '{{ url_for('api.api_status', group_id='', _external=False) }}' + groupID;
                 $.ajax({
                     type: 'GET',
                     url: statusURL,
@@ -3258,7 +3260,7 @@ function syncronizeCrossHairs(chart) {
             } else {
                 // TODO: cleanup
                 logDebug('canceling');
-                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
+                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=False) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
                     logDebug(data);
                     g.chartMediation = null;
@@ -3303,7 +3305,7 @@ function syncronizeCrossHairs(chart) {
 
             $.ajax({
                 type: 'POST',
-                url: '{{ url_for('api.api_submit', _external=True) }}',
+                url: '{{ url_for('api.api_submit', _external=False) }}',
                 contentType: 'application/json',
                 data: JSON.stringify(submitData),
                 success: function(data, status, request) {
@@ -3326,7 +3328,7 @@ function syncronizeCrossHairs(chart) {
             logDebug('updateEffectData() ', groupID);
 
             if (g.runningTask) {
-                let statusURL = '{{ url_for('api.api_status', group_id='', _external=True) }}' + groupID;
+                let statusURL = '{{ url_for('api.api_status', group_id='', _external=False) }}' + groupID;
                 $.ajax({
                     type: 'GET',
                     url: statusURL,
@@ -3387,7 +3389,7 @@ function syncronizeCrossHairs(chart) {
             } else {
                 // TODO: cleanup
                 logDebug('canceling');
-                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
+                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=False) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
                     logDebug(data);
                     g.chartEffect = null;
@@ -3403,7 +3405,7 @@ function syncronizeCrossHairs(chart) {
             logDebug(groupID);
 
             if (g.runningTask) {
-                let statusURL = '{{ url_for('api.api_status', group_id='', _external=True) }}' + groupID;
+                let statusURL = '{{ url_for('api.api_status', group_id='', _external=False) }}' + groupID;
                 $.ajax({
                     type: 'GET',
                     url: statusURL,
@@ -3457,7 +3459,7 @@ function syncronizeCrossHairs(chart) {
             } else {
                 // TODO: cleanup
                 logDebug('canceling');
-                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
+                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=False) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
                     logDebug(data);
                     g.chartCorrelation = null;
@@ -3499,7 +3501,7 @@ function syncronizeCrossHairs(chart) {
 
             $.ajax({
                 type: 'POST',
-                url: '{{ url_for('api.api_submit', _external=True) }}',
+                url: '{{ url_for('api.api_submit', _external=False) }}',
                 contentType: 'application/json',
                 data: JSON.stringify(submitData),
                 success: function(data, status, request) {
@@ -5091,7 +5093,7 @@ function syncronizeCrossHairs(chart) {
             logDebug(currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
 
             if (g.runningTask) {
-                let statusURL = '{{ url_for('api.api_status', group_id='', _external=True) }}' + groupID;
+                let statusURL = '{{ url_for('api.api_status', group_id='', _external=False) }}' + groupID;
                 $.ajax({
                     type: 'GET',
                     url: statusURL,
@@ -5145,7 +5147,7 @@ function syncronizeCrossHairs(chart) {
             } else {
                 // TODO: cleanup
                 logDebug('canceling');
-                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
+                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=False) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
                     logDebug(data);
                     g.chartCorrelation = null;
@@ -5173,7 +5175,7 @@ function syncronizeCrossHairs(chart) {
 
             $.ajax({
                 type: 'POST',
-                url: '{{ url_for('api.api_submit', _external=True) }}',
+                url: '{{ url_for('api.api_submit', _external=False) }}',
                 contentType: 'application/json',
                 data: JSON.stringify(submitData),
                 success: function(data, status, request) {
@@ -5206,7 +5208,7 @@ function syncronizeCrossHairs(chart) {
             logDebug(groupID);
 
             if (g.runningTask) {
-                let statusURL = `{{ url_for('api.api_status', group_id='', _external=True) }}${groupID}`;
+                let statusURL = `{{ url_for('api.api_status', group_id='', _external=False) }}${groupID}`;
                 $.ajax({
                     type: 'GET',
                     url: statusURL,
@@ -5353,7 +5355,7 @@ function syncronizeCrossHairs(chart) {
             } else {
                 // TODO: cleanup
                 logDebug('canceling');
-                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
+                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=False) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
                     logDebug(data);
                 });
@@ -5454,7 +5456,7 @@ function syncronizeCrossHairs(chart) {
 
             $.ajax({
                 type: 'POST',
-                url: '{{ url_for('api.api_submit', _external=True) }}',
+                url: '{{ url_for('api.api_submit', _external=False) }}',
                 contentType: 'application/json',
                 data: JSON.stringify(submitData),
                 success: function(data, status, request) {
@@ -5517,7 +5519,7 @@ function syncronizeCrossHairs(chart) {
             logDebug(groupID);
 
             if (g.runningTask) {
-                let statusURL = `{{ url_for('api.api_status', group_id='', _external=True) }}${groupID}`;
+                let statusURL = `{{ url_for('api.api_status', group_id='', _external=False) }}${groupID}`;
                 $.ajax({
                     type: 'GET',
                     url: statusURL,
@@ -5640,7 +5642,7 @@ function syncronizeCrossHairs(chart) {
             } else {
                 // TODO: cleanup
                 logDebug('canceling');
-                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
+                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=False) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
                     logDebug(data);
                 });
@@ -5755,7 +5757,7 @@ function syncronizeCrossHairs(chart) {
 
             $.ajax({
                 type: 'POST',
-                url: '{{ url_for('api.api_submit', _external=True) }}',
+                url: '{{ url_for('api.api_submit', _external=False) }}',
                 contentType: 'application/json',
                 data: JSON.stringify(submitData),
                 success: function(data, status, request) {
@@ -5781,7 +5783,7 @@ function syncronizeCrossHairs(chart) {
             logDebug(groupID);
 
             if (g.runningTask) {
-                let statusURL = `{{ url_for('api.api_status', group_id='', _external=True) }}${groupID}`;
+                let statusURL = `{{ url_for('api.api_status', group_id='', _external=False) }}${groupID}`;
                 $.ajax({
                     type: 'GET',
                     url: statusURL,
@@ -5865,7 +5867,7 @@ function syncronizeCrossHairs(chart) {
             } else {
                 // TODO: cleanup
                 logDebug('canceling');
-                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=True) }}${groupID}`;
+                let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=False) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
                     logDebug(data);
                 });
@@ -5947,7 +5949,7 @@ function syncronizeCrossHairs(chart) {
 
                 $.ajax({
                     type: 'POST',
-                    url: '{{ url_for('api.api_submit', _external=True) }}',
+                    url: '{{ url_for('api.api_submit', _external=False) }}',
                     contentType: 'application/json',
                     data: JSON.stringify(submitData),
                     success: function(data, status, request) {
