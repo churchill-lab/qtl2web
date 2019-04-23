@@ -3,7 +3,6 @@
 {% block title %}{{ config.MAIN_TITLE|safe }}{% endblock %}
 {% block meta_description %}{% endblock %}
 {% block head %}
-
     <link rel="stylesheet"
           href="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
@@ -31,10 +30,7 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='styles/main.css') }}">
-
-
 {% endblock %}
-
 {% block body %}
 <body>
 
@@ -3787,6 +3783,7 @@ function syncronizeCrossHairs(chart) {
                 htmlMediate += '</select></div></div>';
 
                 $('#divMediationSelect').html(htmlMediate);
+                $('#dsMediateAgainstID').selectpicker();
             }
         }
 
