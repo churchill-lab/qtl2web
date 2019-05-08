@@ -52,13 +52,22 @@
                         <div class="card-header">
                             <ul class="nav nav-tabs" role="tablist">
                                 <li class="nav-item">
-                                    <a class="nav-link" id="navPheno" data-toggle="tab" href="#tabSearchPheno"><i class="fas fa-search"></i> {{ config.TAB_SEARCH_PHENOTYPE_TEXT|safe }}</a>
+                                    <a id="navPheno"
+                                       class="nav-link"
+                                       data-toggle="tab"
+                                       href="#tabSearchPheno"><i class="fas fa-search"></i> {{ config.TAB_SEARCH_PHENOTYPE_TEXT|safe }}</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="navGene" data-toggle="tab" href="#tabSearchGene"><i class="fas fa-search"></i> {{ config.TAB_SEARCH_MRNA_PROTEIN_TEXT|safe }}</a>
+                                    <a id="navGene"
+                                       class="nav-link"
+                                       data-toggle="tab"
+                                       href="#tabSearchGene"><i class="fas fa-search"></i> {{ config.TAB_SEARCH_MRNA_PROTEIN_TEXT|safe }}</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="navLodPeaks" data-toggle="tab" href="#tabLodPeaks"><i class="fas fa-th"></i> {{ config.TAB_LOD_PEAKS_TEXT|safe }}</a>
+                                    <a id="navLodPeaks"
+                                       class="nav-link"
+                                       data-toggle="tab"
+                                       href="#tabLodPeaks"><i class="fas fa-th"></i> {{ config.TAB_LOD_PEAKS_TEXT|safe }}</a>
                                 </li>
                             </ul>
                         </div>
@@ -86,7 +95,8 @@
 
                                     <div class="row">
                                         <div class="col">
-                                            <div class="py-0" id="searchPhenoResultsInfo"></div>
+                                            <div class="py-0" id="searchPhenoResultsInfo">
+                                            </div>
                                         </div>
                                     </div>
 
@@ -4139,6 +4149,7 @@ function syncronizeCrossHairs(chart) {
                         html: true,
                         trigger: 'hover',
                         container: 'body',
+                        sanitize: false,
                         content: function () {
                             let d = searchResults[elem.getAttribute('geneid')];
                             let h = `<table class="table table-sm">

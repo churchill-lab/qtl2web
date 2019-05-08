@@ -2,7 +2,7 @@ version: '3'
 
 services:
 
-  website:
+  qtlweb:
     build: .
     # environment variables will be passed through to container
     env_file:
@@ -17,10 +17,10 @@ services:
   redis:
     image: 'redis:4.0.11-alpine'
     command: redis-server
+    ports:
+      - ${PORT_REDIS}:6379
     volumes:
       - 'redis:/var/lib/redis/data'
-    ports:
-      - '6379:6379'
 
   celery:
     build: .
@@ -35,10 +35,10 @@ services:
 volumes:
   redis:
 
-# docker network create --attachable qtlviewer
+# docker network create --attachable qtlapi
 networks:
   default:
     external:
-      name: qtlviewer
+      name: qtlapi
 
 
