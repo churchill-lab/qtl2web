@@ -65,7 +65,7 @@ def create_app():
     """
     app = Flask(__name__, instance_relative_config=True)
 
-    app.config.from_object('config.settings')
+    app.config.from_object('qtlweb.config.settings')
 
     if app.config.from_envvar('QTLWEB_SETTINGS', silent=True):
         env_settings = os.environ['QTLWEB_SETTINGS']
