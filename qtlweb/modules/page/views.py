@@ -4,18 +4,14 @@ from flask import current_app
 from flask import redirect
 from flask import render_template
 from flask import request
-from flask import send_from_directory
+from flask import send_file
 from flask import session
 from flask import url_for
 
 
 from qtlweb import utils
 
-
-
-
-
-
+import ntpath
 import os
 import socket
 
@@ -123,18 +119,20 @@ def error():
 
 @page.route('/_info', methods=['GET'])
 def info():
-
     return '{}'.format(socket.gethostname())
 
 
-@page.route('/test')
-def test():
-    return render_template('page/test.html')
+@page.route('/rdata')
+def data():
+    # attempt to get the RData file and send it
+    real_file_name = os.getenv('QTLAPI_RDATA', '')
+
+    return redirect('/data/{}'.format(real_file_name))
 
 
-@page.route('/test2')
-def test2():
-    return render_template('page/test2.html')
+
+
+
 
 
 

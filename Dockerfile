@@ -1,20 +1,49 @@
-FROM python:3.7.3-slim
-LABEL maintainer="Matthew Vincent <mattjvincent@gmail.com>" \
-	  version="1.0"
+FROM alpine:3.9.3
 
-RUN apt-get update && \
-    apt-get -y install gcc
+LABEL maintainer="Matt Vincent <matt.vincent@jax.org>"
 
-ENV INSTALL_PATH /app/qtlweb
+# install what we need
+RUN apk add --no-cache \
+    python3 \
+    bash \
+    nginx \
+    uwsgi \
+    uwsgi-python3 \
+    supervisor && \
+    rm /etc/nginx/conf.d/default.conf
+
+
+ENV INSTALL_PATH /app
 RUN mkdir -p $INSTALL_PATH
-
 WORKDIR $INSTALL_PATH
 
-RUN pip install --upgrade pip
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+# Copy the Nginx global conf
+COPY ./conf/nginx.conf /etc/nginx/
 
-COPY . .
-RUN pip install --editable .
+COPY ./conf/mime.types /etc/nginx/mime.types
 
-CMD gunicorn -c "python:config.gunicorn" "qtlweb.app:create_app()"
+# Copy the Flask Nginx site conf
+COPY ./conf/flask-site-nginx.conf /etc/nginx/conf.d/
+
+# Copy the base uWSGI ini file to enable default dynamic uwsgi process number
+COPY ./conf/uwsgi.ini /etc/uwsgi/
+
+# Custom Supervisord config
+COPY ./conf/supervisord.conf /etc/supervisord.conf
+
+# copy python requirements file
+COPY requirements.txt /tmp/requirements.txt
+
+# install the requirements
+RUN python3 -m ensurepip && \
+    rm -r /usr/lib/python*/ensurepip && \
+    pip3 install --upgrade pip setuptools && \
+    pip3 install -r /tmp/requirements.txt && \
+    rm -r /root/.cache
+
+# Add app
+COPY ./qtlweb /app/qtlweb
+COPY ./static /app/static
+
+CMD ["/usr/bin/supervisord"]
+

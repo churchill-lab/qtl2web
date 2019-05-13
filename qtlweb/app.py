@@ -11,8 +11,6 @@ from flask import url_for
 import requests
 import requests_cache
 
-
-
 from qtlweb.modules.api.views import api
 from qtlweb.modules.page.views import page
 from qtlweb.extensions import compress
@@ -58,7 +56,7 @@ def create_celery_app(app=None):
     return celery
 
 
-def create_app(settings_override=None):
+def create_app(settings_override=None, apple=None):
     """
     Create a Flask application using the app factory pattern.
 
@@ -68,20 +66,20 @@ def create_app(settings_override=None):
     # print('create_app called')
     app = Flask(__name__, instance_relative_config=True)
 
-    app.config.from_object('config.settings')
+    #app.config.from_object('config.settings')
 
     # print('config=', app.config)
     
-    if app.config.from_envvar('QTLVIEWER_SETTINGS', silent=True):
-        env_settings = os.environ['QTLVIEWER_SETTINGS']
+    if app.config.from_envvar('QTLWEB_SETTINGS', silent=True):
+        env_settings = os.environ['QTLWEB_SETTINGS']
         # print('env_settings=', env_settings)
-        app.logger.info('Using QTLVIEWER_SETTINGS: {}'.format(env_settings))
+        app.logger.info('Using QTLWEB_SETTINGS: {}'.format(env_settings))
 
     # print('new_config=', app.config)
 
-    if settings_override:
-        app.logger.info('Overriding settings with parameters')
-        app.config.update(settings_override)
+    #if settings_override:
+    #    app.logger.info('Overriding settings with parameters')
+    #    app.config.update(settings_override)
 
     app.logger.setLevel(app.config['LOG_LEVEL'])
 
@@ -106,8 +104,8 @@ def extensions(app):
     compress.init_app(app)
 
     try:
-        cache_dir = os.environ['QTLVIEWER_CACHE']
-        cache_name = os.environ['CACHE_NAME']
+        cache_dir = os.environ['QTLWEB_CACHE']
+        cache_name = os.environ['QTLWEB_CACHE_NAME']
         cache_path = os.path.join(cache_dir, cache_name)
     except:
         cache_path = None
