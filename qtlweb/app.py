@@ -56,30 +56,20 @@ def create_celery_app(app=None):
     return celery
 
 
-def create_app(settings_override=None, apple=None):
+def create_app():
     """
     Create a Flask application using the app factory pattern.
 
     :param settings_override: Override settings
     :return: Flask app
     """
-    # print('create_app called')
     app = Flask(__name__, instance_relative_config=True)
 
-    #app.config.from_object('config.settings')
+    app.config.from_object('config.settings')
 
-    # print('config=', app.config)
-    
     if app.config.from_envvar('QTLWEB_SETTINGS', silent=True):
         env_settings = os.environ['QTLWEB_SETTINGS']
-        # print('env_settings=', env_settings)
         app.logger.info('Using QTLWEB_SETTINGS: {}'.format(env_settings))
-
-    # print('new_config=', app.config)
-
-    #if settings_override:
-    #    app.logger.info('Overriding settings with parameters')
-    #    app.config.update(settings_override)
 
     app.logger.setLevel(app.config['LOG_LEVEL'])
 

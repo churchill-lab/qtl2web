@@ -13,14 +13,14 @@ API_R_BASE = 'http://qtlapi:8001'
 ###############################################################################
 
 # HTML PAGE TITLE
-MAIN_TITLE = 'Attie Islet Secretion'
+MAIN_TITLE = 'QTL Viewer'
 
 # NAV TEXT
-NAV_TITLE = 'Attie Islet Secretion'
+NAV_TITLE = 'QTL Viewer'
 NAV_DATASET = 'Current Data Set'
 
 # OPENING PAGE TEXT
-JUMBO_TITLE = 'Attie Islet Secretion'
+JUMBO_TITLE = 'QTL Viewer'
 JUMBO_TEXT = 'Please search for a term of interest.'
 
 # SEARCH SECTION
@@ -32,8 +32,7 @@ SEARCH_BOX_TEXT = 'Please type a term to search for...'
 # LOD CARD
 LOD_CARD_TITLE = 'LOD Plot'
 
-
-
+# TAB PROFILE/CORRELATION
 TAB_PROFILE_PLOT_TEXT = 'Profile Plot'
 TAB_CORRELATION_TEXT = 'Correlation'
 
@@ -51,7 +50,7 @@ SWITCH_BLUP_TEXT = 'Best Linear Unbiased Predictors (BLUPs)'
 CREATED_BY_TEXT = 'Created by'
 
 # FOOTER
-LAB_URL ='http://churchill-lab.jax.org'
+LAB_URL = 'http://churchill-lab.jax.org'
 LAB_NAME = 'The Churchill Lab'
 
 CHROMOSOMES = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
@@ -82,18 +81,10 @@ LOGIN_PASSWORD='PASSWORD'
 
 PLOT_BLUP = False
 
-API_R_NUM_CORES=5
+API_R_NUM_CORES = 5
 
-# host to listen on, 0.0.0.0 means allow anyone to connect
-HOST = '0.0.0.0'
-#
-# # port to use, make sure you have permission
-PORT = 8080
-#
-#
 CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 CELERY_BROKER_URL = 'redis://redis:6379/0'
-
 
 LOG_LEVEL = 'DEBUG' # CRITICAL / ERROR / WARNING / INFO / DEBUG
 
@@ -104,3 +95,4 @@ COMPRESS_MIMETYPES = [
     'application/json',
     'application/javascript'
 ]
+

@@ -123,7 +123,7 @@ def info():
 
 
 @page.route('/rdata')
-def data():
+def rdata():
     # attempt to get the RData file and send it
     real_file_name = os.getenv('QTLAPI_RDATA', '')
 
