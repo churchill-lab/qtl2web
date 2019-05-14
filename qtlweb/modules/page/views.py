@@ -125,9 +125,17 @@ def info():
 @page.route('/rdata')
 def rdata():
     # attempt to get the RData file and send it
-    real_file_name = os.getenv('QTLAPI_RDATA', '')
+    real_file_name = os.getenv('HOST_FILE_RDATA', '')
+    real_file_name = ntpath.basename(real_file_name)
 
-    return redirect('/data/{}'.format(real_file_name))
+    root_url = url_for('page.index')
+
+    if root_url[-1] == '/':
+        redirect_url = '{}data/{}'.format(root_url, real_file_name)
+    else:
+        redirect_url = '{}/data/{}'.format(root_url, real_file_name)
+
+    return redirect(redirect_url)
 
 
 

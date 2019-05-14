@@ -67,19 +67,28 @@ def create_app():
 
     app.config.from_object('qtlweb.config.settings')
 
-    if app.config.from_envvar('QTLWEB_SETTINGS', silent=True):
-        env_settings = os.environ['QTLWEB_SETTINGS']
-        app.logger.info('Using QTLWEB_SETTINGS: {}'.format(env_settings))
+    if app.config.from_envvar('CONTAINER_FILE_QTLWEB_SETTINGS', silent=True):
+        env_settings = os.environ['CONTAINER_FILE_QTLWEB_SETTINGS']
+        app.logger.info('Using CONTAINER_FILE_QTLWEB_SETTINGS: {}'.format(env_settings))
 
     app.logger.setLevel(app.config['LOG_LEVEL'])
 
+    app.logger.info('App instantiated')
+
+    app.logger.info('Applying middleware...')
     middleware(app)
 
+    app.logger.info('Registering blueprints...')
     app.register_blueprint(api)
     app.register_blueprint(page)
 
+    app.logger.info('Applying extensions...')
     extensions(app)
+
+    app.logger.info('Applying templates...')
     error_templates(app)
+
+    app.logger.info('Done creating app!')
 
     return app
 
@@ -94,11 +103,13 @@ def extensions(app):
     compress.init_app(app)
 
     try:
-        cache_dir = os.environ['QTLWEB_CACHE']
-        cache_name = os.environ['QTLWEB_CACHE_NAME']
+        cache_dir = os.environ['CONTAINER_DIR_QTLWEB_CACHE']
+        cache_name = os.environ['CONTAINER_CACHE_NAME']
         cache_path = os.path.join(cache_dir, cache_name)
     except:
         cache_path = None
+
+    app.logger.info('CACHE={}'.format(cache_path))
 
     requests_cache.install_cache(cache_path)
 

@@ -12,9 +12,9 @@ RUN apk add --no-cache \
     supervisor && \
     rm /etc/nginx/conf.d/default.conf
 
-
 ENV INSTALL_PATH /app
-RUN mkdir -p $INSTALL_PATH
+RUN mkdir -p $INSTALL_PATH/cache && \
+    chmod a+w $INSTALL_PATH/cache
 WORKDIR $INSTALL_PATH
 
 # Copy the Nginx global conf
