@@ -43,7 +43,7 @@ RUN python3 -m ensurepip && \
 
 # Add app
 COPY ./qtlweb /app/qtlweb
-COPY ./static /app/static
+COPY ./qtlweb/static /app/static
 
 CMD ["/usr/bin/supervisord"]
 
