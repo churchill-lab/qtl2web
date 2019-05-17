@@ -230,8 +230,11 @@ def api_cancel(group_id):
     REVOKED - Job gets cancelled
     """
     # TODO: this is now group id and not a single task_id, make sure this works
-    rs = current_app.GroupResult.restore(group_id)
-    rs.revoke(terminate=True)
+    try:
+        rs = current_app.GroupResult.restore(group_id)
+        rs.revoke(terminate=True)
+    except Exception as exc:
+        print('Major Error: ', str(exc))
     return jsonify({'status': 'revoked?'})
 
 

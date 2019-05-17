@@ -318,3 +318,15 @@ body.pg-loaded > .inner {
 }
 
 
+
+
+
+table.dataTable thead .sorting_asc {
+  background-image: none
+}
+table.dataTable thead .sorting_desc {
+  background-image: none
+}
+table.dataTable thead .sorting {
+  background-image: none
+}

@@ -2,35 +2,51 @@ version: '3'
 
 services:
 
-  qtlweb:
-    build: .
-    # environment variables will be passed through to container
-    env_file:
-      '.env'
-    command: gunicorn -c "python:config.gunicorn" --reload "qtlweb.app:create_app()"
-    volumes:
-      - ${FILE_QTLVIEWER_SETTINGS}:${QTLVIEWER_SETTINGS}
-      - ${DIR_QTLVIEWER_CACHE}:${QTLVIEWER_CACHE}
-    ports:
-      - ${PORT_GUNICORN}:${PORT_GUNICORN}
-
   redis:
     image: 'redis:4.0.11-alpine'
     command: redis-server
     ports:
-      - ${PORT_REDIS}:6379
+      - ${HOST_PORT_REDIS}:6379
     volumes:
       - 'redis:/var/lib/redis/data'
 
+  qtlweb:
+    build: .
+    env_file:
+      - '.env'
+    environment:
+      - FLASK_ENV=development
+      - PYTHONPATH=.
+    ports:
+      - ${HOST_PORT_WEB}:80
+    command: python3 qtlweb/app.py
+    volumes:
+      - ./qtlweb:/app/qtlweb
+      - ${HOST_FILE_QTLWEB_SETTINGS}:${CONTAINER_FILE_QTLWEB_SETTINGS}
+      - ${HOST_FILE_RDATA}:/app/qtlapi/data/${QTLAPI_RDATA}
+      - ${HOST_DIR_QTLWEB_CACHE}:${CONTAINER_DIR_QTLWEB_CACHE}
+
   celery:
     build: .
-    # environment variables will be passed through to container
+    command: celery worker -l info -A qtlweb.modules.api.tasks
     env_file:
-      '.env'
-    command: celery worker -l info -A qtlweb.modules.api.tasks -E
+      - '.env'
     volumes:
-      - ${FILE_QTLVIEWER_SETTINGS}:${QTLVIEWER_SETTINGS}
-      - ${DIR_QTLVIEWER_CACHE}:${QTLVIEWER_CACHE}
+      - ${HOST_FILE_QTLWEB_SETTINGS}:${CONTAINER_FILE_QTLWEB_SETTINGS}
+      - ${HOST_FILE_RDATA}:/app/qtlapi/data/${QTLAPI_RDATA}
+      - ${HOST_DIR_QTLWEB_CACHE}:${CONTAINER_DIR_QTLWEB_CACHE}
+
+#  flower:
+#    build: .
+#    command: flower -A qtlweb.modules.api.tasks --port=5555
+#    env_file:
+#      - '.env'
+#    ports:
+#      - '${HOST_PORT_FLOWER}:5555'
+#    volumes:
+#      - ${HOST_FILE_QTLWEB_SETTINGS}:${CONTAINER_FILE_QTLWEB_SETTINGS}
+#      - ${HOST_FILE_RDATA}:/app/qtlapi/data/${QTLAPI_RDATA}
+#      - ${HOST_DIR_QTLWEB_CACHE}:${CONTAINER_DIR_QTLWEB_CACHE}
 
 volumes:
   redis:

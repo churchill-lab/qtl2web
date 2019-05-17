@@ -1,4 +1,4 @@
-# -*- coding: utf_8 -*-
+#!/usr/bin/env python3
 
 import os
 
@@ -11,6 +11,7 @@ from flask import url_for
 import requests
 import requests_cache
 
+from qtlweb.modules.admin.views import admin
 from qtlweb.modules.api.views import api
 from qtlweb.modules.page.views import page
 from qtlweb.extensions import compress
@@ -79,6 +80,7 @@ def create_app():
     middleware(app)
 
     app.logger.info('Registering blueprints...')
+    app.register_blueprint(admin)
     app.register_blueprint(api)
     app.register_blueprint(page)
 
@@ -165,3 +167,7 @@ def error_templates(app):
 
     return None
 
+
+if __name__ == '__main__':
+    app = create_app()
+    app.run(host='0.0.0.0', port=80)

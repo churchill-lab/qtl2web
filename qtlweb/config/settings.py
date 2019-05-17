@@ -96,3 +96,4 @@ COMPRESS_MIMETYPES = [
     'application/javascript'
 ]
 
+

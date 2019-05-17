@@ -64,12 +64,13 @@ def index():
     search_term = request.values.get('search_term', '')
     datasetid = request.values.get('datasetid', '')
     debug = utils.str2bool(request.values.get('debug', ''))
+    admin = utils.str2bool(request.values.get('admin', ''))
 
     app_version = os.getenv('DOCKER_QTLWEB_VERSION', '')
 
     return render_template('page/index.html',
                            search_term=search_term, datasetid=datasetid,
-                           debug=debug, app_version=app_version)
+                           debug=debug, app_version=app_version, admin=admin)
 
 
 '''
