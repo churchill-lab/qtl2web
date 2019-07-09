@@ -37,120 +37,238 @@
 
     <div class="container-fluid">
         <main class="col-12" role="main">
-            <div class="row equal">
+            <div class="row">
 
-                <!-- Gene/Protein/Pheno selection //-->
 
                 <div class="col-md-6 col-lg-5 col-xl-4">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <ul class="nav nav-tabs" role="tablist">
-                                <li class="nav-item">
-                                    <a id="navPheno"
-                                       class="nav-link"
-                                       data-toggle="tab"
-                                       href="#tabSearchPheno"><i class="fas fa-search"></i> {{ config.TAB_SEARCH_PHENOTYPE_TEXT|safe }}</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a id="navGene"
-                                       class="nav-link"
-                                       data-toggle="tab"
-                                       href="#tabSearchGene"><i class="fas fa-search"></i> {{ config.TAB_SEARCH_MRNA_PROTEIN_TEXT|safe }}</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a id="navLodPeaks"
-                                       class="nav-link"
-                                       data-toggle="tab"
-                                       href="#tabLodPeaks"><i class="fas fa-th"></i> {{ config.TAB_LOD_PEAKS_TEXT|safe }}</a>
-                                </li>
-                            </ul>
-                        </div>
 
-                        <div class="card-body">
-                            <div class="tab-content">
-                                <div class="tab-pane h-100" role="tabpanel" id="tabSearchPheno">
+                    <div class="row">
+                        <div class="col">
 
-                                    <div class="row">
-                                        <div class="col" id="searchPheno">
-                                        </div>
-                                    </div>
 
-                                    <div class="row row-spacer"></div>
-
-                                    <div class="row">
-                                        <div class="col" id="searchPhenoCategoryText">
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col" id="searchPhenoCategory">
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col">
-                                            <div class="py-0" id="searchPhenoResultsInfo">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col results-wrapper">
-                                            <div id="searchPhenoResultsDiv"></div>
-                                        </div>
-                                    </div>
+                            <!-- Gene/Protein/Pheno selection //-->
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <ul class="nav nav-tabs" role="tablist">
+                                        <li class="nav-item">
+                                            <a id="navPheno"
+                                               class="nav-link"
+                                               data-toggle="tab"
+                                               href="#tabSearchPheno"><i class="fas fa-search"></i> {{ config.TAB_SEARCH_PHENOTYPE_TEXT|safe }}</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a id="navGene"
+                                               class="nav-link"
+                                               data-toggle="tab"
+                                               href="#tabSearchGene"><i class="fas fa-search"></i> {{ config.TAB_SEARCH_MRNA_PROTEIN_TEXT|safe }}</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a id="navLodPeaks"
+                                               class="nav-link"
+                                               data-toggle="tab"
+                                               href="#tabLodPeaks"><i class="fas fa-th"></i> {{ config.TAB_LOD_PEAKS_TEXT|safe }}</a>
+                                        </li>
+                                    </ul>
                                 </div>
 
-                                <div class="tab-pane h-100" role="tabpanel" id="tabSearchGene">
-                                    <div class="row">
-                                        <div class="col">
-                                            <div class="input-group">
-                                                <input type="text" id="searchTerm" name="searchTerm" class="form-control" placeholder="{{ config.SEARCH_BOX_TEXT|safe }}">
-                                                <span class="input-group-append">
-                                                    <button id="btnGo" class="btn btn-primary"><i class="fas fa-search"></i></button>
-                                                </span>
+                                <div class="card-body">
+                                    <div class="tab-content">
+                                        <div class="tab-pane h-100" role="tabpanel" id="tabSearchPheno">
+
+                                            <div class="row">
+                                                <div class="col" id="searchPheno">
+                                                </div>
+                                            </div>
+
+                                            <div class="row row-spacer"></div>
+
+                                            <div class="row">
+                                                <div class="col" id="searchPhenoCategoryText">
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col" id="searchPhenoCategory">
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="py-0" id="searchPhenoResultsInfo">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col results-wrapper">
+                                                    <div id="searchPhenoResultsDiv"></div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div class="row">
-                                        <div class="col">
-                                            <div class="py-2" id="searchResultsTableInfo"></div>
+                                        <div class="tab-pane h-100" role="tabpanel" id="tabSearchGene">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="input-group">
+                                                        <input type="text" id="searchTerm" name="searchTerm" class="form-control" placeholder="{{ config.SEARCH_BOX_TEXT|safe }}">
+                                                        <span class="input-group-append">
+                                                            <button id="btnGo" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="py-2" id="searchResultsTableInfo"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div id="searchResultsDiv"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tab-pane h-100" role="tabpanel" id="tabLodPeaks">
+
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div id="divInteractiveCovariatesPeaks"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div id="divLODPeaks"></div>
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
-
-                                    <div class="row">
-                                        <div class="col results-wrapper">
-                                            <div id="searchResultsDiv"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="tab-pane h-100" role="tabpanel" id="tabLodPeaks">
-
-                                    <div class="row">
-                                        <div class="col">
-                                            <div id="divInteractiveCovariatesPeaks"></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col">
-                                            <div id="divLODPeaks"></div>
-                                        </div>
-                                    </div>
-
                                 </div>
                             </div>
+
+                            <!-- end Gene/Protein/Pheno selection //-->
+
+                        </div>
+                    </div>
+
+                    <div class="row row-spacer"></div>
+
+                    <div class="row invisible" id="divProfileCorrelation">
+                        <div class="col">
+
+                            <div class="card h-100">
+                                <div class="card-header" id="profilePlot">
+                                    <ul id="infoTabs" class="nav nav-tabs" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="navProfile" data-toggle="tab" href="#tabProfile"><i class="fas fa-calculator"></i> {{ config.TAB_PROFILE_PLOT_TEXT|safe }}</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="navCorrelation" data-toggle="tab" href="#tabCorrelation"><i class="fas fa-barcode"></i> {{ config.TAB_CORRELATION_TEXT|safe }}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="card-body">
+
+                                    <div class="tab-content">
+                                        <div role="tabpanel" class="tab-pane active" id="tabProfile">
+
+                                            <div class="row" id="divProfilePlotOptions">
+
+                                            </div>
+
+                                            <div class="row" id="fact-svg-panel">
+                                                <div class="col">
+                                                    <div id="profilePlotChart"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane" id="tabCorrelation">
+                                            <div class="row">
+                                                <div class="col font-weight-bold">
+                                                    <span class="align-bottom">{{ config.CORRELATION_SELECT_DATASET_TEXT|safe }}</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col" id="correlationDatasetSelection">
+                                                </div>
+                                            </div>
+
+                                            <div class="row row-spacer"></div>
+
+                                            <div class="row">
+                                                <div class="col font-weight-bold" id="correlationCovariateSelectionText">
+                                                    <span class="align-bottom">{{ config.CORRELATION_SELECT_COVARIATE_TEXT|safe }}</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col" id="correlationCovariateSelection">
+                                                </div>
+                                            </div>
+
+                                            <div class="row row-spacer"></div>
+
+                                            <div class="row">
+                                                <div class="col" id="correlationDataTable">
+                                                </div>
+                                            </div>
+
+                                            <div class="row row-spacer"></div>
+
+                                            <div class="row">
+                                                <div class="col">
+                                                    <button id="btnDownloadCorrelationData" type="button" class="btn btn-sm btn-flat btn-primary">
+                                                        <i class="fas fa-download"></i> {{ config.CORRELATION_BUTTON_DOWNLOAD_TEXT|safe }}</button>
+                                                </div>
+                                            </div>
+
+                                            <div class="row row-spacer"></div>
+
+                                            <div class="row">
+                                                <div class="col">
+                                                    {{ config.CORRELATION_SELECT_ID_TEXT|safe }}
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col" id="correlationDataPlot">
+                                                    <div id="plotCorrelation"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row row-spacer"></div>
+
+                                            <div class="row">
+                                                <div class="col font-weight-bold">
+                                                    {{ config.CORRELATION_SELECT_SERIES_TEXT|safe }}
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col" id="divFactorSeriesCorrelation">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- end Correlation //-->
+
+
                         </div>
                     </div>
                 </div>
 
-                <!-- end Gene/Protein/Pheno selection //-->
-
-                <!-- LOD Scan section //-->
+                <!-- Second column //-->
 
                 <div class="col-md-6 col-lg-7 col-xl-8">
+
+                    <!-- LOD Scan section //-->
 
                     <!-- only display at first, remove after a succesful selection //-->
                     <div class="row" id="divWelcomeMesage">
@@ -215,166 +333,79 @@
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- end LOD Scan section //-->
+                    <!-- end LOD Scan section //-->
 
-            </div>
+                    <div class="row row-spacer"></div>
 
-            <div class="row row-spacer"></div>
+                    <div class="row invisible" id="divSecondRow">
 
-            <div class="row equal invisible" id="divSecondRow">
 
-                <!-- Profile plot //-->
 
-                <div class="col-md-6 col-lg-5 col-xl-4">
-                    <div class="card h-100">
-                        <div class="card-header" id="profilePlot">
-                            <ul id="infoTabs" class="nav nav-tabs" role="tablist">
-                                <li class="nav-item">
-                                    <a class="nav-link active" id="navProfile" data-toggle="tab" href="#tabProfile"><i class="fas fa-calculator"></i> {{ config.TAB_PROFILE_PLOT_TEXT|safe }}</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="navCorrelation" data-toggle="tab" href="#tabCorrelation"><i class="fas fa-barcode"></i> {{ config.TAB_CORRELATION_TEXT|safe }}</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="card-body">
+                        <!-- Secondary plots //-->
 
-                            <div class="tab-content">
-                                <div role="tabpanel" class="tab-pane active" id="tabProfile">
-
-                                    <div class="row" id="divProfilePlotOptions">
-
-                                    </div>
-
-                                    <div class="row" id="fact-svg-panel">
-                                        <div class="col">
-                                            <div id="profilePlotChart"></div>
-                                        </div>
-                                    </div>
+                        <div class="col">
+                            <div class="card" id="secondaryPlots">
+                                <div class="card-header">
+                                    <ul id="secondaryPlotTabs" class="nav nav-tabs" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="navPlotEffect" data-toggle="tab" href="#tabPlotEffect"><i class="fas fa-chart-line"></i> {{ config.TAB_EFFECT_PLOT_TEXT|safe }}</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="navPlotMediation" data-toggle="tab" href="#tabPlotMediation"><i class="far fa-calendar-alt fa-rotate-180"></i> {{ config.TAB_MEDIATION_PLOT_TEXT|safe }}</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="navPlotSNPs" data-toggle="tab" href="#tabPlotSNPs"><i class="fas fa-signal fa-rotate-90"></i> {{ config.TAB_SNP_ASSOCIATION_TEXT|safe }}</a>
+                                        </li>
+                                    </ul>
                                 </div>
-                                <div role="tabpanel" class="tab-pane" id="tabCorrelation">
-                                    <div class="row">
-                                        <div class="col font-weight-bold">
-                                            <span class="align-bottom">{{ config.CORRELATION_SELECT_DATASET_TEXT|safe }}</span>
+                                <div class="card-body">
+                                    <div class="tab-content">
+                                        <div role="tabpanel" class="tab-pane active" id="tabPlotEffect">
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input" id="performBLUP">
+                                                        <label class="custom-control-label" for="performBLUP">{{ config.SWITCH_BLUP_TEXT|safe }}</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row no-gutters">
+                                                <div class="col" id="allEffectPlots">
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col" id="correlationDatasetSelection">
+                                        <div role="tabpanel" class="tab-pane" id="tabPlotMediation">
+                                            <div class="row">
+                                                <div class="col" id="divMediationSelect">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div id="plotMediation"></div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-
-                                    <div class="row row-spacer"></div>
-
-                                    <div class="row">
-                                        <div class="col" id="correlationDataTable">
-                                        </div>
-                                    </div>
-
-                                    <div class="row row-spacer"></div>
-
-                                    <div class="row">
-                                        <div class="col">
-                                            <button id="btnDownloadCorrelationData" type="button" class="btn btn-sm btn-flat btn-primary">
-                                                <i class="fas fa-download"></i> {{ config.CORRELATION_BUTTON_DOWNLOAD_TEXT|safe }}</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="row row-spacer"></div>
-
-                                    <div class="row">
-                                        <div class="col">
-                                            {{ config.CORRELATION_SELECT_ID_TEXT|safe }}
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col" id="correlationDataPlot">
-                                            <div id="plotCorrelation"></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row row-spacer"></div>
-
-                                    <div class="row">
-                                        <div class="col font-weight-bold">
-                                            {{ config.CORRELATION_SELECT_SERIES_TEXT|safe }}
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col" id="divFactorSeriesCorrelation">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- end Profile plot //-->
-
-                <!-- Secondary plots //-->
-
-                <div class="col-md-6 col-lg-7 col-xl-8">
-                    <div class="card" id="secondaryPlots">
-                        <div class="card-header">
-                            <ul id="secondaryPlotTabs" class="nav nav-tabs" role="tablist">
-                                <li class="nav-item">
-                                    <a class="nav-link active" id="navPlotEffect" data-toggle="tab" href="#tabPlotEffect"><i class="fas fa-chart-line"></i> {{ config.TAB_EFFECT_PLOT_TEXT|safe }}</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="navPlotMediation" data-toggle="tab" href="#tabPlotMediation"><i class="far fa-calendar-alt fa-rotate-180"></i> {{ config.TAB_MEDIATION_PLOT_TEXT|safe }}</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="navPlotSNPs" data-toggle="tab" href="#tabPlotSNPs"><i class="fas fa-signal fa-rotate-90"></i> {{ config.TAB_SNP_ASSOCIATION_TEXT|safe }}</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="card-body">
-                            <div class="tab-content">
-                                <div role="tabpanel" class="tab-pane active" id="tabPlotEffect">
-                                    <div class="row">
-                                        <div class="col">
-                                            <div class="custom-control custom-switch">
-                                                <input type="checkbox" class="custom-control-input" id="performBLUP">
-                                                <label class="custom-control-label" for="performBLUP">{{ config.SWITCH_BLUP_TEXT|safe }}</label>
+                                        <div role="tabpanel" class="tab-pane" id="tabPlotSNPs">
+                                            <div class="row" id="snpWindowMenu">
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div id="plotSNPAssocSNPS"></div>
+                                                    <div id="plotSNPAssocGenes"></div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row no-gutters">
-                                        <div class="col" id="allEffectPlots">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div role="tabpanel" class="tab-pane" id="tabPlotMediation">
-                                    <div class="row">
-                                        <div class="col" id="divMediationSelect">
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col">
-                                            <div id="plotMediation"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div role="tabpanel" class="tab-pane" id="tabPlotSNPs">
-                                    <div class="row" id="snpWindowMenu">
-                                    </div>
-                                    <div class="row">
-                                        <div class="col">
-                                            <div id="plotSNPAssocSNPS"></div>
-                                            <div id="plotSNPAssocGenes"></div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- end Secondary plots //-->
+
                     </div>
                 </div>
-
-                <!-- end Secondary plots //-->
+                <!-- end Second column //-->
 
             </div>
 
@@ -461,19 +492,19 @@
 
     {% if debug %}
     <!-- Highcharts/Highstock //-->
-    <script src="//code.highcharts.com/stock/7.0.2/highstock.src.js"></script>
+    <script src="//code.highcharts.com/stock/7.1.2/highstock.src.js"></script>
     {% else %}
-    <script src="//code.highcharts.com/stock/7.0.2/highstock.js"></script>
+    <script src="//code.highcharts.com/stock/7.1.2/highstock.js"></script>
     {% endif %}
-    <script src="//code.highcharts.com/stock/7.0.2/highcharts-more.js"></script>
-    <script src="//code.highcharts.com/stock/7.0.2/modules/xrange.js"></script>
+    <script src="//code.highcharts.com/stock/7.1.2/highcharts-more.js"></script>
+    <script src="//code.highcharts.com/stock/7.1.2/modules/xrange.js"></script>
 
     <!--
     <script src="//code.highcharts.com/stock/6.0.4/modules/boost-canvas.js"></script>
     //-->
-    <script src="//code.highcharts.com/stock/7.0.2/modules/boost.js"></script>
-    <script src="//code.highcharts.com/stock/7.0.2/modules/exporting.js"></script>
-    <script src="//code.highcharts.com/stock/7.0.2/modules/offline-exporting.js"></script>
+    <script src="//code.highcharts.com/stock/7.1.2/modules/boost.js"></script>
+    <script src="//code.highcharts.com/stock/7.1.2/modules/exporting.js"></script>
+    <script src="//code.highcharts.com/stock/7.1.2/modules/offline-exporting.js"></script>
 
     <!-- DataTables //-->
     {% if debug %}
@@ -588,22 +619,6 @@
         };
     }
 
-
-    /**
-     *  Extended disable function
-     */
-    jQuery.fn.extend({
-        disable: function(state) {
-            return this.each(function() {
-                let $this = $(this);
-                if($this.is('input, button, textarea, select'))
-                    this.disabled = state;
-                else
-                    $this.toggleClass('disabled', state);
-            });
-        }
-    });
-
     // enhance the original "$.ajax" with a retry mechanism
     $.ajax = (($oldAjax) => {
         // on fail, retry by creating a new Ajax deferred
@@ -621,6 +636,34 @@
     })($.ajax);
 
 
+    /** USAGE:
+     * now we can use the "retries" property if we need to retry on fail
+    $.ajax({
+        type          : 'GET',
+        url           : 'http://www.whatever123.gov',
+        timeout       : 2000,
+        retries       : 3,     //       <-------- Optional
+        retryInterval : 2000   //       <-------- Optional
+    })
+    // "fail" will only be called once, and not for each retry
+    .fail(console.warn);
+     */
+
+
+    /**
+     *  Extended disable function
+     */
+    jQuery.fn.extend({
+        disable: function(state) {
+            return this.each(function() {
+                let $this = $(this);
+                if($this.is('input, button, textarea, select'))
+                    this.disabled = state;
+                else
+                    $this.toggleClass('disabled', state);
+            });
+        }
+    });
 
     /**
      * Download data.
@@ -646,7 +689,7 @@
             url: URL,
             method: 'GET',
             retries: 3,
-            retryInterval: 1000,
+            retryInterval: 1000
         }).done(function(data, textStatus, jqXHR) {
             logInfo(`Download of ${description}`);
             logDebug(`Download of ${description}:`, data);
@@ -783,11 +826,15 @@
 
                     let requestedDataSetID = '{{ datasetid }}';
 
+
                     if (g.DATASETS[requestedDataSetID] !== undefined) {
                         g.dataSetID = requestedDataSetID;
                     } else {
                         g.dataSetID = data.result.datasets[0].id;
                     }
+
+                    // the above if is working, but we need to think through all of
+                    // the other ramifications of setting this dataset
 
                     configureCovarInfo(true);
 
@@ -815,7 +862,13 @@
                                     <select data-style="btn-sm btn-light" class="selectpicker" id="datasetSelect">`;
 
                         for (let d in data.result.datasets) {
-                            html += `<option value="${data.result.datasets[d].id}">${data.result.datasets[d]['display.name']}</option>`;
+                            if (g.dataSetID === data.result.datasets[d].id) {
+                                console.log(g.dataSetID, '===', data.result.datasets[d].id);
+                                html += `<option value="${data.result.datasets[d].id}" selected>${data.result.datasets[d]['display.name']}</option>`;
+                            } else {
+                                console.log(g.dataSetID, '!==', data.result.datasets[d].id);
+                                html += `<option value="${data.result.datasets[d].id}">${data.result.datasets[d]['display.name']}</option>`;
+                            }
                         }
 
                         html += '</select></div>';
@@ -828,6 +881,7 @@
                             let selected = $(this).find(':selected').val();
                             switchDataSet(selected);
                         });
+
 
                         // show multiple menu items
                         let htmlNew = `<select id="correlationDatasetSelect" data-width="100%" data-style="btn-secondary btn-sm" class="selectpicker">`;
@@ -844,7 +898,8 @@
 
                         $('#correlationDatasetSelect').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
                             let selected = $(this).find(':selected').val();
-                            switchCorrelationDataSet(selected);
+                            let interactiveCovariate = $('#interactiveCovarCorrelation').find(':selected').val();
+                            switchCorrelationDataSet(selected, interactiveCovariate);
                         });
                     }
 
@@ -1253,7 +1308,7 @@
                             markerID: element[0],
                             geneID: element[3],
                             geneSymbol: element[4],
-                        });888
+                        });
 
                         minLOD = Math.min(minLOD, element[7]);
                         maxLOD = Math.max(maxLOD, element[7]);
@@ -1274,9 +1329,16 @@
 
                 html = html + `
                     <div class="row">
-                        <div class="col-auto font-weight-bold">LOD Threshold: </div>
-                        <div class="col" id="lodSliderValue">
-                            ${currentLOD}
+                        <div class="col-sm-auto my-auto margin y auto font-weight-bold">
+                            <span class="align-bottom">LOD Threshold: </span>
+                        </div>
+                        <div class="col-auto">
+                            <div class="input-group">
+                                <input id="lodSliderValue" type="number" min="${minLOD}" max="${maxLOD}" step=".5" value="${currentLOD}" class="form-control" size="6">
+                                <span class="input-group-append">
+                                    <button id="btnGoLOD" class="btn btn-primary"><i class="fas fa-caret-right"></i></button>
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div class="row justify-content-center">
@@ -1289,15 +1351,26 @@
                         <div class="col text-left">
                             <span>${maxLOD}</span>
                         </div>
-                    </div>`;
+                    </div>
+`;
 
                 $('#divLODPeaks').html(html);
 
 
                 $('#lodRange').on('change', function(evt) {
-                    logDebug(evt);
-                    $('#lodSliderValue').html(evt.target.value);
+                    $('#lodSliderValue').val(evt.target.value);
                     updatePeaks(evt.target.value);
+                });
+
+                $('#btnGoLOD').click(function(evt) {
+                    $('#lodRange').val(+$('#lodSliderValue').val());
+                    updatePeaks(+$('#lodSliderValue').val());
+                });
+
+
+                $('#lodSliderValue').bind('keyup input', function(evt){
+                    $('#lodRange').val(+$('#lodSliderValue').val());
+                    updatePeaks(+$('#lodSliderValue').val());
                 });
 
 
@@ -1421,9 +1494,16 @@
 
                 html = html + `
                     <div class="row">
-                        <div class="col-sm-auto font-weight-bold">LOD Threshold: </div>
-                        <div class="col-sm-auto" id="lodSliderValue">
-                            ${currentLOD}
+                        <div class="col-sm-auto my-auto margin y auto font-weight-bold">
+                            <span class="align-bottom">LOD Threshold: </span>
+                        </div>
+                        <div class="col-sm-auto">
+                            <div class="input-group">
+                                <input id="lodSliderValue" type="number" min="${minLOD}" max="${maxLOD}" step=".5" value="${currentLOD}" class="form-control" size="6">
+                                <span class="input-group-append">
+                                    <button id="btnGoLOD" class="btn btn-primary"><i class="fas fa-caret-right"></i></button>
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div class="row">
@@ -1442,9 +1522,19 @@
                 $('#divLODPeaks').html(html);
 
                 $('#lodRange').on('change', function(evt) {
-                    logDebug(evt);
-                    $('#lodSliderValue').html(evt.target.value);
+                    $('#lodSliderValue').val(evt.target.value);
                     updatePeaks(evt.target.value);
+                });
+
+                $('#btnGoLOD').click(function(evt) {
+                    $('#lodRange').val(+$('#lodSliderValue').val());
+                    updatePeaks(+$('#lodSliderValue').val());
+                });
+
+
+                $('#lodSliderValue').bind('keyup input', function(evt){
+                    $('#lodRange').val(+$('#lodSliderValue').val());
+                    updatePeaks(+$('#lodSliderValue').val());
                 });
 
                 series = [{
@@ -1941,8 +2031,8 @@ function syncronizeCrossHairs(chart) {
          * @param {Array} snpData - array of SNP information
          * @param {Array} geneData - array of gene objects
          */
-        function plotSNPAssoc(snpData, geneData, id, chromosome, location) {
-            logDebug('plotSNPAssoc', chromosome, location);
+        function plotSNPAssoc(snpData, geneData, id, chromosome, location, covar) {
+            logDebug('plotSNPAssoc', chromosome, location, covar);
 
             let windowSize = 1000000;
             let minPos = Math.max(location * 1000000 - windowSize, 0);
@@ -1974,11 +2064,11 @@ function syncronizeCrossHairs(chart) {
                 </div>`);
 
             $('#snpShiftLeft').button().on('click', function(event) {
-                generateSNPAssocPlot(id, chromosome, location - 1);
+                generateSNPAssocPlot(id, chromosome, location - 1, covar);
             });
 
             $('#snpShiftRight').button().on('click', function(event) {
-                generateSNPAssocPlot(id, chromosome, location + 1);
+                generateSNPAssocPlot(id, chromosome, location + 1, covar);
             });
 
             snpData.sort(function(a, b) {
@@ -1986,16 +2076,21 @@ function syncronizeCrossHairs(chart) {
             });
 
             let snps = [];
+            let snpsCovar = [];
 
             if (snpData) {
                 maxLODScore = snpData[0][10];
+
+                if ((covar != null) && (covar !== 'additive')) {
+                    maxLODScore = Math.max(maxLODScore, snpData[0][11])
+                }
             }
 
             let minn = Infinity;
             let maxx = -Infinity;
 
             /*
-         0   {"snp":"rs245710663",
+         0   "snp":"rs245710663",
          1   "chr":"1",
          2   "pos":14.5001,
          3   "alleles":"G|C",
@@ -2005,13 +2100,14 @@ function syncronizeCrossHairs(chart) {
          7   "index":1,
          8   "interval":147,
          9   "on_map":false,
-         10   "lod":0.0015},
-*/
+         10  "lod":0.0015
+
+         IF covar:
+         11  "lod_interactiveCovar":0.0029
+            */
 
             $.each(snpData, function(index, element) {
-                if (element[10] > maxLODScore) {
-                    maxLODScore = element[10];
-                }
+                maxLODScore = Math.max(maxLODScore, element[10]);
 
                 snps.push({
                     alleles: element[3],
@@ -2022,19 +2118,122 @@ function syncronizeCrossHairs(chart) {
                     y: 1.0 * element[10],
                 });
 
+                if ((covar != null) && (covar !== 'additive')) {
+                    maxLODScore = Math.max(maxLODScore, element[11]);
+
+                    snpsCovar.push({
+                        alleles: element[3],
+                        csq: element[6],
+                        id: element[0],
+                        lod: element[11],
+                        x: element[2] * 1000000,
+                        y: 1.0 * element[11],
+                    });
+                }
+
                 minn = Math.min(minn, element[2] * 1000000.0);
                 maxx = Math.max(maxx, element[2] * 1000000.0);
 
             });
 
-            maxLODScore += 1;
+            maxLODScore = Math.ceil(maxLODScore);
 
             logDebug('maxLODScore', maxLODScore);
             logDebug('minn', minn);
             logDebug('maxx', maxx);
-
             logDebug('minPos', minPos);
             logDebug('maxPos', maxPos);
+            logDebug('#snps=', snps.length);
+            logDebug('snps=', snps);
+            logDebug('#snpsCovar=', snpsCovar.length);
+            logDebug('snpsCovar=', snpsCovar);
+
+            let seriesData = [{
+                name: 'SNP',
+                data: snps,
+                turboThreshold: 0,
+                color: '#ed3215',
+
+                /*
+                marker: {
+                    enabled: true,
+                    symbol: 'square',
+                    radius: 2.0,
+                },
+                */
+                tooltip: {
+                    outside: true,
+                    useHTML: true,
+                    headerFormat: '<span class="strong">SNP</span><br>',
+                    pointFormatter: function() {
+                        let csq = this.csq.split(',');
+                        let csqs = csq.join('<br/>');
+                        let pos = formatMbp(this.x / 100000);
+
+                        return `<b>${this.id}</b><br/>
+                             LOD: ${this.lod}<br/>
+                             Position: ${pos}<br/>
+                             Alleles: ${this.alleles}<br/>
+                             CSQ: ${csqs}`;
+                    }
+                },
+
+
+                /* Set the point threshold for when a series should enter boost mode.
+                   Setting it to e.g. 2000 will cause the series to enter boost mode when there are 2000 or more points in the series.
+                   To disable boosting on the series, set the boostThreshold to 0. Setting it to 1 will force boosting.
+                   Requires modules/boost.js.
+                   Defaults to 5000.
+                */
+                boostThreshold: 1,
+                //findNearestPointBy: 'xy',
+
+            }];
+
+            if ((covar != null) && (covar !== 'additive')) {
+                seriesData.push({
+                    name: 'SNP Covar',
+                    data: snpsCovar,
+                    turboThreshold: 0,
+                    color: '#7cb5ec',
+                    /*
+                    marker: {
+                        enabled: true,
+                        symbol: 'square',
+                        radius: 2.0,
+                    },
+                    */
+                    tooltip: {
+                        outside: true,
+                        useHTML: true,
+                        headerFormat: '<span class="strong">SNP Covariate</span><br>',
+                        pointFormatter: function() {
+                            let csq = this.csq.split(',');
+                            let csqs = csq.join('<br/>');
+                            let pos = formatMbp(this.x / 100000);
+
+                            return `<b>${this.id}</b><br/>
+                                 LOD: ${this.lod}<br/>
+                                 Position: ${pos}<br/>
+                                 Alleles: ${this.alleles}<br/>
+                                 CSQ: ${csqs}`;
+                        }
+                    },
+
+                    /* Set the point threshold for when a series should enter boost mode.
+                       Setting it to e.g. 2000 will cause the series to enter boost mode when there are 2000 or more points in the series.
+                       To disable boosting on the series, set the boostThreshold to 0. Setting it to 1 will force boosting.
+                       Requires modules/boost.js.
+                       Defaults to 5000.
+                    */
+                    boostThreshold: 1,
+                    //findNearestPointBy: 'xy',
+
+                });
+            }
+
+
+            logDebug('seriesData=', seriesData);
 
 
             let exporting = {
@@ -2128,7 +2327,7 @@ function syncronizeCrossHairs(chart) {
             g.chartSNPAssocSNPS = Highcharts.chart({
                 boost: {
                     debug: {
-                        showSkipSummary: true
+                        showSkipSummary: false
                     },
                     enabled: true,
                     useGPUTranslations: true,
@@ -2172,58 +2371,39 @@ function syncronizeCrossHairs(chart) {
                 }],
 
                 yAxis: {
-                    /*
-                    scrollbar: {
-                        enabled: true,
-                        showFull: false
-                    },
-                    */
+                    // enabling min and max DISABLES the tooltip
+                    //min: 0,
+                    max: maxLODScore,
 
                     title: {
                         text: '',
-                        //      max: 100,
-                        lineWidth: 0, //get rid of the
+                        lineWidth: 0, //get rid of the line
                         minorGridLineWidth: 0,
                         lineColor: 'transparent',
-                        //floor: 0,
-                        //ceiling: 100
                     },
                 },
 
+                legend: {
+                    enabled: true,
+                    useHTML: true,
+                    layout: 'horizontal',
+                    //align: 'middle',
+                    verticalAlign: 'top',
+                    //floating: false,
+        labelFormatter: function () {
+            return '<span style="color:' + this.color + '">' + this.name + '</span>';
+        }
 
+                },
+                /*
                 legend: {
                     enabled: false
                 },
+                */
 
-                series: [{
-                    name: 'seriesSNPs',
-                    data: snps,
-                    turboThreshold: 0,
-                    color: 'rgba(223, 83, 83, .5)',
-                    marker: {
-                        enabled: true,
-                        radius: 1,
-                    },
-                    /*
-                    tooltip: {
-                        pointFormatter: function(a,b,c) {
-                            logDebug(a,b,c);
-                            return 'hello';
-                        }
-                    },
-                    */
+                series: seriesData,
 
-                    /* Set the point threshold for when a series should enter boost mode.
-                       Setting it to e.g. 2000 will cause the series to enter boost mode when there are 2000 or more points in the series.
-                       To disable boosting on the series, set the boostThreshold to 0. Setting it to 1 will force boosting.
-                       Requires modules/boost.js.
-                       Defaults to 5000.
-                    */
-                    boostThreshold: 1,
-                    //findNearestPointBy: 'xy',
-
-                }],
-
+                /*
                 tooltip: {
                     outside: true,
                     useHTML: true,
@@ -2232,8 +2412,18 @@ function syncronizeCrossHairs(chart) {
                     enabled: true,
                     formatter: function () {
                         let text = '';
-                        // dbg('this.series.name=', this.series.name);
-                        if (this.series.name === 'seriesSNPs') {
+                        //logDebug('this.series.name=', this.series.name);
+                        if (this.series.name === 'SNP') {
+                            let csq = this.point.csq.split(',');
+                            let csqs = csq.join('<br/>');
+                            let pos = formatMbp(this.point.y / 100000);
+
+                            text = `<b>${this.point.id}</b><br/>
+                                 LOD: ${this.point.lod}<br/>
+                                 Position: ${pos}<br/>
+                                 Alleles: ${this.point.alleles}<br/>
+                                 CSQ: ${csqs}`;
+                        } else if (this.series.name === 'SNP Covar') {
                             let csq = this.point.csq.split(',');
                             let csqs = csq.join('<br/>');
                             let pos = formatMbp(this.point.y / 100000);
@@ -2254,8 +2444,18 @@ function syncronizeCrossHairs(chart) {
                         return text;
                     }
                 },
+                */
 
                 exporting: exporting,
+
+                plotOptions: {
+                    scatter: {
+                        marker: {
+                            radius: 1.0
+                        }
+                    }
+                }
+                /*
 
                 plotOptions: {
                     spline: {
@@ -2263,9 +2463,10 @@ function syncronizeCrossHairs(chart) {
                             enabled: false
                         }
                     },
-
-
                 }
+                */
+
+
 
             }, function(chart) {
                 syncronizeCrossHairs(chart);
@@ -2297,6 +2498,16 @@ function syncronizeCrossHairs(chart) {
         });
         newCats = newCats.sort(function(a, b){return a-b});
 
+        // this is a hack to add one more category so the last one is
+        // always displayed
+        logDebug('newCats=', newCats);
+        // always show 1 extra category because the text is below the bar
+        let maxYCategories = newCats.length + 1;
+
+        //newCats.push(newCats.length);
+        //newCats.push(newCats.length);
+        //newCats.push(newCats.length);
+
 
         g.GENESREDRAWENABLED = true;
         g.chartSNPAssocGenes = Highcharts.chart({
@@ -2309,29 +2520,24 @@ function syncronizeCrossHairs(chart) {
                 marginTop: 0,
                 height: 100,  // this will be overridden on load
                 events: {
+
                     load: function() {
-                        let chart = this,
-                        plotAreaOffset = chart.chartHeight - chart.plotHeight,
-                        maxPointHeight = 0,
-                        catAmount = chart.yAxis[0].categories.length,// * 2,
-                        pointsOffset = 20;
 
-                        chart.series.forEach(function(series) {
-                            series.points.forEach(function(point) {
-                                maxPointHeight = (point.shapeArgs.height > maxPointHeight) ? point.shapeArgs.height : maxPointHeight;
-                            });
-                        });
-                        maxPointHeight = 10;
+                                                let chart = this;
 
-                        // dbg('height=', maxPointHeight, catAmount, plotAreaOffset, pointsOffset, catAmount);
-                        // dbg('height=', maxPointHeight * catAmount + plotAreaOffset + pointsOffset * catAmount);
-                        chart.update({
-                            chart: {
-                                height: maxPointHeight * catAmount + plotAreaOffset + pointsOffset * catAmount
-                            }
-                        }, true, false, false);
+                var categories =chart.yAxis[0].categories.length,
+                    plotHeight = (categories + 1) * 40,  // 40 is for the space between the bars
+                    chartHeight = plotHeight + (chart.chartHeight - chart.plotHeight);
+                    console.log(categories);
+
+                if (chartHeight > this.chartHeight) {
+                    this.setSize(null, chartHeight, false)
+                }
+                console.log(chartHeight, this.chartHeight);
                     },
+
                     render: function() {
+                        logDebug('R E N D E R');
                         if (this.series.length !== 1) {
                             return;
                         }
@@ -2394,7 +2600,7 @@ function syncronizeCrossHairs(chart) {
                 //labels: {
                 //      format: '{value:%b %e}'
                 //},
-                maxPadding: 0.06,
+                //maxPadding: 0.06,
                 scrollbar: {
                     enabled: true,
                     showFull: false
@@ -2410,8 +2616,6 @@ function syncronizeCrossHairs(chart) {
 
                 gridLineWidth: 0,
                 //lineWidth: 1,
-                //min: -20,
-                //max: 0,
 
                 /*
 
@@ -2429,7 +2633,7 @@ function syncronizeCrossHairs(chart) {
                 tickLength: 0,
                 reversed: true,
                 //min: -12,
-                //max: 2,
+                max: maxYCategories,
                 //categories: [2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12],
                 categories: newCats,
 
@@ -2439,12 +2643,15 @@ function syncronizeCrossHairs(chart) {
             plotOptions: {
                 series: {
                     //pointRange: 2,
-                    pointWidth: 10,
-                    minPointLength: 1
+                    //pointWidth: 10,
+                    minPointLength: 1,
+        pointWidth: 10,
+        pointPadding: 0,
+        groupPadding: 0,
 
                 },
                 xrange: {
-                    pointPlacement: "on",
+                    //pointPlacement: "on",
 
                     borderWidth: 1,
                     borderColor: 'black',
@@ -2464,29 +2671,37 @@ function syncronizeCrossHairs(chart) {
                 followPointer: true,
                 enabled: true,
                 outside: true,
-                formatter: function() {
+                formatter: function () {
                     let text = '';
-                    if (this.series.name === 'seriesSNPs') {
-                        let csq = ['this.point.csq.'].split(',');
+                    // dbg('this.series.name=', this.series.name);
+                    if (this.series.name === 'SNP') {
+                        let csq = this.point.csq.split(',');
                         let csqs = csq.join('<br/>');
-                        let pos = this.point.y / 100000;
+                        let pos = formatMbp(this.point.y / 100000);
 
                         text = `<b>${this.point.id}</b><br/>
-                                         LOD: ${this.point.lod}<br/>
-                                         Position: ${pos}<br/>
-                                         CSQ: ${csqs}`;
-                    } else {
-                        let x = this.point.x2 - this.point.x;
+                             LOD: ${this.point.lod}<br/>
+                             Position: ${pos}<br/>
+                             Alleles: ${this.point.alleles}<br/>
+                             CSQ: ${csqs}`;
+                    } else if (this.series.name === 'SNP Covar') {
+                        let csq = this.point.csq.split(',');
+                        let csqs = csq.join('<br/>');
+                        let pos = formatMbp(this.point.y / 100000);
 
+                        text = `<b>${this.point.id}</b><br/>
+                             LOD: ${this.point.lod}<br/>
+                             Position: ${pos}<br/>
+                             Alleles: ${this.point.alleles}<br/>
+                             CSQ: ${csqs}`;
+                    } else {
                         text = `<b>${this.point.symbol}</b><br/>
-                                         Ensembl ID: ${this.point.ensembl_gene_id}<br/>
-                                         Name: ${this.point.name}<br/>
-                                         Position: ${this.point.match_value} (${this.point.strand})<br/>
-                                         X: ${x}<br/>
-                                         ${this.point.start} (${this.point.end})<br/>
-                                         `;
+                             Ensembl ID: ${this.point.ensembl_gene_id}<br/>
+                             Name: ${this.point.name}<br/>
+                             Position: ${this.point.match_value} (${this.point.strand})`;
 
                     }
+                    // dbg(text);
                     return text;
                 }
             },
@@ -2533,15 +2748,20 @@ function syncronizeCrossHairs(chart) {
         /**
          * Start downloading snp
          */
-        function generateSNPAssocPlot(id, chromosome, location) {
+        function generateSNPAssocPlot(id, chromosome, location, covar) {
             // TODO: windowSize needs to be figured out
             let windowSize = 1000000;
             let newLocation = Math.round(location * 1000000.0);
             let minPos = Math.max(newLocation - windowSize, 0);
             let maxPos = newLocation + windowSize;
 
-            let snpAssocURL = `{{ config.API_R_BASE }}/snpassoc?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&location=${newLocation}&window.size=${windowSize}`;
-            let genesURL = `http://churchill-lab.jax.org/ensimpl/api/search?species=${g.SPECIES_ID}&version=${g.ENSEMBL_VERSION}&term=${chromosome}:${minPos}-${maxPos}`;
+            let snpAssocURL = `{{ config.API_R_BASE }}/snpassoc?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&location=${newLocation}&window_size=${windowSize}`;
+            let genesURL = `https://churchilllab.jax.org/ensimpl/api/search?species=${g.SPECIES_ID}&version=${g.ENSEMBL_VERSION}&term=${chromosome}:${minPos}-${maxPos}`;
+
+
+            if (covar !== 'additive') {
+                snpAssocURL += `&intcovar=${covar}`;
+            }
 
             {% if config.API_R_NUM_CORES %}
             snpAssocURL += '&cores={{ config.API_R_NUM_CORES }}';
@@ -2574,7 +2794,7 @@ function syncronizeCrossHairs(chart) {
                 retryInterval: 1000,
                 success: function(data, status, request) {
                     logDebug('data=', data);
-                    updateSNPAssocData(data.group_id, id, chromosome, location);
+                    updateSNPAssocData(data.group_id, id, chromosome, location, covar);
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     showErrorMessage(errorThrown, textStatus);
@@ -2587,7 +2807,7 @@ function syncronizeCrossHairs(chart) {
          *
          * @param {string} groupID - the group identifier of the task
          */
-        function updateSNPAssocData(groupID, id, chromosome, location) {
+        function updateSNPAssocData(groupID, id, chromosome, location, covar) {
             // send GET request to status URL
             logDebug('updateSNPAssocData: ', groupID);
 
@@ -2634,7 +2854,7 @@ function syncronizeCrossHairs(chart) {
                                     // show result, there will be 2 datasets to get
                                     plotSNPAssoc(data.response_data.snpAssoc.response.result,
                                                  data.response_data.genes.response.result,
-                                                 id, chromosome, location);
+                                                 id, chromosome, location, covar);
                                     stopTask();
                                 }
                             }
@@ -2642,7 +2862,7 @@ function syncronizeCrossHairs(chart) {
                             // rerun in 1 seconds
                             logDebug('Not done, keep checking...');
                             setTimeout(function () {
-                                updateSNPAssocData(groupID, id, chromosome, location);
+                                updateSNPAssocData(groupID, id, chromosome, location, covar);
                             }, 1000);  // TODO: change to 1000 (1 second)
                         }
                     }
@@ -2773,6 +2993,7 @@ function syncronizeCrossHairs(chart) {
 
             $.each(strainInfo, function(key, value) {
                 let s = {
+                    animation: 0,
                     color: value.color,
                     data: value.data,
                     lineWidth: 1,
@@ -3192,7 +3413,7 @@ function syncronizeCrossHairs(chart) {
          */
         function generateMediationPlot(id, markerID) {
             let mediateAgainst = $('#dsMediateAgainstID').val();
-            let mediateURL = `{{ config.API_R_BASE }}/mediate?dataset=${g.dataSetID}&id=${id}&marker.id=${markerID}&dataset.mediate=${mediateAgainst}`;
+            let mediateURL = `{{ config.API_R_BASE }}/mediate?dataset=${g.dataSetID}&id=${id}&marker_id=${markerID}&dataset_mediate=${mediateAgainst}`;
 
             let submitData = {
                 urls:[{
@@ -3210,9 +3431,9 @@ function syncronizeCrossHairs(chart) {
                 type: 'POST',
                 url: '{{ url_for('api.api_submit', _external=False) }}',
                 contentType: 'application/json',
+                data: JSON.stringify(submitData),
                 retries: 3,
                 retryInterval: 1000,
-                data: JSON.stringify(submitData),
                 success: function(data, status, request) {
                     logInfo('Mediation');
                     logDebug('data = ', data);
@@ -3306,10 +3527,10 @@ function syncronizeCrossHairs(chart) {
          *
          */
         function generateEffectPlot(id, chromosome, covar) {
-            let effectURL = `{{ config.API_R_BASE }}/foundercoefs?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&interactive.covar=${covar}`;
+            let effectURL = `{{ config.API_R_BASE }}/foundercoefs?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&intcovar=${covar}`;
             effectURL += '&blup=' + $('#performBLUP').is(':checked');
 
-            let lodURL = `{{ config.API_R_BASE }}/lodscansamples?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&interactive.covar=${covar}`;
+            let lodURL = `{{ config.API_R_BASE }}/lodscansamples?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&intcovar=${covar}`;
 
             {% if config.API_R_NUM_CORES %}
             effectURL += '&cores={{ config.API_R_NUM_CORES }}';
@@ -3507,7 +3728,7 @@ function syncronizeCrossHairs(chart) {
 
         }
 
-        function switchCorrelationDataSet(dataSetID) {
+        function switchCorrelationDataSet(dataSetID, interactiveCovariate) {
             $('#plotCorrelation').html('');
             $('#correlationDataTable').html('');
             g.chartCorrelation = null;
@@ -3526,7 +3747,12 @@ function syncronizeCrossHairs(chart) {
                 logError('MAJOR PROBLEM');
             }
 
+
             let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${g.dataSetID}&id=${currentID}&dataset_correlate=${dataSetID}`;
+
+            if (interactiveCovariate !== 'none') {
+                urlCorrelation += `&intcovar=${interactiveCovariate}`;
+            }
 
             let submitData = {
                 urls:[{
@@ -3575,17 +3801,18 @@ function syncronizeCrossHairs(chart) {
                         </div>`;
 
             $('#divWelcomeMesage').html(html);
+
             $('#divItemInfo').addClass('invisible').removeClass('visible');
             $('#divLOD').addClass('invisible').removeClass('visible');
             $('#divSecondRow').addClass('invisible').removeClass('visible');
+            $('#divProfileCorrelation').addClass('invisible').removeClass('visible');
+
             $('#div_current_item_information_header').html('');
             $('#div_current_item_information_body').html('');
             $('#divProfilePlotOptions').html('');
 
             configureCovarInfo(true);
 
-            // submitLODPeaks calls setDataSet
-            //submitLODPeaks(dataSetID);
             setDataSet(dataSetID, true);
         }
 
@@ -3611,6 +3838,8 @@ function syncronizeCrossHairs(chart) {
             g.chartLOD = null;
             g.chartLODCovariateFull = null;
             g.chartLODCovariateDiff = null;
+            g.chartCorrelation = null;
+            g.chartEffect = null;
             $('#lodPlotChart').html('');
             $('#lodPlotChartCovariateFull').html('');
             $('#lodPlotChartCovariateDiff').html('');
@@ -4223,16 +4452,25 @@ function syncronizeCrossHairs(chart) {
             if ($('#searchResultsTable a').length === 1) {
                 $('#searchResultsTable a')[0].click();
             }
+
+            $('#searchResultsTable').DataTable({
+                "info": false,
+                "filter": false,
+                "scrollY": "300px",
+                "false": true,
+                "order": [],
+                "paging": false,
+            });
         }
 
         function generateSecondaryPlot(plot, id, markerID, chromosome, location, covar) {
             logDebug('Generating Secondary Plot');
             if (plot === 'navPlotMediation') {
-                generateMediationPlot(id, markerID);
+                generateMediationPlot(id, markerID, covar);
             } else if (plot === 'navPlotEffect') {
                 generateEffectPlot(id, chromosome, covar);
             } else if (plot === 'navPlotSNPs') {
-                generateSNPAssocPlot(id, chromosome, location);
+                generateSNPAssocPlot(id, chromosome, location, covar);
             } else {
                 logError('Unknown plot ', plot);
             }
@@ -4661,6 +4899,10 @@ function syncronizeCrossHairs(chart) {
 
                 $('#divProfilePlotOptions').html(profilePlotOptionsHTML);
 
+                $('#correlationCovariateSelectionText').addClass('hidden').removeClass('visible');
+                $('#correlationCovariateSelection').html('<input type="hidden" id="interactiveCovarCorrelation" value="additive"/>');
+
+
                 return;
             }
 
@@ -4776,10 +5018,13 @@ function syncronizeCrossHairs(chart) {
                                                           <select id="interactiveCovarPeaks" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">
                                             `;
 
+            let htmlInteractiveCovariatesCorrelation = `<select id="interactiveCovarCorrelation" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">`;
+
             g.interactiveCovariates = [];
 
             htmlInteractiveCovariatesLOD += `<option value="additive">Additive</option>`;
             htmlInteractiveCovariatesPeaks += `<option value="additive">Additive</option>`;
+            htmlInteractiveCovariatesCorrelation += `<option value="none">None</option>`;
 
             $.each(ds['covar.info'], function(index, element) {
                 selectOptions.push({
@@ -4798,6 +5043,7 @@ function syncronizeCrossHairs(chart) {
                     g.interactiveCovariates.push(element);
                     htmlInteractiveCovariatesLOD += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
                     htmlInteractiveCovariatesPeaks += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
+                    htmlInteractiveCovariatesCorrelation += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
                 }
             });
 
@@ -4805,6 +5051,7 @@ function syncronizeCrossHairs(chart) {
             htmlCorrelation += '</select>';
             htmlInteractiveCovariatesLOD += '</select></div></div>';
             htmlInteractiveCovariatesPeaks += '</select></div></div>';
+            htmlInteractiveCovariatesCorrelation += '</select>';
 
             $('#factor-view-select').multiselect('dataprovider', selectOptions);
 
@@ -4821,9 +5068,20 @@ function syncronizeCrossHairs(chart) {
                 $('#interactiveCovarLODS').selectpicker();
 
                 $('#interactiveCovarLODS').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
-                    let selected = $(this).find(':selected').val();
                     changeCovariate(e.target.value);
                 });
+
+                // add Covariate adjustment for correlation
+                $('#correlationCovariateSelectionText').addClass('visible').removeClass('hidden');
+                $('#correlationCovariateSelection').html(htmlInteractiveCovariatesCorrelation);
+                $('#interactiveCovarCorrelation').selectpicker();
+
+                $('#interactiveCovarCorrelation').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+                    let selected = $(this).find(':selected').val();
+                    let dataset = $('#correlationDatasetSelect').find(':selected').val();
+                    switchCorrelationDataSet(dataset, selected);
+                });
+
 
                 if (resetPeaks) {
                     $('#divInteractiveCovariatesPeaks').html(htmlInteractiveCovariatesPeaks);
@@ -4834,8 +5092,15 @@ function syncronizeCrossHairs(chart) {
                         updatePeaks(+$('#lodSliderValue').val());
                     });
                 }
+
+
+
             } else {
                 $('#divInteractiveCovariatesLOD').html(`<input type="hidden" id="interactiveCovarLODS" value="additive"/>`);
+
+                // remove Covariate adjustment for correlation
+                $('#correlationCovariateSelectionText').addClass('hidden').removeClass('visible');
+                $('#correlationCovariateSelection').html('<input type="hidden" id="interactiveCovarCorrelation" value="additive"/>');
 
                 if (resetPeaks) {
                     $('#divInteractiveCovariatesPeaks').html(`<input type="hidden" id="interactiveCovarPeaks" value="additive"/>`);
@@ -4964,6 +5229,10 @@ function syncronizeCrossHairs(chart) {
                 "scrollCollapse": true,
                 "order": [[ 0, "desc" ]],
                 "paging":         false,
+                "columnDefs": [{
+                    "targets": 0,
+                    "className": "dt-body-right"
+                }]
             });
 
 
@@ -4980,7 +5249,13 @@ function syncronizeCrossHairs(chart) {
                     cid = g.phenotypeID;
                 }
 
-                generateCorrelationPlot(g.dataSetID, cid, $('#correlationDatasetSelect').val(), that.attr('dID'), that.attr('dSymbol'));
+                let interactiveCovariate = $('#interactiveCovarCorrelation').find(':selected').val();
+
+                if (interactiveCovariate === 'none') {
+                    interactiveCovariate = null;
+                }
+
+                generateCorrelationPlot(g.dataSetID, cid, $('#correlationDatasetSelect').val(), that.attr('dID'), that.attr('dSymbol'), interactiveCovariate);
                 return false;
             });
 
@@ -5063,7 +5338,7 @@ function syncronizeCrossHairs(chart) {
             logDebug('maxValue=', maxValue);
             logDebug('series=', series);
 
-            let yAxisTitle = data['id_correlate'];
+            let yAxisTitle = data['id.correlate'];
 
             /*
             if (correlateSymbol !== '') {
@@ -5072,9 +5347,9 @@ function syncronizeCrossHairs(chart) {
             */
 
             let exporting = appendExportButton('Download CSV', function() {
-                exportCorrelationPlotData(data.id, data['id_correlate'], data.data);
+                exportCorrelationPlotData(data.id, data['id.correlate'], data.data);
             });
-            exporting.filename = data.id + '_' + data['id_correlate'] + '_CORRELATION';
+            exporting.filename = data.id + '_' + data['id.correlate'] + '_CORRELATION';
 
             g.chartCorrelation = Highcharts.chart({
                 chart: {
@@ -5220,9 +5495,14 @@ function syncronizeCrossHairs(chart) {
 
         }
 
-        function generateCorrelationPlot(currentDataset, currentID, correlateDataset, correlateID, correlateSymbol) {
+        function generateCorrelationPlot(currentDataset, currentID, correlateDataset, correlateID, correlateSymbol, interactiveCovariate) {
             logDebug('Generating correlation plot:', currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
             let urlCorrelationPlot = `{{ config.API_R_BASE }}/correlationplot?dataset=${currentDataset}&id=${currentID}&dataset_correlate=${correlateDataset}&id_correlate=${correlateID}`;
+
+            if (interactiveCovariate != null) {
+                urlCorrelationPlot += `&intcovar=${interactiveCovariate}`;
+            }
+
             let submitData = {
                 urls:[{
                     url_id: 'correlationPlot',
@@ -5361,6 +5641,7 @@ function syncronizeCrossHairs(chart) {
                                     $('#divLOD').removeClass('invisible');
                                     $('#divItemInfo').removeClass('invisible');
                                     $('#divSecondRow').removeClass('invisible');
+                                    $('#divProfileCorrelation').removeClass('invisible');
                                     stopTask();
                                 }
                             }
@@ -5417,11 +5698,11 @@ function syncronizeCrossHairs(chart) {
             });
 
             if (covar === 'additive') {
-                urlLOD += '&interactive.covar=additive';
+                urlLOD += '&intcovar=additive';
                 urlLODCovar = null;
             } else {
-                urlLOD += '&interactive.covar=additive';
-                urlLODCovar += ('&interactive.covar=' + covar);
+                urlLOD += '&intcovar=additive';
+                urlLODCovar += ('&intcovar=' + covar);
             }
 
 
@@ -5627,6 +5908,7 @@ function syncronizeCrossHairs(chart) {
                                     $('#divLOD').removeClass('invisible');
                                     $('#divItemInfo').removeClass('invisible');
                                     $('#divSecondRow').removeClass('invisible');
+                                    $('#divProfileCorrelation').removeClass('invisible');
                                     stopTask();
                                 }
                             }
@@ -5697,11 +5979,11 @@ function syncronizeCrossHairs(chart) {
             }
 
             if (covar === 'additive') {
-                urlLOD += '&interactive.covar=additive';
+                urlLOD += '&intcovar=additive';
                 urlLODCovar = null;
             } else {
-                urlLOD += '&interactive.covar=additive';
-                urlLODCovar += ('&interactive.covar=' + covar);
+                urlLOD += '&intcovar=additive';
+                urlLODCovar += ('&intcovar=' + covar);
             }
 
             // TODO: add ncores?, regress_local? to urlLOD, or handle backend?
@@ -5941,7 +6223,7 @@ function syncronizeCrossHairs(chart) {
                     logError('MAJOR PROBLEM');
                 }
 
-                urlLOD += ('&interactive.covar=' + covariate);
+                urlLOD += ('&intcovar=' + covariate);
 
                 // TODO: add ncores?, regress_local? to urlLOD, or handle backend?
                 //URL += '&ncores=' + _G.api_cores;
@@ -6050,3 +6332,4 @@ function syncronizeCrossHairs(chart) {
     </script>
 
 {% endblock %}
+
