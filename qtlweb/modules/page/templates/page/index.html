@@ -1832,7 +1832,7 @@
         }
 
         function downloadChromosomes(version, species, callback) {
-            let chromosomeURL = `{{ url_for('api.api_get', url='', _external=False) }}${g.PROTOCOL}//churchill-lab.jax.org/ensimpl/api/chromosomes?version=${version}`;
+            let chromosomeURL = `{{ url_for('api.api_get', url='', _external=False) }}${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/chromosomes?version=${version}`;
             if (species != null) {
                 chromosomeURL += '&species=' + species;
             }
@@ -2756,7 +2756,7 @@ function syncronizeCrossHairs(chart) {
             let maxPos = newLocation + windowSize;
 
             let snpAssocURL = `{{ config.API_R_BASE }}/snpassoc?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&location=${newLocation}&window_size=${windowSize}`;
-            let genesURL = `https://churchilllab.jax.org/ensimpl/api/search?species=${g.SPECIES_ID}&version=${g.ENSEMBL_VERSION}&term=${chromosome}:${minPos}-${maxPos}`;
+            let genesURL = `${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/search?species=${g.SPECIES_ID}&version=${g.ENSEMBL_VERSION}&term=${chromosome}:${minPos}-${maxPos}`;
 
 
             if (covar !== 'additive') {
@@ -5669,7 +5669,6 @@ function syncronizeCrossHairs(chart) {
          * Perform gene search.
          */
         function selectPhenotype(phenotypeID, dataSetID, covar) {
-            //let urlGeneData = `http://churchill-lab.jax.org/ensimpl/api/gene?id=${geneID}`;
             let urlExpression = `{{ config.API_R_BASE }}/expression?dataset=${dataSetID}&id=${phenotypeID}`;
             let urlLOD = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=${phenotypeID}`;
             let urlLODCovar = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=${phenotypeID}`;
@@ -5938,7 +5937,7 @@ function syncronizeCrossHairs(chart) {
         function selectGeneProtein(geneID, proteinID, dataSetID, covar) {
             logDebug(`selectGeneProtein(${geneID}, ${proteinID}, ${dataSetID}, ${covar})`);
 
-            let urlGeneData = `http://churchill-lab.jax.org/ensimpl/api/gene?id=${geneID}&species=${g.SPECIES_ID}&version=${g.ENSEMBL_VERSION}`;
+            let urlGeneData = `${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/gene?id=${geneID}&species=${g.SPECIES_ID}&version=${g.ENSEMBL_VERSION}`;
             let urlExpression = `{{ config.API_R_BASE }}/expression?dataset=${dataSetID}&id=`;
             let urlLOD = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=`;
             let urlLODCovar = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=`;
