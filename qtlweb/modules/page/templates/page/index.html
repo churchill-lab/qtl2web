@@ -688,8 +688,6 @@
         $.ajax({
             url: URL,
             method: 'GET',
-            retries: 3,
-            retryInterval: 1000
         }).done(function(data, textStatus, jqXHR) {
             logInfo(`Download of ${description}`);
             logDebug(`Download of ${description}:`, data);
