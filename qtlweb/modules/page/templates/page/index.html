@@ -3526,7 +3526,7 @@ function syncronizeCrossHairs(chart) {
                 logError('MAJOR PROBLEM');
             }
 
-            let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${g.dataSetID}&id=${currentID}&dataset.correlate=${dataSetID}`;
+            let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${g.dataSetID}&id=${currentID}&dataset_correlate=${dataSetID}`;
 
             let submitData = {
                 urls:[{
@@ -5063,7 +5063,7 @@ function syncronizeCrossHairs(chart) {
             logDebug('maxValue=', maxValue);
             logDebug('series=', series);
 
-            let yAxisTitle = data['id.correlate'];
+            let yAxisTitle = data['id_correlate'];
 
             /*
             if (correlateSymbol !== '') {
@@ -5072,9 +5072,9 @@ function syncronizeCrossHairs(chart) {
             */
 
             let exporting = appendExportButton('Download CSV', function() {
-                exportCorrelationPlotData(data.id, data['id.correlate'], data.data);
+                exportCorrelationPlotData(data.id, data['id_correlate'], data.data);
             });
-            exporting.filename = data.id + '_' + data['id.correlate'] + '_CORRELATION';
+            exporting.filename = data.id + '_' + data['id_correlate'] + '_CORRELATION';
 
             g.chartCorrelation = Highcharts.chart({
                 chart: {
@@ -5222,7 +5222,7 @@ function syncronizeCrossHairs(chart) {
 
         function generateCorrelationPlot(currentDataset, currentID, correlateDataset, correlateID, correlateSymbol) {
             logDebug('Generating correlation plot:', currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
-            let urlCorrelationPlot = `{{ config.API_R_BASE }}/correlationplot?dataset=${currentDataset}&id=${currentID}&dataset.correlate=${correlateDataset}&id.correlate=${correlateID}`;
+            let urlCorrelationPlot = `{{ config.API_R_BASE }}/correlationplot?dataset=${currentDataset}&id=${currentID}&dataset_correlate=${correlateDataset}&id_correlate=${correlateID}`;
             let submitData = {
                 urls:[{
                     url_id: 'correlationPlot',
