@@ -10,7 +10,7 @@
           href="{{ url_for('static', filename='vendor/please-wait-0.0.5/please-wait.css') }}">
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='styles/main.css', _external=True) }}">
+          href="{{ url_for('static', filename='styles/main.css') }}">
 
 {% endblock %}
 
@@ -35,7 +35,7 @@
                             {% endif %}
                             <div class="row">
                                 <div class="col">
-                                    <form id="login" name="login" method="post" action="{{ url_for('page.login', _external=True) }}">
+                                    <form id="login" name="login" method="post" action="{{ url_for('page.login') }}">
                                       <div class="form-group">
                                         <label for="frm_id">User ID</label>
                                         <input type="text" class="form-control" name="frm_id" id="frm_id" aria-describedby="idHelp" placeholder="User ID">

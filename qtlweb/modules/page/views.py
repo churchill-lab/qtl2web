@@ -31,6 +31,12 @@ def favicon():
 
 @page.route('/login', methods=['GET', 'POST'])
 def login():
+    #print(request.form.get('frm_id'))
+    #print(request.form.get('frm_pwd'))
+
+    #print(current_app.config['LOGIN_USERID'])
+    #print(current_app.config['LOGIN_PASSWORD'])
+
     if request.form.get('frm_pwd') == current_app.config['LOGIN_PASSWORD'] and \
             request.form.get('frm_id') == current_app.config['LOGIN_USERID']:
         session['auth'] = True
@@ -58,15 +64,16 @@ def index():
     # GET  search_term = request.args.get("search_term")
     # BOTH search_term = request.values.get("search_term")
 
-    if current_app.config['LOGIN_REQUIRED'] and not session.get('auth'):
-        return render_template('page/login.html')
-
     search_term = request.values.get('search_term', '')
     datasetid = request.values.get('datasetid', '')
     debug = utils.str2bool(request.values.get('debug', ''))
     admin = utils.str2bool(request.values.get('admin', ''))
-
     app_version = os.getenv('DOCKER_QTLWEB_VERSION', '')
+
+    if current_app.config['LOGIN_REQUIRED'] and not session.get('auth'):
+        #print('session.get("auth")')
+        #print(session.get('auth'))
+        return render_template('page/login.html', debug=debug)
 
     return render_template('page/index.html',
                            search_term=search_term, datasetid=datasetid,
