@@ -627,12 +627,12 @@
             let shouldRetry = (b !== 'success' && b !== 'parsererror');
             if( shouldRetry && --this.retries > 0 ) {
                 setTimeout(() => {
-                    $.ajax(this)
+                    $.ajax(this);
                 }, this.retryInterval || 100);
             }
         }
 
-        return settings => $oldAjax(settings).always(check)
+        return settings => $oldAjax(settings).always(check);
     })($.ajax);
 
 
@@ -657,10 +657,11 @@
         disable: function(state) {
             return this.each(function() {
                 let $this = $(this);
-                if($this.is('input, button, textarea, select'))
+                if($this.is('input, button, textarea, select')) {
                     this.disabled = state;
-                else
+                } else {
                     $this.toggleClass('disabled', state);
+                }
             });
         }
     });
@@ -910,7 +911,7 @@
                     d3.queue()
                         .defer(downloadChromosomes, g.ENSEMBL_VERSION, g.SPECIES_ID)
                         .defer(downloadLODPeaks, g.dataSetID)
-                        .await(function(error, chromosomes, lodPeaks) {
+                        .await(function(errorPeaks, chromosomes, lodPeaks) {
                             g.CHROMOSOMES = {'idx': [], 'chr': {}};
 
                             let configChromosomes = {{ config.CHROMOSOMES|safe }};
@@ -952,7 +953,7 @@
                         }
                     });
 
-                    q.awaitAll(function(error, results) {
+                    q.awaitAll(function(errorAll, results) {
                         // TODO: handle error
                         $.each(results, function(key, value) {
                             g.DATASETS[value.id].lodpeaks = value.result;
@@ -1280,6 +1281,7 @@
             });
             exporting.filename = g.DATASETS[g.dataSetID]['display.name'] + '_PEAKS';
 
+
             //TODO: make sure g.LOD is defined above and g.chartPeaks and reset appropriately
 
             if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
@@ -1353,7 +1355,6 @@
 `;
 
                 $('#divLODPeaks').html(html);
-
 
                 $('#lodRange').on('change', function(evt) {
                     $('#lodSliderValue').val(evt.target.value);
@@ -1831,7 +1832,7 @@
 
         function downloadChromosomes(version, species, callback) {
             let chromosomeURL = `{{ url_for('api.api_get', url='', _external=False) }}${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/chromosomes?version=${version}`;
-            if (species != null) {
+            if (species !== null) {
                 chromosomeURL += '&species=' + species;
             }
             downloadData(chromosomeURL, 'chromosomes', callback);
@@ -2079,8 +2080,8 @@ function syncronizeCrossHairs(chart) {
             if (snpData) {
                 maxLODScore = snpData[0][10];
 
-                if ((covar != null) && (covar !== 'additive')) {
-                    maxLODScore = Math.max(maxLODScore, snpData[0][11])
+                if ((covar !== null) && (covar !== 'additive')) {
+                    maxLODScore = Math.max(maxLODScore, snpData[0][11]);
                 }
             }
 
@@ -2116,7 +2117,7 @@ function syncronizeCrossHairs(chart) {
                     y: 1.0 * element[10],
                 });
 
-                if ((covar != null) && (covar !== 'additive')) {
+                if ((covar !== null) && (covar !== 'additive')) {
                     maxLODScore = Math.max(maxLODScore, element[11]);
 
                     snpsCovar.push({
@@ -2188,7 +2189,7 @@ function syncronizeCrossHairs(chart) {
 
             }];
 
-            if ((covar != null) && (covar !== 'additive')) {
+            if ((covar !== null) && (covar !== 'additive')) {
                 seriesData.push({
                     name: 'SNP Covar',
                     data: snpsCovar,
@@ -2890,7 +2891,7 @@ function syncronizeCrossHairs(chart) {
                 csvContent += `${line}\n`;
             });
 
-            if (category != null) {
+            if (category !== null) {
                 downloadCSV(csvContent, `${id}_EFFECT_${covar}_${category}.csv`, 'text/csv;encoding:utf-8');
             } else {
                 downloadCSV(csvContent, `${id}_EFFECT.csv`, 'text/csv;encoding:utf-8');
@@ -3748,7 +3749,7 @@ function syncronizeCrossHairs(chart) {
 
             let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${g.dataSetID}&id=${currentID}&dataset_correlate=${dataSetID}`;
 
-            if (interactiveCovariate !== 'none') {
+            if ((interactiveCovariate !== undefined) || (interactiveCovariate !== 'none')) {
                 urlCorrelation += `&intcovar=${interactiveCovariate}`;
             }
 
@@ -4096,7 +4097,7 @@ function syncronizeCrossHairs(chart) {
             logDebug('selectedCovars=', selectedCovars);
             logDebug('seriesToColor=', seriesToColor);
 
-            if ((selectedCovars == null) || (selectedCovars.length === 0)) {
+            if ((selectedCovars === null) || (selectedCovars.length === 0)) {
                 // this is the case when there are no covar factors
 
                 // do we just have 1 series of data here?
@@ -4531,7 +4532,7 @@ function syncronizeCrossHairs(chart) {
                 renderTo = 'lodPlotChartCovariateFull';
                 exportName = 'FULL';
 
-                if (dataDiff != null) {
+                if (dataDiff !== null) {
                     lineColor = '#146582';
                     isFull = false;
                     renderTo = 'lodPlotChartCovariateDiff';
@@ -4880,7 +4881,7 @@ function syncronizeCrossHairs(chart) {
             logDebug('configureCovarInfo', resetPeaks);
             let ds = g.DATASETS[g.dataSetID];
 
-            if (ds['covar.info'] == null) {
+            if (ds['covar.info'] === null) {
                 logDebug('NO COVAR INFO');
 
                 let profilePlotOptionsHTML = `
@@ -5037,7 +5038,7 @@ function syncronizeCrossHairs(chart) {
                 htmlCorrelation += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
 
                 // interactive covariates
-                if (element['interactive']) {
+                if (element.interactive) {
                     g.interactiveCovariates.push(element);
                     htmlInteractiveCovariatesLOD += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
                     htmlInteractiveCovariatesPeaks += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
@@ -5497,7 +5498,8 @@ function syncronizeCrossHairs(chart) {
             logDebug('Generating correlation plot:', currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
             let urlCorrelationPlot = `{{ config.API_R_BASE }}/correlationplot?dataset=${currentDataset}&id=${currentID}&dataset_correlate=${correlateDataset}&id_correlate=${correlateID}`;
 
-            if (interactiveCovariate != null) {
+            if ((interactiveCovariate !== undefined) || (interactiveCovariate !== 'none')) {
+                //if (interactiveCovariate !== null) {
                 urlCorrelationPlot += `&intcovar=${interactiveCovariate}`;
             }
 
@@ -5706,7 +5708,7 @@ function syncronizeCrossHairs(chart) {
             // TODO: add ncores?, regress_local? to urlLOD, or handle backend?
             //URL += '&ncores=' + _G.api_cores;
             {% if config.API_R_NUM_CORES %}
-            if (urlLODCovar != null) {
+            if (urlLODCovar !== null) {
                 urlLODCovar += '&cores={{ config.API_R_NUM_CORES }}';
             }
             urlLOD += '&cores={{ config.API_R_NUM_CORES }}';
@@ -5724,7 +5726,7 @@ function syncronizeCrossHairs(chart) {
                     url: urlLOD
                 }]};
 
-            if (urlLODCovar != null) {
+            if (urlLODCovar !== null) {
                 submitData.urls.push({
                     url_id: 'lodCovar',
                     url: urlLODCovar
@@ -5787,7 +5789,7 @@ function syncronizeCrossHairs(chart) {
         function showErrorMessage(message, details) {
             let errorMessage = `<div class="row text-left"><div class="col"><span class="font-weight-bold text-danger">${message}</span></div></div>`;
 
-            if (details != null) {
+            if (details !== null) {
                 errorMessage += `<div class="row row-spacer"></div>
                                  <div class="row text-left">
                                      <div class="col">
@@ -5963,7 +5965,7 @@ function syncronizeCrossHairs(chart) {
             // reset the covariate pickers
             configureCovarInfo(false);
 
-            if ((proteinID === undefined) || (proteinID == null)) {
+            if ((proteinID === undefined) || (proteinID === null)) {
                 urlExpression += geneID;
                 urlLOD += geneID;
                 urlLODCovar += geneID;
@@ -5986,7 +5988,7 @@ function syncronizeCrossHairs(chart) {
             // TODO: add ncores?, regress_local? to urlLOD, or handle backend?
             //URL += '&ncores=' + _G.api_cores;
             {% if config.API_R_NUM_CORES %}
-            if (urlLODCovar != null) {
+            if (urlLODCovar !== null) {
                 urlLODCovar += '&cores={{ config.API_R_NUM_CORES }}';
             }
             urlLOD += '&cores={{ config.API_R_NUM_CORES }}';
@@ -6007,7 +6009,7 @@ function syncronizeCrossHairs(chart) {
                     url: urlLOD
                 }]};
 
-            if (urlLODCovar != null) {
+            if (urlLODCovar !== null) {
                 submitData.urls.push({
                     url_id: 'lodCovar',
                     url: urlLODCovar
@@ -6171,11 +6173,11 @@ function syncronizeCrossHairs(chart) {
          * Change covar LOD plot.
          */
          function changeCovariate(covariate) {
-            logDebug('changeCovariate(', covariate, ')')
+            logDebug('changeCovariate(', covariate, ')');
 
             if (covariate === 'additive') {
                 // remove all other graphs
-                logDebug('additive, clear others')
+                logDebug('additive, clear others');
                 g.chartLODCovariateFull = null;
                 g.chartLODCovariateDiff = null;
                 $('#lodPlotChartCovariateFull').html('');
@@ -6192,8 +6194,8 @@ function syncronizeCrossHairs(chart) {
 
             // check to see if we have the data, if so, plot it
             // else go get it
-            if (g.LODChartData[covariate] != null) {
-                logDebug('covar in g.LODChartData, so just add it')
+            if (g.LODChartData[covariate] !== null) {
+                logDebug('covar in g.LODChartData, so just add it');
                 if (covariate === 'additive') {
                     plotLODChart(g.LODChartData[covariate], covariate, null);
                 } else {
@@ -6201,7 +6203,7 @@ function syncronizeCrossHairs(chart) {
                     plotLODChart(g.LODChartData[covariate], covariate, g.LODChartData.additive);
                 }
             } else {
-                logDebug('covar NOT in g.LODChartData, so go get it')
+                logDebug('covar NOT in g.LODChartData, so go get it');
                 let urlLOD = `{{ config.API_R_BASE }}/lodscan?dataset=${g.dataSetID}&id=`;
 
                 g.secondaryPlotMarkerID = null;
