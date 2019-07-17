@@ -3749,7 +3749,7 @@ function syncronizeCrossHairs(chart) {
 
             let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${g.dataSetID}&id=${currentID}&dataset_correlate=${dataSetID}`;
 
-            if ((interactiveCovariate !== undefined) || (interactiveCovariate !== 'none')) {
+            if ((interactiveCovariate !== undefined) && (interactiveCovariate !== 'none')) {
                 urlCorrelation += `&intcovar=${interactiveCovariate}`;
             }
 
@@ -5498,7 +5498,7 @@ function syncronizeCrossHairs(chart) {
             logDebug('Generating correlation plot:', currentDataset, currentID, correlateDataset, correlateID, correlateSymbol);
             let urlCorrelationPlot = `{{ config.API_R_BASE }}/correlationplot?dataset=${currentDataset}&id=${currentID}&dataset_correlate=${correlateDataset}&id_correlate=${correlateID}`;
 
-            if ((interactiveCovariate !== undefined) || (interactiveCovariate !== 'none')) {
+            if ((interactiveCovariate !== undefined) && (interactiveCovariate !== 'none')) {
                 //if (interactiveCovariate !== null) {
                 urlCorrelationPlot += `&intcovar=${interactiveCovariate}`;
             }
