@@ -1,0 +1,152 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}TEST{% endblock %}
+{% block meta_description %}{% endblock %}
+{% block head %}
+
+
+{% endblock %}
+
+{% block body %}
+<body>
+<div class="container">
+
+
+
+
+
+</div>
+</body>
+{% endblock %}
+
+
+{% block javascript %}
+    <!-- please wait -->
+    <script src="{{ url_for('static', filename='scripts/vendor/please-wait/please-wait.js') }}"></script>
+    <script>
+    window.loading_screen = window.pleaseWait({
+        logo: "",
+        backgroundColor: '#000000',
+        //loadingHtml: "<p style='color:white' class='loading-message'>Loading...</p>"
+        loadingHtml: "<div id='loader-wrapper'><div id='loader'></div><div class='loader-section section-left'></div><div class='loader-section section-right'></div></div>"
+      });
+    </script>
+
+
+    <!-- ENSIMPL API -->
+    <script src="//churchill-lab.jax.org/ensimpl/api/js/ensimpl.js"></script>
+
+    <!-- Highcharts //-->
+    <script src="//code.highcharts.com/stock/highstock.src.js"></script>
+    <script src="//code.highcharts.com/highcharts-more.js"></script>
+    <script src="//code.highcharts.com/modules/boost.src.js"></script>
+    <script src="//code.highcharts.com/modules/exporting.js"></script>
+    <script src="//code.highcharts.com/modules/canvas-tools.src.js"></script>
+
+    <!-- D3 //-->
+    <script src="//d3js.org/d3.v3.min.js"></script>
+    <script src="//d3js.org/d3-queue.v3.js"></script>
+    <script src="//d3js.org/d3-collection.v1.min.js"></script>
+    <script src="//d3js.org/d3-dispatch.v1.min.js"></script>
+    <script src="//d3js.org/d3-dsv.v1.min.js"></script>
+    <script src="//d3js.org/d3-request.v1.min.js"></script>
+
+    <!-- DataTables
+    <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    //-->
+
+    <!-- Extra //-->
+    <script src="{{ url_for('static', filename='scripts/vendor/factexpviewer.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/vendor/ToProgress-0.1.1/ToProgress.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/vendor/js.cookie-2.2.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/vendor/seedrandom-2.4.3/seedrandom.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/vendor/jquery-typeahead-2.10.4/jquery.typeahead.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/vendor/jquery.popupoverlay.js') }}"></script>
+
+    <script>
+
+
+        /**
+         * Perform gene search.
+         */
+        function selectGeneProtein(geneID, proteinID, datasetID) {
+            d3.queue()
+                .defer(downloadGeneData, geneID)
+                .defer(downloadLODData, id, level, regressLocal)
+                .defer(downloadProfileData, id, level)
+                .await(function(error, geneData, lodData, profileData) {
+                    if (error) {
+                        let message = 'Unable to download data for <strong><em>';
+                        message += id;
+                        message += '</em></strong>.';
+
+                        unblockUser();
+                        displayError('API Server Error', message);
+
+                        console.error('error=', error);
+                        console.error(message);
+                        return;
+                    }
+
+                    _G.current_gene = geneData[0];
+                    _G.current_gene_id = geneID;
+                    _G.current_protein_id = proteinID;
+                    displayGeneData(_G.current_gene);
+                    resetSecondaryPlots();
+                    _G.slider.reset();
+
+                    plotLOD(lodData.data, id, level);
+                    plotProfile(id, profileData, getFactorOrder());
+                    //addHistory(_G.current_gene_id, _G.current_protein_id, geneData[0]['symbol'], level);
+                    //buildHistory();
+                    unblockUser();
+                });
+
+            }
+
+
+function delayedHello(name, delay, callback) {
+  var id = setTimeout(function() {
+    console.log("Hello, " + name + "!");
+    callback(null);
+  }, delay);
+  console.log(id);
+  return {
+    abort: function() {
+        console.log('clearing');
+      clearTimeout(id);
+    }
+  };
+}
+var q = null;
+
+        // call whoa to abort q
+        function whoa() {
+            try { q.abort(); }
+            catch (e) {
+                console.log(e);
+            }
+        }
+
+    $().ready(function () {
+console.log('hello');
+ q = d3.queue()
+    .defer(d3.request, "https://httpbin.org/delay/10")
+    .defer(d3.request, "https://httpbin.org/delay/10")
+    .defer(d3.request, "https://httpbin.org/delay/10")
+    .awaitAll(function(error, results) {
+      if (error) throw error;
+      console.log(results);
+    });
+
+
+    });
+
+
+
+
+    </script>
+
+{% endblock %}
+

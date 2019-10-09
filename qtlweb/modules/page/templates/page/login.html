@@ -1,0 +1,85 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}{{ config.MAIN_TITLE|safe }}{% endblock %}
+{% block meta_description %}{% endblock %}
+{% block head %}
+    <link rel="stylesheet"
+          href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='vendor/please-wait-0.0.5/please-wait.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='styles/main.css') }}">
+
+{% endblock %}
+
+{% block body %}
+<body>
+    <div class="container-fluid">
+        <main class="col-12" role="main">
+            <div class="row justify-content-center">
+                <div class="col-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login
+                        </div>
+                        <div class="card-body">
+                            {% if session.auth_message %}
+                            <div class="row">
+                                <div class="col">
+                                    <span class="text-danger">Invalid User ID or Password.</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                            <div class="row">
+                                <div class="col">
+                                    <form id="login" name="login" method="post" action="{{ url_for('page.login') }}">
+                                      <div class="form-group">
+                                        <label for="frm_id">User ID</label>
+                                        <input type="text" class="form-control" name="frm_id" id="frm_id" aria-describedby="idHelp" placeholder="User ID">
+                                      </div>
+                                      <div class="form-group">
+                                        <label for="frm_pwd">Password</label>
+                                        <input type="password" class="form-control" name="frm_pwd" id="frm_pwd" placeholder="Password">
+                                      </div>
+                                      <button type="submit" id="btn_login" class="btn btn-primary">Login</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+{% endblock %}
+
+{% block javascript %}
+
+    <script>
+    $().ready(function () {
+        $('#frm_id').keypress(function(evt) {
+            let code = evt.which ? evt.which : evt.keyCode;
+            if (code === 13) {
+                $(this).blur();
+                $('#btn_login').focus().click();
+            }
+        });
+
+        $('#frm_pwd').keypress(function(evt) {
+            let code = evt.which ? evt.which : evt.keyCode;
+            if (code === 13) {
+                $(this).blur();
+                $('#btn_login').focus().click();
+            }
+        });
+    });
+
+    </script>
+
+{% endblock %}
+
+
