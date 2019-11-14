@@ -709,7 +709,7 @@
              * Global data
              */
             g.DATASETS = null;         // hash of all datasets
-            g.ENSEMBL_VERSION = null;  // Ensembl version for Ensimpl API
+            g.ENSEMBL_RELEASE = null;  // Ensembl release for Ensimpl API
             g.SPECIES_ID = 'Mm';       // TODO: do not hard code species
             g.ENSIMPL = null;          // Ensimple API
             g.CHROMOSOMES = null;      // all chromosome information
@@ -781,9 +781,13 @@
 
                     g.DATASETS = {};
 
-                    g.ENSEMBL_VERSION = null;
+                    g.ENSEMBL_RELEASE = null;
                     if ('ensembl.version' in data.result) {
-                        g.ENSEMBL_VERSION  = data.result['ensembl.version'];
+                        g.ENSEMBL_RELEASE  = data.result['ensembl.version'];
+                    }
+                    // the new way is RELEASE, replacing VERSION
+                    if ('ensembl.release' in data.result) {
+                        g.ENSEMBL_RELEASE  = data.result['ensembl.release'];
                     }
 
                     $.each(data.result.datasets, function(dsi, ds) {
@@ -908,12 +912,12 @@
 
                     g.ENSIMPL = new ensimpl({
                         search_limit: 100,
-                        search_version: g.ENSEMBL_VERSION,
+                        search_release: g.ENSEMBL_RELEASE,
                         search_species: g.SPECIES_ID
                     });
 
                     d3.queue()
-                        .defer(downloadChromosomes, g.ENSEMBL_VERSION, g.SPECIES_ID)
+                        .defer(downloadChromosomes, g.ENSEMBL_RELEASE, g.SPECIES_ID)
                         .defer(downloadLODPeaks, g.dataSetID)
                         .await(function(errorPeaks, chromosomes, lodPeaks) {
                             g.CHROMOSOMES = {'idx': [], 'chr': {}};
@@ -1834,12 +1838,12 @@
             swal.close();
         }
 
-        function downloadChromosomes(version, species, callback) {
+        function downloadChromosomes(release, species, callback) {
             let chromosomeURL = `{{ url_for('api.api_get', url='', _external=False) }}${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/chromosomes`;
             let amp = '';
 
-            if (version !== null) {
-                chromosomeURL += `?version=${version}`;
+            if (release !== null) {
+                chromosomeURL += `?release=${release}`;
                 amp = '&';
             }
 
@@ -2769,8 +2773,8 @@ function syncronizeCrossHairs(chart) {
             let snpAssocURL = `{{ config.API_R_BASE }}/snpassoc?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&location=${newLocation}&window_size=${windowSize}`;
             let genesURL = `${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/search?species=${g.SPECIES_ID}&term=${chromosome}:${minPos}-${maxPos}`;
 
-            if (g.ENSEMBL_VERSION != null) {
-                genesURL += `&version=${g.ENSEMBL_VERSION}`;
+            if (g.ENSEMBL_RELEASE != null) {
+                genesURL += `&release=${g.ENSEMBL_RELEASE}`;
             }
 
             if (covar !== 'additive') {
@@ -4317,7 +4321,7 @@ function syncronizeCrossHairs(chart) {
 
             let options = {
                 species: g.SPECIES_ID,
-                version: g.ENSEMBL_VERSION,
+                release: g.ENSEMBL_RELEASE,
                 limit: 100
             };
 
@@ -5956,14 +5960,14 @@ function syncronizeCrossHairs(chart) {
         function selectGeneProtein(geneID, proteinID, dataSetID, covar) {
             logDebug(`selectGeneProtein(${geneID}, ${proteinID}, ${dataSetID}, ${covar})`);
 
-            let urlGeneData = `${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/gene?id=${geneID}&species=${g.SPECIES_ID}`;
+            let urlGeneData = `${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/gene/${geneID}?id=&species=${g.SPECIES_ID}`;
             let urlExpression = `{{ config.API_R_BASE }}/expression?dataset=${dataSetID}&id=`;
             let urlLOD = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=`;
             let urlLODCovar = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=`;
             let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${dataSetID}&id=`;
 
-            if (g.ENSEMBL_VERSION != null) {
-                urlGeneData += `&version=${g.ENSEMBL_VERSION}`;
+            if (g.ENSEMBL_RELEASE != null) {
+                urlGeneData += `&release=${g.ENSEMBL_RELEASE}`;
             }
 
             g.gene = null;
