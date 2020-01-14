@@ -30,6 +30,8 @@ def call_api(self, url_id, url):
         request_start_time = time.time()
 
         r = requests.get(url)
+        #print('\n\n\n\n-------\n\n\n\n')
+        #print(r.headers)
 
         request_end_time = time.time()
         roundtrip = r.elapsed.total_seconds()
@@ -47,6 +49,15 @@ def call_api(self, url_id, url):
         meta['time_total'] = total_time
         meta['from_cache'] = r.from_cache
         meta['status_code'] = r.status_code
+
+        temp = {'url_id': url_id, 'url': url}
+        #temp['request_headers'] = r.request.headers
+        #temp['response_headers'] = r.headers
+        #temp['time_request'] = request_time
+        #temp['time_transfer'] = transfer_time
+        #temp['time_total'] = total_time
+
+        #print(temp)
 
     except requests.exceptions.ConnectionError as req_exc_connect:
         print('ConnectionError in call_api task: ', str(req_exc_connect))
