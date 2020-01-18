@@ -68,6 +68,8 @@ def create_app():
 
     app.config.from_object('qtlweb.config.settings')
 
+    app.logger.setLevel(app.config['LOG_LEVEL'])
+
     if app.config.from_envvar('CONTAINER_FILE_QTLWEB_SETTINGS', silent=True):
         env_settings = os.environ['CONTAINER_FILE_QTLWEB_SETTINGS']
         app.logger.info('Using CONTAINER_FILE_QTLWEB_SETTINGS: {}'.format(env_settings))

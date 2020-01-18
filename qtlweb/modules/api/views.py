@@ -1,12 +1,16 @@
-from flask import (
-    Blueprint,
-    jsonify,
-    request)
+# -*- coding: utf-8 -*-
+from celery import group, current_app
+
+from flask import current_app as app
+from flask import Blueprint
+from flask import jsonify
+from flask import request
+
+import json
 import time
 import requests
+
 from qtlweb.utils import format_time
-import json
-from celery import group, current_app, chord
 
 api = Blueprint('api', __name__, template_folder='templates', url_prefix='/api')
 
@@ -250,3 +254,35 @@ def api_cancel_task(task_id):
     return jsonify({'status': task.state})
 
 
+@api.route('/qtlapi/<path:url>')
+def qtlapi(url):
+    url_base = app.config['API_R_BASE']
+    elems = request.url.split(url)
+
+    if len(elems) > 1:
+        url_api = f'{url_base}/{url}{elems[1]}'
+    else:
+        url_api = f'{url_base}/{url}'
+
+    app.logger.info('API call: %s', url_api)
+
+    #time_request_start = time.time()
+
+    r = requests.get(url_api)
+
+    #time_request_end = time.time()
+    #roundtrip = r.elapsed.total_seconds()
+    #time_request = format_time(0, roundtrip)
+    #time_transfer = format_time(time_request_start + roundtrip,
+    #                            time_request_end)
+    #time_total = format_time(time_request_start, time_request_end)
+
+    #app.logger.info(f'time_request={time_request}')
+    #app.logger.info(f'time_transfer={time_transfer}')
+    #app.logger.info(f'time_total={time_total}')
+    #app.logger.info(f'from_cache={r.from_cache}')
+    #app.logger.info(f'status_code={r.status_code}')
+
+    #print(r.headers)
+
+    return r.content
