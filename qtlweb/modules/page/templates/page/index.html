@@ -1006,20 +1006,23 @@
 
             $.each(geneData.external_ids, function(idx, elem) {
                 let url = '';
+                let urlDesc = '';
 
                 if (elem.db === 'EntrezGene') {
-                    url = 'https://www.ncbi.nlm.nih.gov/gene/?term=';
+                    url = `https://www.ncbi.nlm.nih.gov/gene/?term=${elem.db_id}`;
+                    urlDesc = `NCBI Gene: ${elem.db_id}`;
                 } else if (elem.db === 'MGI') {
-                    url = 'http://www.informatics.jax.org/marker/';
-                } else if (elem.db === 'UniGene') {
-                    url = 'https://www.ncbi.nlm.nih.gov/unigene/?term=';
+                    url = `http://www.informatics.jax.org/marker/${elem.db_id}`;
+                    urlDesc = `${elem.db_id}`;
+                } else if (elem.db === 'Uniprot_gn') {
+                    url = `https://www.uniprot.org/uniprot/${elem.db_id}`;
+                    urlDesc = `Uniprot: ${elem.db_id}`;
                 }
-
-                url += elem.db_id;
 
                 if (url !== '') {
-                    htmlBody += ` <small><a target="_newwin" href="${url}">${elem.db} <i class="fas fa-external-link-alt" aria-hidden="true"></i></small></a>`;
+                    htmlBody += ` <small><a target="_newwin" href="${url}">${urlDesc} <i class="fas fa-external-link-alt" aria-hidden="true"></i></small></a>`;
                 }
+
             });
 
             htmlBody += '</td></tr>';
@@ -1052,6 +1055,7 @@
         }
 
         function updatePeaks(minValue) {
+            logDebug('updatePeaks()');
             let covar = $('#interactiveCovarPeaks').val();
 
             g.LODThreshold = minValue;
@@ -1068,7 +1072,7 @@
                         //data.push([+(geneChr.start + genePos), +(markerChr.start + markerPos)]);
 
                         if (element[7] >= g.LODThreshold) {
-                            newData.push({
+                            let d = {
                                 geneChr: geneChr,
                                 genePos: genePos,
                                 genePosOrig: element[2],
@@ -1081,7 +1085,20 @@
                                 geneID: element[3],
                                 geneSymbol: element[4],
                                 covar: covar
-                            });
+                            };
+
+                            if (element.length === 16) {
+                                d['A'] = element[8];
+                                d['B'] = element[9];
+                                d['C'] = element[10];
+                                d['D'] = element[11];
+                                d['E'] = element[12];
+                                d['F'] = element[13];
+                                d['G'] = element[14];
+                                d['H'] = element[15];
+                            }
+
+                            newData.push(d);
                         }
                     }
                 });
@@ -1101,7 +1118,7 @@
                         //data.push([+(geneChr.start + genePos), +(markerChr.start + markerPos)]);
 
                         if (element[8] >= g.LODThreshold) {
-                            newData.push({
+                            let d = {
                                 geneChr: geneChr,
                                 genePos: genePos,
                                 genePosOrig: element[2],
@@ -1115,7 +1132,20 @@
                                 geneID: element[4],
                                 geneSymbol: element[5],
                                 covar: covar
-                            });
+                            };
+
+                            if (element.length === 17) {
+                                d['A'] = element[9];
+                                d['B'] = element[10];
+                                d['C'] = element[11];
+                                d['D'] = element[12];
+                                d['E'] = element[13];
+                                d['F'] = element[14];
+                                d['G'] = element[15];
+                                d['H'] = element[16];
+                            }
+
+                            newData.push(d);
                         }
                     }
                 });
@@ -1138,7 +1168,7 @@
                         seriesData[phenotype.category] = [];
                     }
 
-                    seriesData[phenotype.category].push({
+                    let d = {
                         x: markerChr.start + markerPos,
                         y: element[6],
                         lod: element[6],
@@ -1150,10 +1180,24 @@
                         markerPos: markerPos,
                         markerID: element[0],
                         covar: covar
-                    });
+                    };
+
+                    if (element.length === 15) {
+                        d['A'] = element[7];
+                        d['B'] = element[8];
+                        d['C'] = element[9];
+                        d['D'] = element[10];
+                        d['E'] = element[11];
+                        d['F'] = element[12];
+                        d['G'] = element[13];
+                        d['H'] = element[14];
+                    }
+
+                    seriesData[phenotype.category].push(d);
 
                     minLOD = Math.min(minLOD, element[6]);
                     maxLOD = Math.max(maxLOD, element[6]);
+
                 });
 
                 // remove all the series
@@ -1180,32 +1224,62 @@
         }
 
         function exportLODPeaks(id, peaks) {
+
+            let covar = $('#interactiveCovarPeaks').val();
+
+
+
             let csvContent = '';
 
             if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
-                csvContent = '"gene_id","symbol","gene_chrom","gene_mid","marker_id","marker_chrom","marker_position","lod"\n';
+                csvContent = '"gene_id","symbol","gene_chrom","gene_mid","marker_id","marker_chrom","marker_position","lod"';
+                if (peaks[0].length === 16) {
+                    csvContent += ',"A","B","C","D","E","F","G","H"';
+                }
+                csvContent += '\n';
                 // [marker_id, chrom, position, gene_id, symbol, gene_chrom, gene_mid, lod
                 //     0         1       2        3       4         5          6        7
                 // ["1_100007442","1",100.0074,"ENSMUSG00000028028","Alpk1","3",127.7255,6.1147]
                 $.each(peaks, function(k, v) {
-                    let line = `"${v[3]}","${v[4]}","${v[5]}",${v[6]},"${v[0]}","${v[1]}",${v[2]},"${v[7]}"\n`;
+                    let line = `"${v[3]}","${v[4]}","${v[5]}",${v[6]},"${v[0]}","${v[1]}",${v[2]},"${v[7]}"`;
+                    if (peaks[0].length === 16) {
+                        line += `,${v[8]},${v[9]},${v[10]},${v[11]},${v[12]},${v[13]},${v[14]},${v[15]}`;
+                    }
+                    line += '\n';
+
                     csvContent += line;
                 });
             } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
-                csvContent = '"protein_id","gene_id","symbol","gene_chrom","gene_mid","marker_id","marker_chrom","marker_position","lod"\n';
+                csvContent = '"protein_id","gene_id","symbol","gene_chrom","gene_mid","marker_id","marker_chrom","marker_position","lod"';
+                if (peaks[0].length === 17) {
+                    csvContent += ',"A","B","C","D","E","F","G","H"';
+                }
+                csvContent += '\n';
                 // [marker_id, chrom, position, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
                 //     0         1       2          3          4        5         6        7        8
                 // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
                 $.each(peaks, function(k, v) {
                     let line = `"${v[3]}","${v[4]}","${v[5]}","${v[6]}",${v[7]},"${v[0]}","${v[1]}",${v[2]},"${v[8]}"\n`;
+                    if (peaks[0].length === 17) {
+                        line += `,${v[9]},${v[10]},${v[11]},${v[12]},${v[13]},${v[14]},${v[15]},${v[16]}`;
+                    }
+                    line += '\n';
                     csvContent += line;
                 });
             } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
-                csvContent = '"marker_id","marker_chrom","marker_position","phenotype","lod"\n';
+                csvContent = '"marker_id","marker_chrom","marker_position","phenotype","lod"';
+                if (peaks[0].length === 15) {
+                    csvContent += ',"A","B","C","D","E","F","G","H"';
+                }
+                csvContent += '\n';
                 // ["5_137006393","5",137.0064,"MEcyan","MEcyan","MEcyan",9.1161],[
                 //       0         1     2        3        4        5        6
                 $.each(peaks, function(k, v) {
-                    let line = `"${v[0]}","${v[1]}",${v[2]},"${v[4]}",${v[6]}\n`;
+                    let line = `"${v[0]}","${v[1]}",${v[2]},"${v[4]}",${v[6]}`;
+                    if (peaks[0].length === 16) {
+                        line += `,${v[7]},${v[8]},${v[9]},${v[10]},${v[11]},${v[12]},${v[13]},${v[14]}`;
+                    }
+                    line += '\n';
                     csvContent += line;
                 });
             }
@@ -1451,7 +1525,20 @@
                     followPointer: false,
                     outside: true,
                     formatter: function (a) {
-                        return `LOD: ${this.point.lod}<br>Gene ID: ${this.point.geneID}<br>Symbol: ${this.point.geneSymbol}<br>Gene Location: ${this.point.geneChr.chromosome}:${this.point.genePos}<br>Marker ID: ${this.point.markerID}<br>Marker Location: ${this.point.markerChr.chromosome}:${this.point.markerPos}`;
+                        let ret = `LOD: ${this.point.lod}<br>Gene ID: ${this.point.geneID}<br>Symbol: ${this.point.geneSymbol}<br>Gene Location: ${this.point.geneChr.chromosome}:${this.point.genePos}<br>Marker ID: ${this.point.markerID}<br>Marker Location: ${this.point.markerChr.chromosome}:${this.point.markerPos}`;
+                        if ('A' in this.point) {
+                            ret += `<br>Allele Effects:<br>`;
+                            ret += `<br> A: ${this.point.A}`;
+                            ret += `<br> B: ${this.point.B}`;
+                            ret += `<br> C: ${this.point.C}`;
+                            ret += `<br> D: ${this.point.D}`;
+                            ret += `<br> E: ${this.point.E}`;
+                            ret += `<br> F: ${this.point.F}`;
+                            ret += `<br> G: ${this.point.G}`;
+                            ret += `<br> H: ${this.point.H}`;
+                        }
+                        return ret;
+
                     }
                 };
             } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
