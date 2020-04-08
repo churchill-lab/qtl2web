@@ -492,19 +492,16 @@
 
     {% if debug %}
     <!-- Highcharts/Highstock //-->
-    <script src="//code.highcharts.com/stock/7.1.2/highstock.src.js"></script>
+    <script src="//code.highcharts.com/stock/8.0.0/highstock.src.js"></script>
     {% else %}
-    <script src="//code.highcharts.com/stock/7.1.2/highstock.js"></script>
+    <script src="//code.highcharts.com/stock/8.0.0/highstock.js"></script>
     {% endif %}
-    <script src="//code.highcharts.com/stock/7.1.2/highcharts-more.js"></script>
-    <script src="//code.highcharts.com/stock/7.1.2/modules/xrange.js"></script>
+    <script src="//code.highcharts.com/stock/8.0.0/highcharts-more.js"></script>
+    <script src="//code.highcharts.com/stock/8.0.0/modules/xrange.js"></script>
 
-    <!--
-    <script src="//code.highcharts.com/stock/6.0.4/modules/boost-canvas.js"></script>
-    //-->
-    <script src="//code.highcharts.com/stock/7.1.2/modules/boost.js"></script>
-    <script src="//code.highcharts.com/stock/7.1.2/modules/exporting.js"></script>
-    <script src="//code.highcharts.com/stock/7.1.2/modules/offline-exporting.js"></script>
+    <script src="//code.highcharts.com/stock/8.0.0/modules/boost.js"></script>
+    <script src="//code.highcharts.com/stock/8.0.0/modules/exporting.js"></script>
+    <script src="//code.highcharts.com/stock/8.0.0/modules/offline-exporting.js"></script>
 
     <!-- DataTables //-->
     {% if debug %}
@@ -535,6 +532,26 @@
     {% endif %}
     var logInfo = console.info.bind(window.console);
     var logError = console.error.bind(window.console);
+
+    // BUG for hover markers not rendering in 8.0.0
+    // https://github.com/highcharts/highcharts/issues/12870
+    (function(H) {
+  H.wrap(
+    H.Series.prototype,
+    'getPoint',
+    function(proceed, ...args) {
+      var point = proceed.apply(this, args);
+
+      point.isInside = typeof point.plotY !== 'undefined' &&
+        point.plotY >= 0 &&
+        point.plotY <= this.yAxis.len && // #3519
+        point.plotX >= 0 &&
+        point.plotX <= this.xAxis.len;
+
+      return point;
+    }
+  );
+})(Highcharts);
 
     /**
      * Create a global getSVG method that takes an array of charts as an argument. The SVG is returned as an argument in the callback.
@@ -4822,13 +4839,7 @@ function syncronizeCrossHairs(chart) {
                 };
 
             let chartLOD = Highcharts.chart({
-                boost: {
-                    debug: {
-                        showSkipSummary: true
-                    },
-                    enabled: true,
-                    useGPUTranslations: true,
-                },
+                boost: {},
                 chart: {
                     alignTicks: false,
                     renderTo: renderTo,
@@ -6251,6 +6262,7 @@ function syncronizeCrossHairs(chart) {
                                     showErrorMessage(message, errorMessages);
                                 } else {
                                     // show result, there will be 1
+                                    g.LODChartData[covar] = data.response_data.lod.response.result;
 
                                     plotLODChart(data.response_data.lod.response.result,
                                                  covar,
@@ -6308,7 +6320,7 @@ function syncronizeCrossHairs(chart) {
 
             // check to see if we have the data, if so, plot it
             // else go get it
-            if (g.LODChartData[covariate] !== null) {
+            if (covariate in g.LODChartData) {
                 logDebug('covar in g.LODChartData, so just add it');
                 if (covariate === 'additive') {
                     plotLODChart(g.LODChartData[covariate], covariate, null);

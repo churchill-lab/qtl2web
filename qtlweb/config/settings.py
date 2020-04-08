@@ -38,6 +38,7 @@ TAB_CORRELATION_TEXT = 'Correlation'
 
 CORRELATION_SELECT_DATASET_TEXT = 'Select Correlation Dataset'
 CORRELATION_BUTTON_DOWNLOAD_TEXT = 'Download Correlations'
+CORRELATION_SELECT_COVARIATE_TEXT = 'Covariate Adjustment'
 CORRELATION_SELECT_ID_TEXT = 'Select an ID from above to plot the correlation data.'
 CORRELATION_SELECT_SERIES_TEXT = 'Select a series to color'
 
