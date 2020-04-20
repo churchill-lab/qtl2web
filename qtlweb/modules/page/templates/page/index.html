@@ -944,7 +944,6 @@
 
                             setDataSet(g.dataSetID, true);
 
-                            window.loading_screen.finish();
                         });
 
                     // download all the other load peaks from all the datasets except the current one
@@ -963,7 +962,12 @@
                         $.each(results, function(key, value) {
                             g.DATASETS[value.id].lodpeaks = value.result;
                         });
+
+                        window.loading_screen.finish();
                     });
+
+
+
                 });
             }
 
