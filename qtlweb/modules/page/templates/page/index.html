@@ -6433,8 +6433,7 @@ function syncronizeCrossHairs(chart) {
 
 
         $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
-           $($.fn.dataTable.tables(true)).DataTable()
-              .columns.adjust();
+           $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
         });
 
     });
