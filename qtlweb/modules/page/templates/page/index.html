@@ -227,6 +227,8 @@
                                                 </div>
                                             </div>
 
+                                            {% if not config.IS_CC_VIEWER %}
+
                                             <div class="row row-spacer"></div>
 
                                             <div class="row">
@@ -252,6 +254,8 @@
                                                 <div class="col" id="divFactorSeriesCorrelation">
                                                 </div>
                                             </div>
+
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
@@ -5309,21 +5313,33 @@ function syncronizeCrossHairs(chart) {
                 htmlBody += '<thead><th>Value</th><th>Symbol</th><th>Location</th></thead>';
                 $.each(correlationData, function(idx, value) {
                     if (idx < 1000) {
+                        {% if config.IS_CC_VIEWER %}
+                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.symbol}</td><td>${value.chr}:` + formatStrToNum(value.start, 2) + '-' + formatStrToNum(value.end, 2) + '</td></tr>';
+                        {% else %}
                         htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}:` + formatStrToNum(value.start, 2) + '-' + formatStrToNum(value.end, 2) + '</td></tr>';
+                        {% endif %}
                     }
                 });
             } else if (g.DATASETS[g.correlationDatasetID].datatype === 'protein') {
                 htmlBody += '<thead><th>Value</th><th>Symbol</th><th>Location</th></thead>';
                 $.each(correlationData, function(idx, value) {
                     if (idx < 1000) {
+                        {% if config.IS_CC_VIEWER %}
+                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.symbol}</td><td>${value.chr}:` + formatStrToNum(value.start, 2) + '-' + formatStrToNum(value.end, 2) + '</td></tr>';
+                        {% else %}
                         htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}:` + formatStrToNum(value.start, 2) + '-' + formatStrToNum(value.end, 2) + '</td></tr>';
+                        {% endif %}                        
                     }
                 });
             } else if (g.DATASETS[g.correlationDatasetID].datatype === 'pheno') {
                 htmlBody += '<thead><th>Value</th><th>ID</th></thead>';
                 $.each(correlationData, function(idx, value) {
                     if (idx < 1000) {
+                        {% if config.IS_CC_VIEWER %}
+                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.id}</td></tr>`;
+                        {% else %}
                         htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="" dID="${value.id}">${value.id}</a></td></tr>`;
+                        {% endif %}
                     }
                 });
             } else {
