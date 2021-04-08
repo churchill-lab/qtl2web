@@ -963,6 +963,18 @@
                             g.DATASETS[value.id].lodpeaks = value.result;
                         });
 
+                        {% if config.IS_CC_VIEWER %}
+                        /**
+                         * Eliminating profilePlot for CC Viewer
+                         */
+                        // show correlation
+                        $('#profilePlot a[href="#tabCorrelation"]').tab('show');
+                        
+                        // hide profile 
+                        $('#navProfile').hide()
+                        {% endif %}
+                        
+ 
                         window.loading_screen.finish();
                     });
 
