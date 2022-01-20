@@ -395,8 +395,7 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col">
-                                                    <div id="plotSNPAssocSNPS"></div>
-                                                    <div id="plotSNPAssocGenes"></div>
+                                                    <div id="plotSNPAssociation"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -2145,17 +2144,20 @@ function syncronizeCrossHairs(chart) {
         }
 
 
-        /**
-         * Plot the SNP Association plot.
-         * @param {Array} snpData - array of SNP information
-         * @param {Array} geneData - array of gene objects
-         */
-        function plotSNPAssoc(snpData, geneData, id, chromosome, location, covar) {
+function plotSNPAssoc(snpData, geneRanking, geneInfo, id, chromosome, location, zoomWindow, domainWindow, covar) {
             logDebug('plotSNPAssoc', chromosome, location, covar);
+            logDebug('geneRanking=', geneRanking);
+            logDebug('geneInfo=', geneInfo);
 
-            let windowSize = 1000000;
-            let minPos = Math.max(location * 1000000 - windowSize, 0);
-            let maxPos = location * 1000000 + windowSize;
+            // combine the geneInfo and geneRanking
+            let geneInformation = createGeneRankings(geneRanking, geneInfo);
+
+            logDebug('geneInformation=', geneInformation);
+
+            let minZoomPos = Math.max(location - zoomWindow, 0);
+            let maxZoomPos = Math.min(location + zoomWindow, g.DATASETS[g.dataSetID].chromosomes.chr[chromosome].length);
+            let minDomainPos = Math.max(location - domainWindow, 0);
+            let maxDomainPos = Math.min(location + domainWindow, g.DATASETS[g.dataSetID].chromosomes.chr[chromosome].length);
             let maxLODScore = null;
             let plotTitle = '';
             let currentID = '';
@@ -2174,39 +2176,28 @@ function syncronizeCrossHairs(chart) {
                 logError('MAJOR PROBLEM');
             }
 
-            $('#snpWindowMenu').html(`
-                <div class="col">
-                    <button id="snpShiftLeft" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Shift Plot Left</button>
-                </div>
-                <div class="col">
-                    <button id="snpShiftRight" class="btn btn-secondary float-right">Shift Plot Right <i class="fas fa-arrow-right"></i></button>
-                </div>`);
-
-            $('#snpShiftLeft').button().on('click', function(event) {
-                generateSNPAssocPlot(id, chromosome, location - 1, covar);
-            });
-
-            $('#snpShiftRight').button().on('click', function(event) {
-                generateSNPAssocPlot(id, chromosome, location + 1, covar);
-            });
-
             snpData.sort(function(a, b) {
                 return a.pos - b.pos;
             });
 
             let snps = [];
             let snpsCovar = [];
+            let snpsCovarTitle = '';
 
             if (snpData) {
                 maxLODScore = snpData[0][10];
 
                 if ((covar !== null) && (covar !== 'additive')) {
                     maxLODScore = Math.max(maxLODScore, snpData[0][11]);
+
+                    // grab the cobvar display name
+                    $.each(g.DATASETS[g.dataSetID]['covar.info'], function(idx, elem) {
+                        if (covar === elem['sample.column']) {
+                            snpsCovarTitle = 'LOD (' + elem['display.name'] + ')';
+                        }
+                    });
                 }
             }
-
-            let minn = Infinity;
-            let maxx = -Infinity;
 
             /*
          0   "snp":"rs245710663",
@@ -2229,637 +2220,460 @@ function syncronizeCrossHairs(chart) {
                 maxLODScore = Math.max(maxLODScore, element[10]);
 
                 snps.push({
+                    id: element[0],
+                    chr: element[1],
+                    pos: element[2] * 1000000,
                     alleles: element[3],
                     csq: element[6],
-                    id: element[0],
-                    lod: element[10],
-                    x: element[2] * 1000000,
-                    y: 1.0 * element[10],
+                    lod: 1.0 * element[10],
                 });
 
                 if ((covar !== null) && (covar !== 'additive')) {
                     maxLODScore = Math.max(maxLODScore, element[11]);
 
                     snpsCovar.push({
+                        id: element[0],
+                        chr: element[1],
+                        pos: element[2] * 1000000,
                         alleles: element[3],
                         csq: element[6],
-                        id: element[0],
-                        lod: element[11],
-                        x: element[2] * 1000000,
-                        y: 1.0 * element[11],
+                        lod: 1.0 * element[11],
                     });
                 }
-
-                minn = Math.min(minn, element[2] * 1000000.0);
-                maxx = Math.max(maxx, element[2] * 1000000.0);
-
             });
 
             maxLODScore = Math.ceil(maxLODScore);
 
             logDebug('maxLODScore', maxLODScore);
-            logDebug('minn', minn);
-            logDebug('maxx', maxx);
-            logDebug('minPos', minPos);
-            logDebug('maxPos', maxPos);
+            logDebug('minZoomPos', minZoomPos);
+            logDebug('maxZoomPos', maxZoomPos);
+            logDebug('minDomainPos', minDomainPos);
+            logDebug('maxDomainPos', maxDomainPos);
             logDebug('#snps=', snps.length);
             logDebug('snps=', snps);
             logDebug('#snpsCovar=', snpsCovar.length);
             logDebug('snpsCovar=', snpsCovar);
 
-            let seriesData = [{
-                name: 'SNP',
-                data: snps,
-                turboThreshold: 0,
-                color: '#ed3215',
+            /**
+             * BUILD GENOME SPY
+             */
 
-                /*
-                marker: {
-                    enabled: true,
-                    symbol: 'square',
-                    radius: 2.0,
+            let tracksAll = [];
+
+            let trackSNPs = {
+                "name": "snps",
+                "data": {
+                    "values": snps
                 },
-                */
-                tooltip: {
-                    outside: true,
-                    useHTML: true,
-                    headerFormat: '<span class="strong">SNP</span><br>',
-                    pointFormatter: function() {
-                        let csq = this.csq.split(',');
-                        let csqs = csq.join('<br/>');
-                        let pos = formatMbp(this.x / 100000);
+                "layer": [
+                    {
+                        "title": "SNPs",
+                        "mark": {
+                            "type": "point",
+                            "geometricZoomBound": 4
+                        },
 
-                        return `<b>${this.id}</b><br/>
-                             LOD: ${this.lod}<br/>
-                             Position: ${pos}<br/>
-                             Alleles: ${this.alleles}<br/>
-                             CSQ: ${csqs}`;
+                        "encoding": {
+                            "x": {
+                                "chrom": "chr",
+                                "pos": "pos",
+                                "type": "locus",
+                                "scale": {
+                                    "domain": [
+                                        {
+                                            "chrom": chromosome,
+                                            "pos": minDomainPos
+                                        },
+                                        {
+                                            "chrom": chromosome,
+                                            "pos": maxDomainPos
+                                        }
+                                    ],
+
+                                    "zoom": {
+                                        "extent": [
+                                            {
+                                                "chrom": chromosome,
+                                                "pos": minZoomPos
+                                            },
+                                            {
+                                                "chrom": chromosome,
+                                                "pos": maxZoomPos
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            "y": {
+                                "field": "lod",
+                                "type": "quantitative",
+                                "title": "LOD",
+                                "scale": { "domain": [0, maxLODScore] }
+                            },
+                            "color": {
+                                "value": "#ed3215"
+                            },
+                            "size": {
+                                "value": 30
+                            },
+                            "opacity": {
+                                "value": 0.5
+                            },
+                            "strokeWidth": {
+                                "value": 0
+                            }
+                        }
                     }
-                },
+                ]
+            };
 
-
-                /* Set the point threshold for when a series should enter boost mode.
-                   Setting it to e.g. 2000 will cause the series to enter boost mode when there are 2000 or more points in the series.
-                   To disable boosting on the series, set the boostThreshold to 0. Setting it to 1 will force boosting.
-                   Requires modules/boost.js.
-                   Defaults to 5000.
-                */
-                boostThreshold: 1,
-                //findNearestPointBy: 'xy',
-
-            }];
+            tracksAll.push(trackSNPs);
 
             if ((covar !== null) && (covar !== 'additive')) {
-                seriesData.push({
-                    name: 'SNP Covar',
-                    data: snpsCovar,
-                    turboThreshold: 0,
-                    color: '#7cb5ec',
-                    /*
-                    marker: {
-                        enabled: true,
-                        symbol: 'square',
-                        radius: 2.0,
+               let trackSNPCovars = {
+                    "name": "snpsCovar",
+                    "data": {
+                        "values": snpsCovar
                     },
-                    */
-                    tooltip: {
-                        outside: true,
-                        useHTML: true,
-                        headerFormat: '<span class="strong">SNP Covariate</span><br>',
-                        pointFormatter: function() {
-                            let csq = this.csq.split(',');
-                            let csqs = csq.join('<br/>');
-                            let pos = formatMbp(this.x / 100000);
+                    "layer": [
+                        {
+                            "title": snpsCovarTitle,
+                            "mark": {
+                                "type": "point",
+                                "geometricZoomBound": 4
+                            },
 
-                            return `<b>${this.id}</b><br/>
-                                 LOD: ${this.lod}<br/>
-                                 Position: ${pos}<br/>
-                                 Alleles: ${this.alleles}<br/>
-                                 CSQ: ${csqs}`;
+                            "encoding": {
+                                "x": {
+                                    "chrom": "chr",
+                                    "pos": "pos",
+                                    "type": "locus",
+                                    "scale": {
+                                        "domain": [
+                                            {
+                                                "chrom": chromosome,
+                                                "pos": minDomainPos
+                                            },
+                                            {
+                                                "chrom": chromosome,
+                                                "pos": maxDomainPos
+                                            }
+                                        ],
+
+                                        "zoom": {
+                                            "extent": [
+                                                {
+                                                    "chrom": chromosome,
+                                                    "pos": minZoomPos
+                                                },
+                                                {
+                                                    "chrom": chromosome,
+                                                    "pos": maxZoomPos
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "y": {
+                                    "field": "lod",
+                                    "type": "quantitative",
+                                    "title": snpsCovarTitle,
+                                    "scale": { "domain": [0, maxLODScore] }
+                                },
+                                "color": {
+                                    "value": "#7cb5ec"
+                                },
+                                "size": {
+                                    "value": 30
+                                },
+                                "opacity": {
+                                    "value": 0.5
+                                },
+                                "strokeWidth": {
+                                    "value": 0
+                                }
+                            }
                         }
-                    },
+                    ]
+                };
 
-                    /* Set the point threshold for when a series should enter boost mode.
-                       Setting it to e.g. 2000 will cause the series to enter boost mode when there are 2000 or more points in the series.
-                       To disable boosting on the series, set the boostThreshold to 0. Setting it to 1 will force boosting.
-                       Requires modules/boost.js.
-                       Defaults to 5000.
-                    */
-                    boostThreshold: 1,
-                    //findNearestPointBy: 'xy',
-
-                });
+                tracksAll.push(trackSNPCovars);
             }
 
 
-            logDebug('seriesData=', seriesData);
+            let trackGenes = {
+                "name": "geneAnnotations",
 
+                "description": [
+                    "Ensimpl genes scored by their data values",
+                ],
 
-            let exporting = {
-                menuItemDefinitions: {
-                    downloadPNGSNP: {
-                        onclick: function () {
-                            let xAxis1 = g.chartSNPAssocSNPS.xAxis[0];
-                            xAxis1.removePlotLine("myPlotLineId");
-                            let xAxis2 = g.chartSNPAssocGenes.xAxis[0];
-                            xAxis2.removePlotLine("myPlotLineId");
-                            Highcharts.exportCharts([
-                                    g.chartSNPAssocSNPS, g.chartSNPAssocGenes
-                                ],
-                                {
-                                    filename: currentID + '_SNPASSOC'
-                                });
-                        },
-                        text: 'Download PNG image'
+                //"height": { "px": 100 },
+                "height": 70,
+
+                "data": {
+                    "values": geneInformation,
+                },
+
+                "transform": [{
+                        "type": "linearizeGenomicCoordinate",
+                        "chrom": "chr",
+                        "pos": "start",
+                        "as": "_start"
                     },
-                    downloadJPEGSNP: {
-                        onclick: function () {
-                            let xAxis1 = g.chartSNPAssocSNPS.xAxis[0];
-                            xAxis1.removePlotLine("myPlotLineId");
-                            let xAxis2 = g.chartSNPAssocGenes.xAxis[0];
-                            xAxis2.removePlotLine("myPlotLineId");
-                            Highcharts.exportCharts([
-                                    g.chartSNPAssocSNPS, g.chartSNPAssocGenes
-                                ],
-                                {
-                                    filename: currentID + '_SNPASSOC',
-                                    type: 'image/jpeg'
-                                });
-                        },
-                        text: 'Download JPEG image'
+                    {
+                        "type": "formula",
+                        "expr": "ceil(random() * 100)",
+                        "as": "score"
                     },
-                    downloadSVGSNP: {
-                        onclick: function () {
-                            let xAxis1 = g.chartSNPAssocSNPS.xAxis[0];
-                            xAxis1.removePlotLine("myPlotLineId");
-                            let xAxis2 = g.chartSNPAssocGenes.xAxis[0];
-                            xAxis2.removePlotLine("myPlotLineId");
-                            Highcharts.exportCharts([
-                                    g.chartSNPAssocSNPS, g.chartSNPAssocGenes
-                                ],
-                                {
-                                    filename: currentID + '_SNPASSOC',
-                                    type: 'image/svg+xml'
-                                });
-                        },
-                        text: 'Download SVG vector image'
+                    {
+                        "type": "formula",
+                        "expr": "datum._start + datum.length",
+                        "as": "_end"
                     },
-                    downloadPDFSNP: {
-                        // THERE IS AN ERROR EXPORTING, NOT SURE WHY
-                        onclick: function () {
-                            let xAxis1 = g.chartSNPAssocSNPS.xAxis[0];
-                            xAxis1.removePlotLine("myPlotLineId");
-                            let xAxis2 = g.chartSNPAssocGenes.xAxis[0];
-                            xAxis2.removePlotLine("myPlotLineId");
-                            Highcharts.exportCharts([
-                                    g.chartSNPAssocSNPS, g.chartSNPAssocGenes
-                                ],
-                                {
-                                    filename: currentID + '_SNPASSOC',
-                                    type: 'application/pdf'
-                                });
-                        },
-                        text: 'Download PDF document'
+                    {
+                        "type": "formula",
+                        "expr": "datum._start + datum.length / 2",
+                        "as": "_centroid"
                     },
-                    downloadCSVSNP: {
-                        onclick: function () {
-                            console.log(currentID);
-                            exportSNPAssocData(currentID, snps, geneData);
+                    {
+                        "type": "collect",
+                        "sort": {
+                            "field": ["_start"]
+                        }
+                    },
+                    {
+                        "type": "pileup",
+                        "start": "_start",
+                        "end": "_end",
+                        "as": "_lane",
+                        "preference": "strand",
+                        "preferredOrder": ["-", "+"]
+                    },
+                    {
+                        "type": "filter",
+                        "expr": "datum._lane < 3"
+                    }
+                ],
+
+                "encoding": {
+                    "y": {
+                        "field": "_lane",
+                        "type": "ordinal",
+                        "scale": {
+                            "type": "index",
+                            "align": 0,
+                            "paddingInner": 0.4,
+                            "paddingOuter": 0.2,
+                            "domain": [0, 3],
+                            "reverse": true,
+                            "zoom": false
                         },
-                        text: 'Download CSV'
+                        "axis": null
                     }
                 },
-                buttons: {
-                    contextButton: {
-                        menuItems: [
-                            'downloadPNGSNP',
-                            'downloadJPEGSNP',
-                            'downloadSVGSNP',
-                            'separator',
-                            'downloadCSVSNP'
+
+                "layer": [{
+                        "name": "transcripts",
+
+                        "opacity": {
+                            "unitsPerPixel": [100000, 40000],
+                            "values": [0, 1]
+                        },
+
+                        "encoding": {
+                            "color": {
+                                "value": "#909090"
+                            }
+                        },
+
+                        "layer": [{
+                                "name": "exons",
+
+                                "transform": [{
+                                        "type": "project",
+                                        "fields": ["_lane", "_start", "exons"]
+                                    },
+                                    {
+                                        "type": "flattenCompressedExons",
+                                        "start": "_start"
+                                    }
+                                ],
+
+                                "mark": {
+                                    "type": "rect",
+                                    "minOpacity": 0.2,
+                                    "minWidth": 0.5,
+                                    "buildIndex": true,
+                                    "tooltip": null
+                                },
+
+                                "encoding": {
+                                    "x": {
+                                        "field": "exonStart",
+                                        "type": "locus"
+                                    },
+                                    "x2": {
+                                        "field": "exonEnd"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "bodies",
+
+                                "mark": {
+                                    "type": "rule",
+                                    "minLength": 0.5,
+                                    "size": 1,
+                                    "buildIndex": true,
+                                    "tooltip": null
+                                },
+                                "encoding": {
+                                    "x": {
+                                        "field": "_start",
+                                        "type": "locus",
+                                        "axis": null
+                                    },
+                                    "x2": {
+                                        "field": "_end"
+                                    },
+                                    "search": {
+                                        "field": "symbol",
+                                        "type": "nominal"
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "symbols",
+
+                        "transform": [{
+                                "type": "measureText",
+                                "fontSize": 11,
+                                "field": "symbol",
+                                "as": "_textWidth"
+                            },
+                            {
+                                "type": "filterScoredLabels",
+                                "lane": "_lane",
+                                "score": "score",
+                                "width": "_textWidth",
+                                "pos": "_centroid",
+                                "padding": 5
+                            }
+                        ],
+
+                        "layer": [{
+                                "name": "labels",
+                                "mark": {
+                                    "type": "text",
+                                    "dynamicData": true,
+                                    "size": 11,
+                                    "yOffset": 7,
+                                    "tooltip": {
+                                        "handler": "ensimplTooltipHandler"
+                                    }
+                                },
+                                "encoding": {
+                                    "x": {
+                                        "field": "_centroid",
+                                        "type": "locus"
+                                    },
+                                    "text": {
+                                        "field": "symbol",
+                                        "type": "nominal"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "arrows",
+                                "opacity": {
+                                    "unitsPerPixel": [100000, 40000],
+                                    "values": [0, 1]
+                                },
+                                "mark": {
+                                    "type": "point",
+                                    "dynamicData": true,
+                                    "yOffset": 7,
+                                    "size": 50,
+                                    "tooltip": null
+                                },
+                                "encoding": {
+                                    "x": {
+                                        "field": "_centroid",
+                                        "type": "locus"
+                                    },
+                                    "dx": {
+                                        "expr": "(datum._textWidth / 2 + 5) * (datum.strand == '-' ? -1 : 1)",
+                                        "type": "quantitative",
+                                        "scale": null
+                                    },
+                                    "color": {
+                                        "value": "black"
+                                    },
+                                    "shape": {
+                                        "field": "strand",
+                                        "type": "nominal",
+                                        "scale": {
+                                            "domain": ["-", "+"],
+                                            "range": ["triangle-left", "triangle-right"]
+                                        }
+                                    }
+                                }
+                            }
                         ]
                     }
-                },
-                filename: currentID + '_SNPASSOC'
+                ]
             };
 
-            g.chartSNPAssocSNPS = Highcharts.chart({
-                boost: {
-                    debug: {
-                        showSkipSummary: false
+            tracksAll.push(trackGenes);
+
+            const spec =
+                {
+                    "description":[
+                        "Put a description....",
+                        "Here if you would like to!"
+                    ],
+
+
+                    "genome": {
+                        "name": g.DATASETS[g.dataSetID].ensembl_species + " " + g.DATASETS[g.dataSetID].ensembl_release,
+                        "contigs": g.DATASETS[g.dataSetID].chromosomes.contigs
                     },
-                    enabled: true,
-                    useGPUTranslations: true,
-                    usePreallocated: true,
-                },
-                chart: {
-                    animation: false,
-                    type: 'scatter',
-                    marginLeft: 80,
-                    renderTo: 'plotSNPAssocSNPS',
-                    //panning: true,
-                    //panKey: 'shift',
-                    zoomType: 'x',
-                    //events: {
-                    //    load: function () {
-                    //        fitSNPGenes(this, geneData);
-                    //    }
-                    //}
-                },
 
-                title: {
-                    text: plotTitle,
-                },
-
-                xAxis: [{
-                    min: minPos,
-                    max: maxPos,
-                    events: {
-                        afterSetExtremes: function() {
-                            var xMin = this.chart.xAxis[0].min;
-                            var xMax = this.chart.xAxis[0].max;
-
-                            if ((g.chartSNPAssocGenes !== undefined) && (g.chartSNPAssocGenes !== null)) {
-
-                                g.chartSNPAssocGenes.xAxis[0].setExtremes(xMin, xMax);
-                            }
-                            // anotherChart.xAxis[0].setExtremes(xMin, xMax);
+                    "resolve": {
+                        "scale": {
+                            "x": "shared",
                         }
                     },
-                    type: 'linear',
-                }],
 
-                yAxis: {
-                    // enabling min and max DISABLES the tooltip
-                    //min: 0,
-                    max: maxLODScore,
+                    "vconcat": tracksAll
 
-                    title: {
-                        text: '',
-                        lineWidth: 0, //get rid of the line
-                        minorGridLineWidth: 0,
-                        lineColor: 'transparent',
-                    },
-                },
+                };
 
-                legend: {
-                    enabled: true,
-                    useHTML: true,
-                    layout: 'horizontal',
-                    //align: 'middle',
-                    verticalAlign: 'top',
-                    //floating: false,
-        labelFormatter: function () {
-            return '<span style="color:' + this.color + '">' + this.name + '</span>';
-        }
+            logDebug('spec=', spec);
 
-                },
-                /*
-                legend: {
-                    enabled: false
-                },
-                */
+                $('#snpWindowMenu').append(`<div class="col text-center font-weight-bold">${plotTitle}</div>`);
 
-                series: seriesData,
+                $('#plotSNPAssociation').height('500');
 
-                /*
-                tooltip: {
-                    outside: true,
-                    useHTML: true,
-                    shared: false,
-                    followPointer: true,
-                    enabled: true,
-                    formatter: function () {
-                        let text = '';
-                        //logDebug('this.series.name=', this.series.name);
-                        if (this.series.name === 'SNP') {
-                            let csq = this.point.csq.split(',');
-                            let csqs = csq.join('<br/>');
-                            let pos = formatMbp(this.point.y / 100000);
-
-                            text = `<b>${this.point.id}</b><br/>
-                                 LOD: ${this.point.lod}<br/>
-                                 Position: ${pos}<br/>
-                                 Alleles: ${this.point.alleles}<br/>
-                                 CSQ: ${csqs}`;
-                        } else if (this.series.name === 'SNP Covar') {
-                            let csq = this.point.csq.split(',');
-                            let csqs = csq.join('<br/>');
-                            let pos = formatMbp(this.point.y / 100000);
-
-                            text = `<b>${this.point.id}</b><br/>
-                                 LOD: ${this.point.lod}<br/>
-                                 Position: ${pos}<br/>
-                                 Alleles: ${this.point.alleles}<br/>
-                                 CSQ: ${csqs}`;
-                        } else {
-                            text = `<b>${this.point.symbol}</b><br/>
-                                 Ensembl ID: ${this.point.ensembl_gene_id}<br/>
-                                 Name: ${this.point.name}<br/>
-                                 Position: ${this.point.match_value} (${this.point.strand})`;
-
+                g.chartSNPAssoc = genomeSpyEmbed.embed(
+                        document.querySelector("#plotSNPAssociation"),
+                        spec,
+                        { bare: true,
+                         // Register the custom handler
+                         tooltipHandlers: {
+                             snpHandler: snpHandler,
+                             ensimplTooltipHandler: ensimplTooltipHandler
+                         }
                         }
-                        // dbg(text);
-                        return text;
-                    }
-                },
-                */
-
-                exporting: exporting,
-
-                plotOptions: {
-                    scatter: {
-                        marker: {
-                            radius: 1.0
-                        }
-                    }
-                }
-                /*
-
-                plotOptions: {
-                    spline: {
-                        marker: {
-                            enabled: false
-                        }
-                    },
-                }
-                */
+                    );
 
 
-
-            }, function(chart) {
-                syncronizeCrossHairs(chart);
-            });
-
-
-        // dbg('geneData = ', geneData);
-        let tempGenes = configureGenes(g.chartSNPAssocSNPS, geneData);
-        // dbg('tempGenes = ', tempGenes);
-        let newGenes = [];
-        let cats  = {};
-
-        $.each(tempGenes, function(key, value) {
-            let slot = key;
-            cats[key] = key;
-
-            $.each(value.elements, function(i, element) {
-                element.x = element.start;
-                element.x2 = element.position_end;
-                element.y = slot ;
-                newGenes.push(element);
-            });
-
-        });
-
-        var newCats = [];
-        $.each(cats, function(key, value) {
-            newCats.push(+value);
-        });
-        newCats = newCats.sort(function(a, b){return a-b});
-
-        // this is a hack to add one more category so the last one is
-        // always displayed
-        logDebug('newCats=', newCats);
-        // always show 1 extra category because the text is below the bar
-        let maxYCategories = newCats.length + 1;
-
-        //newCats.push(newCats.length);
-        //newCats.push(newCats.length);
-        //newCats.push(newCats.length);
-
-
-        g.GENESREDRAWENABLED = true;
-        g.chartSNPAssocGenes = Highcharts.chart({
-            chart: {
-                animation: false,
-                renderTo: 'plotSNPAssocGenes',
-                type: 'xrange',
-                zoomType: 'x',
-                marginLeft: 80,
-                marginTop: 0,
-                height: 100,  // this will be overridden on load
-                events: {
-
-                    load: function() {
-
-                                                let chart = this;
-
-                var categories =chart.yAxis[0].categories.length,
-                    plotHeight = (categories + 1) * 40,  // 40 is for the space between the bars
-                    chartHeight = plotHeight + (chart.chartHeight - chart.plotHeight);
-                    console.log(categories);
-
-                if (chartHeight > this.chartHeight) {
-                    this.setSize(null, chartHeight, false)
-                }
-                console.log(chartHeight, this.chartHeight);
-                    },
-
-                    render: function() {
-                        logDebug('R E N D E R');
-                        if (this.series.length !== 1) {
-                            return;
-                        }
-                        if (g.GENESREDRAWENABLED) {
-                            let points = this.series[0].points,
-                                chart = this,
-                                //dataLabelWidth,
-                                height;
-
-                            g.GENESREDRAWENABLED = false;
-
-                            Highcharts.each(points, function(point) {
-                                height = point.shapeArgs.height;
-
-                                if ((point.dataLabel.x < point.shapeArgs.x) || (point.dataLabel.y < point.shapeArgs.y) ||
-                                    (point.shapeArgs.x < 0)) {
-                                    point.dataLabel.hide();
-                                } else {
-                                    point.dataLabel.show();
-                                }
-                            });
-
-                            chart.series[0].isDirty = true;
-                            chart.redraw();
-
-                            g.GENESREDRAWENABLED = true;
-                        }
-
-                    },
-
-                },
-            },
-            exporting: {
-                enabled: false,
-            },
-            credits: {
-                enabled: false
-            },
-
-            title: {
-                text: null,
-            },
-
-            legend: {
-                enabled: false
-            },
-            xAxis: {
-                min: minPos,
-                max: maxPos,
-                events: {
-                    afterSetExtremes: function() {
-                        var xMin = this.chart.xAxis[0].min;
-                        var xMax = this.chart.xAxis[0].max;
-
-                        g.chartSNPAssocSNPS.xAxis[0].setExtremes(xMin, xMax);
-                        //chart3.xAxis[0].setExtremes(xMin, xMax);
-                    }
-                },
-                //type: 'linear',
-                //labels: {
-                //      format: '{value:%b %e}'
-                //},
-                //maxPadding: 0.06,
-                scrollbar: {
-                    enabled: true,
-                    showFull: false
-                }
-            },
-            yAxis: {
-                title: {
-                    text: null
-                },
-                lineWidth: 0,
-                minorGridLineWidth: 0,
-                lineColor: 'transparent',
-
-                gridLineWidth: 0,
-                //lineWidth: 1,
-
-                /*
-
-                scrollbar: {
-                    enabled: true,
-                    showFull: false
-                },
-                */
-
-                labels: {
-                    enabled: false
-                },
-
-                minorTickLength: 0,
-                tickLength: 0,
-                reversed: true,
-                //min: -12,
-                max: maxYCategories,
-                //categories: [2, 1, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12],
-                categories: newCats,
-
-            },
-
-
-            plotOptions: {
-                series: {
-                    //pointRange: 2,
-                    //pointWidth: 10,
-                    minPointLength: 1,
-        pointWidth: 10,
-        pointPadding: 0,
-        groupPadding: 0,
-
-                },
-                xrange: {
-                    //pointPlacement: "on",
-
-                    borderWidth: 1,
-                    borderColor: 'black',
-                    colorByPoint: true,
-                    colors: ['#7cb5ec'],
-                    dataLabels: {
-                        style: {
-                            color: 'white'
-                        }
-                    }
-                },
-            },
-
-            tooltip: {
-                useHTML: true,
-                shared: false,
-                followPointer: true,
-                enabled: true,
-                outside: true,
-                formatter: function () {
-                    let text = '';
-                    // dbg('this.series.name=', this.series.name);
-                    if (this.series.name === 'SNP') {
-                        let csq = this.point.csq.split(',');
-                        let csqs = csq.join('<br/>');
-                        let pos = formatMbp(this.point.y / 100000);
-
-                        text = `<b>${this.point.id}</b><br/>
-                             LOD: ${this.point.lod}<br/>
-                             Position: ${pos}<br/>
-                             Alleles: ${this.point.alleles}<br/>
-                             CSQ: ${csqs}`;
-                    } else if (this.series.name === 'SNP Covar') {
-                        let csq = this.point.csq.split(',');
-                        let csqs = csq.join('<br/>');
-                        let pos = formatMbp(this.point.y / 100000);
-
-                        text = `<b>${this.point.id}</b><br/>
-                             LOD: ${this.point.lod}<br/>
-                             Position: ${pos}<br/>
-                             Alleles: ${this.point.alleles}<br/>
-                             CSQ: ${csqs}`;
-                    } else {
-                        text = `<b>${this.point.symbol}</b><br/>
-                             Ensembl ID: ${this.point.ensembl_gene_id}<br/>
-                             Name: ${this.point.name}<br/>
-                             Position: ${this.point.match_value} (${this.point.strand})`;
-
-                    }
-                    // dbg(text);
-                    return text;
-                }
-            },
-
-            series: [{
-                name: "seriesGenes",
-                data: newGenes,
-                //dataLabels: {
-                //    verticalAlign: "top",
-                //    y: 10
-                //},
-                type: "xrange",
-                //marginLeft: 10,
-                borderRadius: 0,
-
-                dataLabels: {
-                    align: 'left',
-                    allowOverlap: true,
-                    color: 'black',
-                    defer: false,
-                    enabled: true,
-                    formatter: function() {
-                        return this.point.symbol;
-                    },
-                    //inside: true,
-                    y:15,
-                    padding: 0,
-                    style: {
-                        textOutline: false
-                    },
-                },
-
-            }]
-        }, function(chart) {
-            syncronizeCrossHairs(chart);
-        });
-
-
-
+                    //genomeSpyObj.addEventListener("click", function(evt) {
+                    //    console.log(evt);
+                    //});
 
 
         }
@@ -2869,17 +2683,28 @@ function syncronizeCrossHairs(chart) {
          */
         function generateSNPAssocPlot(id, chromosome, location, covar) {
             // TODO: windowSize needs to be figured out
-            let windowSize = 1000000;
-            let newLocation = Math.round(location * 1000000.0);
-            let minPos = Math.max(newLocation - windowSize, 0);
-            let maxPos = newLocation + windowSize;
+            let locationMb = Math.round(location * 1000000.0);
 
-            let snpAssocURL = `{{ config.API_R_BASE }}/snpassoc?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&location=${newLocation}&window_size=${windowSize}`;
-            let genesURL = `${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/search?species=${g.SPECIES_ID}&term=${chromosome}:${minPos}-${maxPos}`;
+            // what data is retrieved
+            // [locationMb - zoomWindow, locationMb + zoomWindow]
+            let zoomWindow = 3000000;
 
-            if (g.ENSEMBL_RELEASE != null) {
-                genesURL += `&release=${g.ENSEMBL_RELEASE}`;
-            }
+            // what data is initially displayed
+            // [locationMb - domainWindow, locationMb + domainWindow]
+            let domainWindow = 500000;
+
+            let minPos = Math.max(locationMb - zoomWindow, 0);
+            let maxPos = locationMb + zoomWindow;
+
+            logDebug('location=', location);
+            logDebug('locationMb=', locationMb);
+            logDebug('zoomWindow=', zoomWindow);
+            logDebug('domainWindow=', domainWindow);
+            logDebug('minPos=', minPos);
+            logDebug('maxPos=', maxPos);
+
+            let snpAssocURL = `{{ config.API_R_BASE }}/snpassoc?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&location=${locationMb}&window_size=${zoomWindow}`;
+            let genesInfoURL = `${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/exon_info?release=${g.DATASETS[g.dataSetID].ensembl_release}&species=${g.DATASETS[g.dataSetID].ensembl_species}&chrom=${chromosome}`;
 
             if (covar !== 'additive') {
                 snpAssocURL += `&intcovar=${covar}`;
@@ -2894,18 +2719,25 @@ function syncronizeCrossHairs(chart) {
                     url_id: 'snpAssoc',
                     url: snpAssocURL
                 }, {
-                    url_id: 'genes',
-                    url: genesURL
-                }]};
+                    url_id: 'genesInfoURL',
+                    url: genesInfoURL
+                }]
+            };
+
+            if (g.DATASETS[QTL.g.dataSetID].datatype.toLowerCase() === 'phenotype') {
+                let genesRankingURL = `{{ config.API_R_BASE }}/rankings?dataset=${g.dataSetID}&chrom=${chromosome}`;
+                submitData['urls'].push({
+                    url_id: 'genesRankingURL',
+                    url: genesRankingURL
+                });
+            }
 
             startTask();
 
             // reset the chart and clear it
-            g.chartSNPAssocSNPS = null;
-            g.chartSNPAssocGenes = null;
-            $('#plotSNPAssocSNPS').html('');
-            $('#plotSNPAssocGenes').html('');
+            g.chartSNPAssoc = null;
             $('#snpWindowMenu').html('');
+            $('#plotSNPAssociation').html('');
 
             $.ajax({
                 type: 'POST',
@@ -2916,7 +2748,7 @@ function syncronizeCrossHairs(chart) {
                 retryInterval: 1000,
                 success: function(data, status, request) {
                     logDebug('data=', data);
-                    updateSNPAssocData(data.group_id, id, chromosome, location, covar);
+                    updateSNPAssocData(data.group_id, id, chromosome, locationMb, zoomWindow, domainWindow, covar);
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     showErrorMessage(errorThrown, textStatus);
@@ -2929,7 +2761,7 @@ function syncronizeCrossHairs(chart) {
          *
          * @param {string} groupID - the group identifier of the task
          */
-        function updateSNPAssocData(groupID, id, chromosome, location, covar) {
+        function updateSNPAssocData(groupID, id, chromosome, location, zoomWindow, domainWindow, covar) {
             // send GET request to status URL
             logDebug('updateSNPAssocData: ', groupID);
 
@@ -2974,9 +2806,15 @@ function syncronizeCrossHairs(chart) {
                                     showErrorMessage(message, errorMessages);
                                 } else {
                                     // show result, there will be 2 datasets to get
+                                    let rankings = null;
+                                    if ('genesRankingURL' in data.response_data) {
+                                        rankings = data.response_data.genesRankingURL.response.result;
+                                    }
+
                                     plotSNPAssoc(data.response_data.snpAssoc.response.result,
-                                                 data.response_data.genes.response.result,
-                                                 id, chromosome, location, covar);
+                                                 rankings,
+                                                 data.response_data.genesInfoURL.response.genes,
+                                                 id, chromosome, location, zoomWindow, domainWindow, covar);
                                     stopTask();
                                 }
                             }
@@ -2984,7 +2822,7 @@ function syncronizeCrossHairs(chart) {
                             // rerun in 1 seconds
                             logDebug('Not done, keep checking...');
                             setTimeout(function () {
-                                updateSNPAssocData(groupID, id, chromosome, location, covar);
+                                updateSNPAssocData(groupID, id, chromosome, location, zoomWindow, domainWindow, covar);
                             }, 1000);  // TODO: change to 1000 (1 second)
                         }
                     }
@@ -2994,11 +2832,9 @@ function syncronizeCrossHairs(chart) {
                 logDebug('canceling');
                 let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=False) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
-                    g.chartSNPAssocSNPS = null;
-                    g.chartSNPAssocGenes = null;
-                    $('#plotSNPAssocSNPS').html('');
-                    $('#plotSNPAssocGenes').html('');
+                    g.chartSNPAssoc = null;
                     $('#snpWindowMenu').html('');
+                    $('#plotSNPAssociation').html('');
                 });
             }
         }
