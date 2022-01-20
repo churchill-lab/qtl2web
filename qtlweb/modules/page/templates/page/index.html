@@ -783,12 +783,12 @@
                     g.DATASETS = {};
 
                     g.ENSEMBL_RELEASE = null;
-                    if ('ensembl.version' in data.result) {
-                        g.ENSEMBL_RELEASE  = data.result['ensembl.version'];
+                    if ('ensembl_version' in data.result) {
+                        g.ENSEMBL_RELEASE  = data.result['ensembl_version'];
                     }
                     // the new way is RELEASE, replacing VERSION
-                    if ('ensembl.release' in data.result) {
-                        g.ENSEMBL_RELEASE  = data.result['ensembl.release'];
+                    if ('ensembl_release' in data.result) {
+                        g.ENSEMBL_RELEASE  = data.result['ensembl_release'];
                     }
 
                     $.each(data.result.datasets, function(dsi, ds) {
@@ -801,25 +801,25 @@
 
                         if (ds.datatype === 'mrna') {
                             // convert array to object (hash)
-                            $.each(ds.annotations.ids, function(index, element) {
-                                ds.gene_ids[element] = 1;
+                            $.each(ds.annotations, function(index, element) {
+                                ds.gene_ids[element['gene_id']] = 1;
                             });
                         } else if (ds.datatype === 'protein') {
-                            $.each(ds.annotations.ids, function(index, element) {
-                                if (!(element['gene.id'] in ds.gene_ids)) {
-                                    ds.gene_ids[element['gene.id']] = {
-                                        'id': element['gene.id'],
+                            $.each(ds.annotations, function(index, element) {
+                                if (!(element['gene_id'] in ds.gene_ids)) {
+                                    ds.gene_ids[element['gene_id']] = {
+                                        'id': element['gene_id'],
                                         'protein_ids':[]
                                     };
                                 }
-                                ds.protein_ids[element['protein.id']] = element['gene.id'];
-                                ds.gene_ids[element['gene.id']].protein_ids.push(element['protein.id']);
+                                ds.protein_ids[element['protein_id']] = element['gene_id'];
+                                ds.gene_ids[element['gene_id']].protein_ids.push(element['protein_id']);
                             });
                         } else if ((ds.datatype === 'pheno') || (ds.datatype === 'phenotype')) {
                             ds.datatype = 'pheno';
 
                             $.each(ds.annotations, function(index, element) {
-                                ds.phenotypes[element['data.name']] = element;
+                                ds.phenotypes[element['data_name']] = element;
                             });
                         } else {
                             // TODO: handle error
@@ -852,12 +852,12 @@
                         // just show a menu item
                         let html = `<ul class="navbar-nav navbar-dark mr-auto">
                                         <li class="nav-item active" style="color:white">
-                                            ${g.DATASETS[g.dataSetID]['display.name']}
+                                            ${g.DATASETS[g.dataSetID]['display_name']}
                                         </li>
                                     </ul>`;
 
                         $('#dataSetSelectMenu').append(html);
-                        $('#correlationDatasetSelection').html(`${g.DATASETS[g.dataSetID]['display.name']}`);
+                        $('#correlationDatasetSelection').html(`${g.DATASETS[g.dataSetID]['display_name']}`);
                         $('#correlationDatasetSelection').append(`<input type="hidden" id="correlationDatasetSelect" value="${g.DATASETS[g.dataSetID].id}"/>`);
 
                     } else if (data.result.datasets.length > 1) {
@@ -872,10 +872,10 @@
                         for (let d in data.result.datasets) {
                             if (g.dataSetID === data.result.datasets[d].id) {
                                 console.log(g.dataSetID, '===', data.result.datasets[d].id);
-                                html += `<option value="${data.result.datasets[d].id}" selected>${data.result.datasets[d]['display.name']}</option>`;
+                                html += `<option value="${data.result.datasets[d].id}" selected>${data.result.datasets[d]['display_name']}</option>`;
                             } else {
                                 console.log(g.dataSetID, '!==', data.result.datasets[d].id);
-                                html += `<option value="${data.result.datasets[d].id}">${data.result.datasets[d]['display.name']}</option>`;
+                                html += `<option value="${data.result.datasets[d].id}">${data.result.datasets[d]['display_name']}</option>`;
                             }
                         }
 
@@ -895,7 +895,7 @@
                         let htmlNew = `<select id="correlationDatasetSelect" data-width="100%" data-style="btn-secondary btn-sm" class="selectpicker">`;
 
                         for (let d in data.result.datasets) {
-                            htmlNew += `<option value="${data.result.datasets[d].id}">${data.result.datasets[d]['display.name']}</option>`;
+                            htmlNew += `<option value="${data.result.datasets[d].id}">${data.result.datasets[d]['display_name']}</option>`;
                         }
 
                         htmlNew += '</select>';
@@ -964,7 +964,7 @@
                     q.awaitAll(function(errorAll, results) {
                         // TODO: handle error
                         $.each(results, function(key, value) {
-                            g.DATASETS[value.id].lodpeaks = value.result;
+                            g.DATASETS[value.parameters.dataset].lodpeaks = value.result;
                         });
 
                         {% if config.IS_CC_VIEWER %}
@@ -1376,9 +1376,9 @@
             g.LODThreshold = null;
 
             let exporting = appendExportButton('Download CSV', function() {
-                exportLODPeaks(g.DATASETS[g.dataSetID]['display.name'], g.DATASETS[g.dataSetID].lodpeaks[covar]);
+                exportLODPeaks(g.DATASETS[g.dataSetID]['display_name'], g.DATASETS[g.dataSetID].lodpeaks[covar]);
             });
-            exporting.filename = g.DATASETS[g.dataSetID]['display.name'] + '_PEAKS';
+            exporting.filename = g.DATASETS[g.dataSetID]['display_name'] + '_PEAKS';
 
 
             //TODO: make sure g.LOD is defined above and g.chartPeaks and reset appropriately
@@ -1959,7 +1959,7 @@
         }
 
         function downloadLODPeaks(dataSetID, callback) {
-            let lodPeaksURL = `{{ url_for('api.api_get', url=config.API_R_BASE + '/lodpeaksall', _external=False) }}?dataset=${dataSetID}`;
+            let lodPeaksURL = `{{ url_for('api.api_get', url=config.API_R_BASE + '/lodpeaks', _external=False) }}?dataset=${dataSetID}`;
             downloadData(lodPeaksURL, 'LODPeaks', callback);
         }
 
@@ -4018,11 +4018,11 @@ function syncronizeCrossHairs(chart) {
                 let categories = new Set([]);
                 let newPhenotypes = [];
                 $.each(ds.phenotypes, function(index, element) {
-                    if ((element['is.pheno']) && (element['is.numeric'])) {
+                    if ((element['is_pheno']) && (element['is_numeric'])) {
                         categories.add(element.category);
-                        element.display = element['short.name'];
-                        newPhenotypes.push({phenotype_id: element['data.name'], // use for id
-                                            phenotype: element['short.name'],   // display on screen
+                        element.display = element['short_name'];
+                        newPhenotypes.push({phenotype_id: element['data_name'], // use for id
+                                            phenotype: element['short_name'],   // display on screen
                                             category: element.category,
                                             desc: element.description});
                     }
@@ -4161,7 +4161,7 @@ function syncronizeCrossHairs(chart) {
             $('#divMediationSelect').html('');
 
             if (allDS.length === 1) {
-                $('#divMediationSelect').html(`<p class="font-weight-bold">Mediating against: </p>${allDS[0]['display.name']}`);
+                $('#divMediationSelect').html(`<p class="font-weight-bold">Mediating against: </p>${allDS[0]['display_name']}`);
                 $('#divMediationSelect').append(`<input type="hidden" id="dsMediateAgainstID" value="${allDS[0].id}"/>`);
             } else if (allDS.length > 1) {
 
@@ -4174,7 +4174,7 @@ function syncronizeCrossHairs(chart) {
 
                 $.each(allDS, function(idx, elem) {
                     logDebug(idx, elem);
-                    htmlMediate += `<option value="${elem.id}">${elem['display.name']}</option>`;
+                    htmlMediate += `<option value="${elem.id}">${elem['display_name']}</option>`;
                 });
                 htmlMediate += '</select></div></div>';
 
@@ -4184,17 +4184,17 @@ function syncronizeCrossHairs(chart) {
         }
 
         function exportProfileData(id, data, factors) {
-            // TODO: look into changing 'column.name', 'display.name'
-            let csvContent = '"mouse.id","expression"';
+            // TODO: look into changing 'column.name', 'display_name'
+            let csvContent = '"mouse_id","expression"';
             $.each(factors, function(k, v) {
-                csvContent += `,"${v['display.name']}"`;
+                csvContent += `,"${v['display_name']}"`;
             });
             csvContent += '\n';
 
             $.each(data.data, function(k, v) {
-                let line = `"${v['mouse.id']}",${v.expression}`;
+                let line = `"${v['mouse_id']}",${v.expression}`;
                 $.each(factors, function(fk, fv) {
-                    line += `,"${v[fv['sample.column']]}"`;
+                    line += `,"${v[fv['sample_column']]}"`;
                 });
 
                 csvContent += `${line}\n`;
@@ -4230,8 +4230,8 @@ function syncronizeCrossHairs(chart) {
                 // just mapping column name to display name
                 let cfMap = {};
 
-                $.each(g.DATASETS[g.dataSetID]['covar.info'], function (idx, elem) {
-                    cfMap[elem['sample.column']] = elem['display.name'];
+                $.each(g.DATASETS[g.dataSetID]['covar_info'], function (idx, elem) {
+                    cfMap[elem['sample_column']] = elem['display_name'];
                 });
 
                 let title = [];
@@ -4334,7 +4334,7 @@ function syncronizeCrossHairs(chart) {
                 });
 
                 let exporting = appendExportButton('Download CSV', function () {
-                    exportProfileData(id, data, g.DATASETS[g.dataSetID]['covar.info']);
+                    exportProfileData(id, data, g.DATASETS[g.dataSetID]['covar_info']);
                 });
                 exporting.filename = id + '_PROFILE';
 
@@ -5000,7 +5000,7 @@ function syncronizeCrossHairs(chart) {
             logDebug('configureCovarInfo', resetPeaks);
             let ds = g.DATASETS[g.dataSetID];
 
-            if (ds['covar.info'] === null) {
+            if (ds['covar_info'] === null) {
                 logDebug('NO COVAR INFO');
 
                 let profilePlotOptionsHTML = `
@@ -5058,7 +5058,7 @@ function syncronizeCrossHairs(chart) {
 </div>`;
 
             $('#divProfilePlotOptions').html(profilePlotOptionsHTML);
-            g.orderCount = ds['covar.info'].length;
+            g.orderCount = ds['covar_info'].length;
 
             logDebug('g.orderCount=',g.orderCount);
 
@@ -5144,24 +5144,24 @@ function syncronizeCrossHairs(chart) {
             htmlInteractiveCovariatesPeaks += `<option value="additive">Additive</option>`;
             htmlInteractiveCovariatesCorrelation += `<option value="none">None</option>`;
 
-            $.each(ds['covar.info'], function(index, element) {
+            $.each(ds['covar_info'], function(index, element) {
                 selectOptions.push({
-                    label: element['display.name'],
+                    label: element['display_name'],
                     order: index,
                     selected: element.primary,
-                    title: element['display.name'],
-                    value: element['sample.column'],
+                    title: element['display_name'],
+                    value: element['sample_column'],
                 });
 
-                html += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
-                htmlCorrelation += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
+                html += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
+                htmlCorrelation += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
 
                 // interactive covariates
                 if (element.interactive) {
                     g.interactiveCovariates.push(element);
-                    htmlInteractiveCovariatesLOD += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
-                    htmlInteractiveCovariatesPeaks += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
-                    htmlInteractiveCovariatesCorrelation += `<option value="${element['sample.column']}">${element['display.name']}</option>`;
+                    htmlInteractiveCovariatesLOD += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
+                    htmlInteractiveCovariatesPeaks += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
+                    htmlInteractiveCovariatesCorrelation += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
                 }
             });
 
@@ -5440,8 +5440,8 @@ function syncronizeCrossHairs(chart) {
             });
 
             let cfMap = {};
-            $.each(g.DATASETS[g.dataSetID]['covar.info'], function(idx, elem) {
-                cfMap[elem['sample.column']] = elem['display.name'];
+            $.each(g.DATASETS[g.dataSetID]['covar_info'], function(idx, elem) {
+                cfMap[elem['sample_column']] = elem['display_name'];
             });
 
             // convert from object, to array
