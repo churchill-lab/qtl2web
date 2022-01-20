@@ -2162,7 +2162,129 @@ function syncronizeCrossHairs(chart) {
         }
 
 
-function plotSNPAssoc(snpData, geneRanking, geneInfo, id, chromosome, location, zoomWindow, domainWindow, covar) {
+
+
+        function randomInterval(min, max) { // min and max included
+            return Math.floor(Math.random() * (max - min + 1) + min)
+        }
+
+        function createGeneRankings(geneRankings, geneInfo) {
+            let rankings = {};
+            $.each(geneRankings, function(idx, elem) {
+                rankings[elem['gene_id']] = elem['ranking'];
+            });
+
+            logDebug('rankings=', rankings);
+
+            $.each(geneInfo, function(idx, elem) {
+                elem['score'] = rankings[elem['id']] || randomInterval(10, 80);
+                elem['exons'] = elem['exons'].join(',');
+            });
+
+            return geneInfo;
+        }
+
+        async function snpHandler(datum, mark, props) {
+            logDebug(datum, mark, props);
+            return genomeSpyEmbed.html`<p class="summary"><strong>${datum.chr}:${datum.pos}</strong> = ${datum.logScore}</p>`
+        }
+
+
+        // TODO: Replace with an LRU-cache
+        const symbolSummaryCache = new Map();
+
+        /**
+         * @type {import("./tooltipHandler").TooltipHandler}
+         */
+        async function ensimplTooltipHandler(datum, mark, params) {
+            const ensembl_id = datum.id;
+
+            let summary =
+                symbolSummaryCache.get(ensembl_id) ??
+                (await debouncedFetchEnsimplSummary(ensembl_id));
+
+            if (summary) {
+                symbolSummaryCache.set(ensembl_id, summary);
+                return genomeSpyEmbed.html`
+                    <div class="title">
+                        <strong>${summary.id}</strong>
+                        ${summary.symbol}
+                    </div>
+                    <p class="summary">
+                        ${summary.description}
+                    </p>
+                    <p class="source">
+                        Source: Ensimpl
+                    </p>
+                `;
+            } else {
+                return null;
+            }
+        }
+        function debounce(func, wait, rejectOnDebounce = true) {
+            /** @type {number} */
+            let timeout;
+
+            /** @type {(reason?: any) => void} */
+            let rejectPrevious = _ => undefined;
+
+            /**
+             * @param {T} args
+             * @return {Promise<R>} */
+            const debouncer = function debouncer(...args) {
+                return new Promise((resolve, reject) => {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        rejectPrevious = _ => undefined;
+
+                        resolve(func(...args));
+                    };
+
+                    if (rejectOnDebounce) {
+                        rejectPrevious("debounced");
+                    }
+                    clearTimeout(timeout);
+
+                    rejectPrevious = reject;
+                    timeout = setTimeout(later, wait);
+                });
+            };
+
+            return debouncer;
+        }
+        /**
+         * @param {string} symbol
+         */
+        async function fetchEnsimplSummary(ensemblID) {
+            logDebug("Searching: " + ensemblID);
+
+            //const opts = { mode: "cors" };
+            const opts = { };
+
+            const searchResult = await fetch(
+                `https://churchilllab.jax.org/ensimpl/api/gene/${ensemblID}?species=Mm&release=93`,
+                opts
+            ).then(res => res.json());
+
+            // TODO: Handle failed searchs
+            if ('message' in searchResult) {
+                return null;
+            }
+
+            return searchResult['gene'][ensemblID];
+        }
+
+        const debounced = debounce(fetchEnsimplSummary, 500);
+
+        /**
+         *
+         * @param {string} symbol
+         */
+        function debouncedFetchEnsimplSummary(ensemblID) {
+            return debounced(ensemblID);
+        }
+
+        function plotSNPAssoc(snpData, geneRanking, geneInfo, id, chromosome, location, zoomWindow, domainWindow, covar) {
             logDebug('plotSNPAssoc', chromosome, location, covar);
             logDebug('geneRanking=', geneRanking);
             logDebug('geneInfo=', geneInfo);
