@@ -801,6 +801,18 @@
                         ds.protein_ids = {};
                         ds.phenotypes = {};
 
+
+                        if ('ensembl_version' in ds) {
+                            ds.ensembl_release  = ds['ensembl_version'];
+                        } else if ('ensembl_release' in ds) {
+                            ds.ensembl_release  = ds['ensembl_release'];
+                        } else {
+                            ds.ensembl_release = ensembl_release;
+                        }
+
+                        // TODO: Fix hardcoding
+                        ds.ensembl_species = 'Mm';
+
                         // change the case so we don't have to throughout
                         ds.datatype = ds.datatype.toLowerCase();
 
