@@ -938,7 +938,11 @@
                         .defer(downloadChromosomes, g.ENSEMBL_RELEASE, g.SPECIES_ID)
                         .defer(downloadLODPeaks, g.dataSetID)
                         .await(function(errorPeaks, chromosomes, lodPeaks) {
-                            g.CHROMOSOMES = {'idx': [], 'chr': {}};
+                            g.DATASETS[g.dataSetID].chromosomes = {
+                                'idx': [],
+                                'chr': {},
+                                'contigs':[]
+                            };
 
                             let configChromosomes = {{ config.CHROMOSOMES|safe }};
                             let start = 1;
@@ -955,12 +959,16 @@
                                     chrom.end = end;
                                     chrom.mid = chrom.start + Math.ceil((chrom.end - chrom.start) / 2);
 
-                                    g.CHROMOSOMES.idx.push(chrom);
-                                    g.CHROMOSOMES.chr[element.chromosome] = chrom;
+                                    g.DATASETS[g.dataSetID].chromosomes.idx.push(chrom);
+                                    g.DATASETS[g.dataSetID].chromosomes.chr[element.chromosome] = chrom;
+                                    g.DATASETS[g.dataSetID].chromosomes.contigs.push({
+                                        "name": chrom.chromosome,
+                                        "size": chrom.length,
+                                    });
                                 }
                             });
 
-                            g.CHROMOSOMES.totalLength = end;
+                            g.DATASETS[g.dataSetID].chromosomes.totalLength = end;
                             g.DATASETS[g.dataSetID].lodpeaks = lodPeaks.result;
 
                             setDataSet(g.dataSetID, true);
@@ -970,18 +978,56 @@
                     // download all the other load peaks from all the datasets except the current one
                     // we do this in the background to gain some performance
                     let q = d3.queue();
-                    logDebug('Downloading the peaks...');
+                    logDebug('Downloading the peaks and chromosomes...');
 
                     $.each(g.DATASETS, function(key, value) {
                         if (key !== g.dataSetID) {
                             q.defer(downloadLODPeaks, key);
+                            q.defer(downloadChromosomes, g.DATASETS[key].ensembl_release, g.DATASETS[key].ensembl_species, key);
                         }
                     });
 
                     q.awaitAll(function(errorAll, results) {
                         // TODO: handle error
                         $.each(results, function(key, value) {
-                            g.DATASETS[value.parameters.dataset].lodpeaks = value.result;
+                            if ('chromosomes' in value) {
+                                let _id = value['_description'].split(' ')[1];
+                                g.DATASETS[_id].chromosomes = {
+                                    'idx': [],
+                                    'chr': {},
+                                    'contigs':[]
+                                };
+
+                                let configChromosomes = {{ config.CHROMOSOMES|safe }};
+                                let start = 1;
+                                let end = 0;
+
+                                $.each(value.chromosomes, function(index, element) {
+                                    if (configChromosomes.indexOf(element.chromosome) !== -1) {
+                                        let chrom = element;
+
+                                        start = end + 1;
+                                        end += chrom.length;
+
+                                        chrom.start = start;
+                                        chrom.end = end;
+                                        chrom.mid = chrom.start + Math.ceil((chrom.end - chrom.start) / 2);
+
+                                        g.DATASETS[_id].chromosomes.idx.push(chrom);
+                                        g.DATASETS[_id].chromosomes.chr[element.chromosome] = chrom;
+                                        g.DATASETS[_id].chromosomes.contigs.push({
+                                            "name": chrom.chromosome,
+                                            "size": chrom.length,
+                                        });
+                                    }
+                                });
+
+                                g.DATASETS[_id].chromosomes.totalLength = end;
+                                logDebug('g.DATASETS[_id].chromosomes=', g.DATASETS[_id].chromosomes);
+
+                            } else {
+                                g.DATASETS[value.id].lodpeaks = value.result;
+                            }
                         });
 
                         {% if config.IS_CC_VIEWER %}
