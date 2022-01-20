@@ -3,28 +3,31 @@
 {% block meta_description %}{% endblock %}
 {% block head %}
     <link rel="stylesheet"
-          href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+          href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css"/>
 
     <link rel="stylesheet"
-          href="//cdn.jsdelivr.net/npm/bootstrap-select@1.13.7/dist/css/bootstrap-select.min.css">
+          href="//cdn.jsdelivr.net/npm/bootstrap-select@1.13.7/dist/css/bootstrap-select.min.css"/>
 
     <link rel="stylesheet"
-          href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+          href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>
 
     <link rel="stylesheet"
-          href="//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+          href="//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"/>
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='vendor/please-wait-0.0.5/please-wait.css') }}">
+          href="//unpkg.com/@genome-spy/app@0.14.x/dist/style.css"/>
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='vendor/dynatables-0.3.1/jquery.dynatable.css')}}">
+          href="{{ url_for('static', filename='vendor/please-wait-0.0.5/please-wait.css') }}"/>
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='vendor/bootstrap-multiselect-0.9.15/dist/css/bootstrap-multiselect.css') }}">
+          href="{{ url_for('static', filename='vendor/dynatables-0.3.1/jquery.dynatable.css')}}"/>
 
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='styles/main.css') }}">
+          href="{{ url_for('static', filename='vendor/bootstrap-multiselect-0.9.15/dist/css/bootstrap-multiselect.css') }}/">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='styles/main.css') }}/">
 {% endblock %}
 {% block body %}
 <body>
@@ -519,6 +522,9 @@
     <script src="//d3js.org/d3.v3.min.js"></script>
     <script src="//d3js.org/d3-queue.v3.min.js"></script>
     <script src="//d3js.org/d3-request.v1.min.js"></script>
+
+    <!-- Genome Spy //-->
+    <script src="//unpkg.com/@genome-spy/app@0.14.x/dist/index.js"></script>
 
     <!-- Extra //-->
     <script src="{{ url_for('static', filename='vendor/sweetalert2.all.js') }}"></script>
