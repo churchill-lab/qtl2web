@@ -1367,10 +1367,12 @@
             downloadCSV(csvContent, `${id}_LODPEAKS.csv`, 'text/csv;encoding:utf-8');
         }
 
+
+
         /**
          * Plot LOD Peaks as a scatter plot.
          */
-        function plotLODPeaks() {
+         function plotLODPeaks() {
             logDebug('plotLODPeaks()');
             let covar = $('#interactiveCovarPeaks').val();
             logDebug('covar=', covar);
@@ -1384,7 +1386,7 @@
             let plotBands = [];
             let i = 0;
 
-            $.each(g.CHROMOSOMES.chr, function(idx, value) {
+            $.each(g.DATASETS[g.dataSetID].chromosomes.chr, function(idx, value) {
                 plotLines.push({
                    color: '#eeeeee',
                    value: value.start,
@@ -1410,14 +1412,14 @@
             if ((i % 2) === 0) {
                 plotBands.push({
                     color: '#eeeeee',
-                    from: g.CHROMOSOMES.idx[i-1].start,
-                    to: g.CHROMOSOMES.idx[i-1].start + g.CHROMOSOMES.idx[i-1].length
+                    from: g.DATASETS[g.dataSetID].chromosomes.idx[i-1].start,
+                    to: g.DATASETS[g.dataSetID].chromosomes.idx[i-1].start + g.DATASETS[g.dataSetID].chromosomes.idx[i-1].length
                 });
             }
 
             plotLines.push({
                color: '#eeeeee',
-               value: g.CHROMOSOMES.totalLength,
+               value: g.DATASETS[g.dataSetID].chromosomes.totalLength,
                width: 2,
             });
 
@@ -1439,9 +1441,9 @@
             g.LODThreshold = null;
 
             let exporting = appendExportButton('Download CSV', function() {
-                exportLODPeaks(g.DATASETS[g.dataSetID]['display_name'], g.DATASETS[g.dataSetID].lodpeaks[covar]);
+                exportLODPeaks(g.DATASETS[g.dataSetID]['display.name'], g.DATASETS[g.dataSetID].lodpeaks[covar]);
             });
-            exporting.filename = g.DATASETS[g.dataSetID]['display_name'] + '_PEAKS';
+            exporting.filename = g.DATASETS[g.dataSetID]['display.name'] + '_PEAKS';
 
 
             //TODO: make sure g.LOD is defined above and g.chartPeaks and reset appropriately
@@ -1450,9 +1452,9 @@
                 // [marker_id, chrom, position, gene_id, symbol, gene_chrom, gene_mid, lod
                 // ["1_100007442","1",100.0074,"ENSMUSG00000028028","Alpk1","3",127.7255,6.1147]
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
-                    let markerChr = g.CHROMOSOMES.chr[element[1]];
+                    let markerChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
                     let markerPos = element[2] * 1000000.0;
-                    let geneChr = g.CHROMOSOMES.chr[element[5]];
+                    let geneChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[5]];
                     let genePos = element[6] * 1000000.0;
 
                     if ((markerChr !== undefined) && (geneChr !== undefined)) {
@@ -1565,7 +1567,7 @@
                         }
                     },
                     min: 0,
-                    max: g.CHROMOSOMES.totalLength,
+                    max: g.DATASETS[g.dataSetID].chromosomes.totalLength,
                     plotLines: plotLines,
                     showLastLabel: true,
                     startOnTick: false,
@@ -1585,7 +1587,7 @@
                         }
                     },
                     min: 0,
-                    max: g.CHROMOSOMES.totalLength,
+                    max: g.DATASETS[g.dataSetID].chromosomes.totalLength,
                     plotLines: plotLines,
                     showLastLabel: true,
                     startOnTick: false,
@@ -1626,9 +1628,9 @@
                 // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
 
-                    let markerChr = g.CHROMOSOMES.chr[element[1]];
+                    let markerChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
                     let markerPos = element[2] * 1000000.0;
-                    let geneChr = g.CHROMOSOMES.chr[element[6]];
+                    let geneChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[6]];
                     let genePos = element[7] * 1000000.0;
 
                     if ((markerChr !== undefined) && (geneChr !== undefined)) {
@@ -1741,7 +1743,7 @@
                         }
                     },
                     min: 0,
-                    max: g.CHROMOSOMES.totalLength,
+                    max: g.DATASETS[g.dataSetID].chromosomes.totalLength,
                     plotLines: plotLines,
                     showLastLabel: true,
                     startOnTick: false,
@@ -1761,7 +1763,7 @@
                         }
                     },
                     min: 0,
-                    max: g.CHROMOSOMES.totalLength,
+                    max: g.DATASETS[g.dataSetID].chromosomes.totalLength,
                     plotLines: plotLines,
                     showLastLabel: true,
                     startOnTick: false,
@@ -1790,7 +1792,7 @@
                 let seriesData = {};
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
                     // element[0] = marker_id
-                    let markerChr = g.CHROMOSOMES.chr[element[1]];
+                    let markerChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
                     let markerPos = element[2] * 1000000.0;
 
                     // lookup the phenotype
@@ -1854,7 +1856,7 @@
                         }
                     },
                     min: 0,
-                    max: g.CHROMOSOMES.totalLength,
+                    max: g.DATASETS[g.dataSetID].chromosomes.totalLength,
                     plotBands: plotBands,
                     plotLines: plotLines,
                     showLastLabel: true,
