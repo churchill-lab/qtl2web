@@ -698,6 +698,7 @@
         }).done(function(data, textStatus, jqXHR) {
             logInfo(`Download of ${description}`);
             logDebug(`Download of ${description}:`, data);
+            logDebug(`Download of ${description}:`, typeof(callback));
             callback(null, data);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             logError(description, textStatus);
@@ -930,12 +931,12 @@
 
                     g.ENSIMPL = new ensimpl({
                         search_limit: 100,
-                        search_release: g.ENSEMBL_RELEASE,
-                        search_species: g.SPECIES_ID
+                        search_release: g.DATASETS[g.dataSetID].ensembl_release,
+                        search_species: g.DATASETS[g.dataSetID].ensembl_species,
                     });
 
                     d3.queue()
-                        .defer(downloadChromosomes, g.ENSEMBL_RELEASE, g.SPECIES_ID)
+                        .defer(downloadChromosomes, g.DATASETS[g.dataSetID].ensembl_release, g.DATASETS[g.dataSetID].ensembl_species, g.DATASETS[g.dataSetID].id)
                         .defer(downloadLODPeaks, g.dataSetID)
                         .await(function(errorPeaks, chromosomes, lodPeaks) {
                             g.DATASETS[g.dataSetID].chromosomes = {
