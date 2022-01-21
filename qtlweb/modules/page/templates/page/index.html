@@ -698,7 +698,6 @@
         }).done(function(data, textStatus, jqXHR) {
             logInfo(`Download of ${description}`);
             logDebug(`Download of ${description}:`, data);
-            logDebug(`Download of ${description}:`, typeof(callback));
             callback(null, data);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             logError(description, textStatus);
@@ -1027,7 +1026,7 @@
                                 logDebug('g.DATASETS[_id].chromosomes=', g.DATASETS[_id].chromosomes);
 
                             } else {
-                                g.DATASETS[value.id].lodpeaks = value.result;
+                                g.DATASETS[value.parameters.dataset].lodpeaks = value.result;
                             }
                         });
 
@@ -2008,7 +2007,7 @@
             swal.close();
         }
 
-        function downloadChromosomes(release, species, callback) {
+        function downloadChromosomes(release, species, _id, callback) {
             let chromosomeURL = `{{ url_for('api.api_get', url='', _external=False) }}${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/chromosomes`;
             let amp = '';
 
@@ -2021,7 +2020,7 @@
                 chromosomeURL += `${amp}species=${species}`;
             }
 
-            downloadData(chromosomeURL, 'chromosomes', callback);
+            downloadData(chromosomeURL, `Chromosomes ${_id}`, callback);
         }
 
         function downloadLODPeaks(dataSetID, callback) {
