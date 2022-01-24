@@ -45,5 +45,7 @@ RUN python3 -m ensurepip && \
 COPY ./qtlweb /app/qtlweb
 COPY ./qtlweb/static /app/static
 
+RUN /bin/sh -c cat /app/qtlweb/entrust_l1k.cer >> /usr/lib/python3.6/site-packages/certifi/cacert.pem
+
 CMD ["/usr/bin/supervisord"]
 
