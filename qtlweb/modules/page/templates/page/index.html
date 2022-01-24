@@ -15,7 +15,10 @@
           href="//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"/>
 
     <link rel="stylesheet"
-          href="//unpkg.com/@genome-spy/app@0.14.x/dist/style.css"/>
+          href="//unpkg.com/@genome-spy/core@0.14.2/dist/style.css"/>
+
+    <!--link rel="stylesheet"
+          href="//cdn.jsdelivr.net/npm/@sweetalert2/theme-borderless@5/borderless.css"/ //-->
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='vendor/please-wait-0.0.5/please-wait.css') }}"/>
@@ -28,6 +31,26 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='styles/main.css') }}/">
+
+
+
+  <style>
+    <!--
+        body {
+            /*font-family: 'Roboto', sans-serif !important;*/
+            /*font-family: IBM Plex Sans, sans-serif !important;*/
+            font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+        }
+
+        .genome-spy .tooltip {
+            opacity: 100;
+        }
+
+.snpMenuIcon a:hover {
+    background: #3374C2;
+}
+    //-->
+    </style>
 {% endblock %}
 {% block body %}
 <body>
@@ -57,7 +80,7 @@
                                             <a id="navPheno"
                                                class="nav-link"
                                                data-toggle="tab"
-                                               href="#tabSearchPheno"><i class="fas fa-search"></i> {{ config.TAB_SEARCH_PHENOTYPE_TEXT|safe }}</a>
+                                               href="#tabSearchPheno"><i class="fab fa-searchengin"></i> {{ config.TAB_SEARCH_PHENOTYPE_TEXT|safe }}</a>
                                         </li>
                                         <li class="nav-item">
                                             <a id="navGene"
@@ -141,7 +164,6 @@
                                                     <div id="divInteractiveCovariatesPeaks"></div>
                                                 </div>
                                             </div>
-
                                             <div class="row">
                                                 <div class="col">
                                                     <div id="divLODPeaks"></div>
@@ -170,7 +192,7 @@
                                             <a class="nav-link active" id="navProfile" data-toggle="tab" href="#tabProfile"><i class="fas fa-calculator"></i> {{ config.TAB_PROFILE_PLOT_TEXT|safe }}</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" id="navCorrelation" data-toggle="tab" href="#tabCorrelation"><i class="fas fa-barcode"></i> {{ config.TAB_CORRELATION_TEXT|safe }}</a>
+                                            <a class="nav-link" id="navCorrelation" data-toggle="tab" href="#tabCorrelation"><i class="fa-brands fa-uncharted"></i> {{ config.TAB_CORRELATION_TEXT|safe }}</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -356,13 +378,13 @@
                                 <div class="card-header">
                                     <ul id="secondaryPlotTabs" class="nav nav-tabs" role="tablist">
                                         <li class="nav-item">
-                                            <a class="nav-link active" id="navPlotEffect" data-toggle="tab" href="#tabPlotEffect"><i class="fas fa-chart-line"></i> {{ config.TAB_EFFECT_PLOT_TEXT|safe }}</a>
+                                            <a class="nav-link active" id="navPlotEffect" data-toggle="tab" href="#tabPlotEffect"><i class="fa-solid fa-chart-line"></i> {{ config.TAB_EFFECT_PLOT_TEXT|safe }}</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link" id="navPlotMediation" data-toggle="tab" href="#tabPlotMediation"><i class="far fa-calendar-alt fa-rotate-180"></i> {{ config.TAB_MEDIATION_PLOT_TEXT|safe }}</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" id="navPlotSNPs" data-toggle="tab" href="#tabPlotSNPs"><i class="fas fa-signal fa-rotate-90"></i> {{ config.TAB_SNP_ASSOCIATION_TEXT|safe }}</a>
+                                            <a class="nav-link" id="navPlotSNPs" data-toggle="tab" href="#tabPlotSNPs"><i class="fa-solid fa-chart-gantt"></i> {{ config.TAB_SNP_ASSOCIATION_TEXT|safe }}</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -432,21 +454,6 @@
 </circle></g></svg>
 </div>
 
-<!-- for determining font size //-->
-<div class="invisible">
-    <svg version="1.1" class="highcharts-root" style="font-family:-apple-system, system-ui, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;;font-size: 15px;" xmlns="http://www.w3.org/2000/svg" width="727" height="800" viewBox="0 0 727 800" class="invisible">
-        <g class="highcharts-data-labels highcharts-series-1 highcharts-xrange-series highcharts-tracker " visibility="hidden">
-            <g class="highcharts-label highcharts-data-label highcharts-data-label-color-0">
-                <text id="getTheFontSize" x="5" style="font-size:11px;font-weight:bold;color:white;fill:white;" y="16">
-                    <tspan id="val1" x="5" y="16" class="highcharts-text-outline" fill="#000000" stroke="#000000" stroke-width="2px" stroke-linejoin="round" style="">TEST</tspan>
-                    <tspan id="val2" x="5" y="16">TEST</tspan>
-                </text>
-            </g>
-        </g>
-    </svg>
-</div>
-
-
 <!-- Main Footer -->
 <nav class="navbar fixed-bottom navbar-dark bg-dark">
     <ul class="navbar-nav mr-auto">
@@ -462,11 +469,13 @@
             <strong><a class="text-light" href="{{ url_for('admin.index') }}"><i class="fas fa-cogs"></i> Admin</a></strong>
         </li>
         {% endif %}
+    <!--
         <li class="nav-item pr-5">
             <strong><a class="text-light" href="{{ url_for('page.rdata') }}"><i class="fas fa-file-download"></i> Download Data</a></strong>
         </li>
+     //-->
         <li class="nav-item">
-            <span class="text-light">v{{ app_version }}</span>
+            <span class="text-light">VERSION {{ app_version }}</span>
         </li>
     </ul>
 </nav>
@@ -483,6 +492,52 @@
 
     <!-- Loading app //-->
     <script>
+
+HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
+    return function(type, attrs) {
+        attrs = attrs || {};
+        if (type === 'webgl2') {
+            attrs.preserveDrawingBuffer = true;
+        }
+        return oldGetContextFn.call(this, type, attrs);
+    };
+}(HTMLCanvasElement.prototype.getContext));
+
+
+function downloadGenomeSpy(parentId, imageName, bgRGB = null){
+    let downloadLink = document.createElement('a');
+    downloadLink.setAttribute('download', imageName);
+
+    let canvas = document.querySelector(`${parentId} canvas`);
+
+    if (bgRGB != null) {
+        var canvasBG = document.createElement('canvas');
+        canvasBG.id = 'bgCanvas';
+        canvasBG.width = canvas.width;
+        canvasBG.height = canvas.height;
+
+        var ctx = canvasBG.getContext('2d');
+        ctx.fillStyle = `rgba(${bgRGB}, 1.0)`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(canvas, 0, 0);
+
+        canvasBG.toBlob(function(blob) {
+            let url = URL.createObjectURL(blob);
+            downloadLink.setAttribute('href', url);
+            downloadLink.click();
+        });
+
+    } else {
+        canvas.toBlob(function(blob) {
+            let url = URL.createObjectURL(blob);
+            downloadLink.setAttribute('href', url);
+            downloadLink.click();
+        });
+    }
+
+    //downloadLink.remove();
+}
+
     window.loading_screen = window.pleaseWait({
         logo: '',
         backgroundColor: '#000000',
@@ -524,10 +579,14 @@
     <script src="//d3js.org/d3-request.v1.min.js"></script>
 
     <!-- Genome Spy //-->
-    <script src="//unpkg.com/@genome-spy/app@0.14.x/dist/index.js"></script>
+    <script src="//unpkg.com/@genome-spy/core@0.14.2/dist/index.js"></script>
+
+    <!-- Font Awesome, user: matt.vincent@jax.org //-->
+    <script src="//kit.fontawesome.com/56d0cfd040.js" crossorigin="anonymous"></script>
 
     <!-- Extra //-->
-    <script src="{{ url_for('static', filename='vendor/sweetalert2.all.js') }}"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
     <script src="{{ url_for('static', filename='vendor/dynatables-0.3.1/jquery.dynatable.js') }}"></script>
     <script src="{{ url_for('static', filename='vendor/bootstrap-multiselect-0.9.15/dist/js/bootstrap-multiselect.js') }}"></script>
     <script src="{{ url_for('static', filename='js/utilities.js') }}"></script>
@@ -698,6 +757,10 @@
         }).done(function(data, textStatus, jqXHR) {
             logInfo(`Download of ${description}`);
             logDebug(`Download of ${description}:`, data);
+
+            data['_url'] = URL;
+            data['_description'] = description;
+
             callback(null, data);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             logError(description, textStatus);
@@ -706,6 +769,13 @@
         });
     }
 
+    function sortObj(obj) {
+        return Object.keys(obj).sort().reduce(function (result, key) {
+            result[key] = obj[key];
+            return result;
+            },
+            {});
+    }
 
     QTL = function() {
         var g = {};
@@ -754,8 +824,7 @@
             g.chartLODCovariateDiff = null;
             g.chartMediation = null;
             g.chartEffect = null;
-            g.chartSNPAssocSNPS = null;
-            g.chartSNPAssocGenes = null;
+            g.chartSNPAssoc = null;
 
             // for tasks
             g.runningTask = false;
@@ -787,14 +856,17 @@
 
                     g.DATASETS = {};
 
-                    g.ENSEMBL_RELEASE = null;
-                    if ('ensembl_version' in data.result) {
-                        g.ENSEMBL_RELEASE  = data.result['ensembl_version'];
+                    let ensembl_release = null;
+                    if ('ensembl.version' in data.result) {
+                        ensembl_release  = data.result['ensembl.version'];
                     }
                     // the new way is RELEASE, replacing VERSION
-                    if ('ensembl_release' in data.result) {
-                        g.ENSEMBL_RELEASE  = data.result['ensembl_release'];
+                    if ('ensembl.release' in data.result) {
+                        ensembl_release  = data.result['ensembl.release'];
                     }
+
+                    // to display dropdown menu by alphabetical name
+                    let datasets_dropdown = {};
 
                     $.each(data.result.datasets, function(dsi, ds) {
                         ds.gene_ids = {};
@@ -846,11 +918,14 @@
                         // don't need the extra annotations laying around
                         delete ds.annotations;
 
+                        datasets_dropdown[ds['display_name']] = ds.id;
+
                         g.DATASETS[ds.id] = ds;
                     });
 
-                    let requestedDataSetID = '{{ datasetid }}';
+                    datasets_dropdown = sortObj(datasets_dropdown);
 
+                    let requestedDataSetID = '{{ datasetid }}';
 
                     if (g.DATASETS[requestedDataSetID] !== undefined) {
                         g.dataSetID = requestedDataSetID;
@@ -884,21 +959,20 @@
                                     </button>
                                     <div class="collapse navbar-dark navbar-collapse" id="navbarTogglerQTL">
                                     <span class="navbar-text text-white pr-2">{{ config.NAV_DATASET|safe }} <i class="fas fa-long-arrow-alt-right"></i></span>
-                                    <select data-style="btn-sm btn-light" class="selectpicker" id="datasetSelect">`;
-
-                        for (let d in data.result.datasets) {
-                            if (g.dataSetID === data.result.datasets[d].id) {
-                                console.log(g.dataSetID, '===', data.result.datasets[d].id);
-                                html += `<option value="${data.result.datasets[d].id}" selected>${data.result.datasets[d]['display_name']}</option>`;
-                            } else {
-                                console.log(g.dataSetID, '!==', data.result.datasets[d].id);
-                                html += `<option value="${data.result.datasets[d].id}">${data.result.datasets[d]['display_name']}</option>`;
-                            }
-                        }
-
-                        html += '</select></div>';
+                                    <select data-style="btn-sm btn-light" class="selectpicker" id="datasetSelect">
+                                    </select></div>`;
 
                         $('#dataSetSelectMenu').append(html);
+
+                        // display datasets by sorted name
+                        for (let d in datasets_dropdown) {
+                            let _id = datasets_dropdown[d];
+                            if (g.dataSetID === _id) {
+                                $('#datasetSelect').append(`<option value="${_id}" selected>${d}</option>`);
+                            } else {
+                                $('#datasetSelect').append(`<option value="${_id}">${d}</option>`);
+                            }
+                        }
 
                         $('#datasetSelect').selectpicker();
 
@@ -907,14 +981,17 @@
                             switchDataSet(selected);
                         });
 
-
                         // show multiple menu items
                         let htmlNew = `<select id="correlationDatasetSelect" data-width="100%" data-style="btn-secondary btn-sm" class="selectpicker">`;
 
-                        for (let d in data.result.datasets) {
-                            htmlNew += `<option value="${data.result.datasets[d].id}">${data.result.datasets[d]['display_name']}</option>`;
+                        for (let d in datasets_dropdown) {
+                            let _id = datasets_dropdown[d];
+                            if (g.dataSetID === _id) {
+                                htmlNew += `<option value="${_id}" selected>${d}</option>`;
+                            } else {
+                                htmlNew += `<option value="${_id}">${d}</option>`;
+                            }
                         }
-
                         htmlNew += '</select>';
 
                         $('#correlationDatasetSelection').html(htmlNew);
@@ -973,6 +1050,10 @@
 
                             setDataSet(g.dataSetID, true);
 
+                            logDebug('Hiding loading screen');
+                            window.loading_screen.finish();
+
+
                         });
 
                     // download all the other load peaks from all the datasets except the current one
@@ -995,7 +1076,7 @@
                                 g.DATASETS[_id].chromosomes = {
                                     'idx': [],
                                     'chr': {},
-                                    'contigs':[]
+                                    'contigs': []
                                 };
 
                                 let configChromosomes = {{ config.CHROMOSOMES|safe }};
@@ -1041,8 +1122,7 @@
                         $('#navProfile').hide()
                         {% endif %}
                         
- 
-                        window.loading_screen.finish();
+
                     });
 
 
@@ -1143,9 +1223,9 @@
 
             if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function (index, element) {
-                    let markerChr = g.CHROMOSOMES.chr[element[1]];
+                    let markerChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
                     let markerPos = element[2] * 1000000.0;
-                    let geneChr = g.CHROMOSOMES.chr[element[5]];
+                    let geneChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[5]];
                     let genePos = element[6] * 1000000.0;
 
                     if ((markerChr !== undefined) && (geneChr !== undefined)) {
@@ -1189,9 +1269,9 @@
                 // [marker_id, chrom, position, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
                 // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function (index, element) {
-                    let markerChr = g.CHROMOSOMES.chr[element[1]];
+                    let markerChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
                     let markerPos = element[2] * 1000000.0;
-                    let geneChr = g.CHROMOSOMES.chr[element[6]];
+                    let geneChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[6]];
                     let genePos = element[7] * 1000000.0;
 
                     if ((markerChr !== undefined) && (geneChr !== undefined)) {
@@ -1238,7 +1318,7 @@
                 let maxLOD = -Infinity;
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
                     // element[0] = marker_id
-                    let markerChr = g.CHROMOSOMES.chr[element[1]];
+                    let markerChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
                     let markerPos = element[2] * 1000000.0;
 
                     // lookup the phenotype
@@ -1977,21 +2057,18 @@
 
         function startTask() {
             g.runningTask = true;
-            swal({
+            Swal.fire({
                 allowEnterKey: false,
                 allowEscapeKey: false,
                 allowOutsideClick: false,
                 buttonsStyling: false,
-                cancelButtonClass: 'btn btn-danger',
+                //cancelButtonClass: 'btn btn-danger',
                 html: $('#ap').html(),
                 showConfirmButton: false,
                 showCancelButton: false,
                 showCloseButton: true,
                 title: 'Processing...',
-                width: '20rem',
-                onClose: function() {
-                    logDebug('onClose', this);
-                }
+                width: '20rem'
             }).then((result) => {
                 logDebug('then called');
                 // result.dismiss can be 'cancel', 'overlay',
@@ -2004,7 +2081,7 @@
 
         function stopTask() {
             g.runningTask = false;
-            swal.close();
+            Swal.close();
         }
 
         function downloadChromosomes(release, species, _id, callback) {
@@ -2033,184 +2110,16 @@
             downloadData(dataSetsURL, 'dataSets', callback);
         }
 
-        function getTextEnd(text, dchart, start_position, end_position) {
-            let G_ELEM = document.getElementById('getTheFontSize');
-            let J_ELEM = $('#getTheFontSize');
-            J_ELEM.text(text);
-
-            let txtLengthPxls = G_ELEM.getComputedTextLength();
-
-            let startPosPxls = dchart.xAxis[0].toPixels(start_position); // where the start is in pixels
-            let endPosPxls = dchart.xAxis[0].toPixels(end_position); // where the end is in pixels
-
-            let textEndPosCoord = dchart.xAxis[0].toValue(startPosPxls + txtLengthPxls + 5); // end value (megabases)
-
-            let endPosCoord = Math.max(textEndPosCoord, end_position);
-            let w = Math.ceil(endPosPxls - startPosPxls);
-
-            //dbg(text, txtLengthPxls, start_position, end_position);
-            //dbg(startPosPxls, endPosPxls, textEndPosCoord, endPosCoord, w);
-
-            return {
-                endPosCoord,
-                w
-            };
-        }
-
-        function configureGenes(chart, geneData) {
-            let genes = [];
-            let minCoord = 0;
-            let maxCoord = 0;
-            let shelves = [];
-
-            $.each(geneData.matches, function(index, value) {
-                if (value.symbol !== null) {
-                    value.name = value.symbol;
-                    value.start = value.position_start;
-
-                    let te = getTextEnd(value.name, chart, value.position_start, value.position_end);
-
-                    value.end = te.endPosCoord;
-                    value.id = value.ensembl_id;
-
-                    minCoord = Math.min(minCoord, value.start);
-                    maxCoord = Math.max(maxCoord, value.end);
-
-                    genes.push(value);
-                }
-            });
-
-            shelves = addItems(shelves, genes, maxCoord - minCoord);
-
-            return shelves;
-        }
-
-
-
-var hasPlotBand = false;
-
-//catch mousemove event and have all 3 charts' crosshairs move along indicated values on x axis
-
-function syncronizeCrossHairs(chart) {
-    var container = $(chart.container),
-        offset = container.offset(),
-        x, y, isInside, report;
-
-    container.mousemove(function(evt) {
-
-        x = evt.clientX - chart.plotLeft - offset.left;
-        y = evt.clientY - chart.plotTop - offset.top;
-        var xAxis = chart.xAxis[0];
-        var xVal = xAxis.toValue(x, true);
-
-        //remove old plot line and draw new plot line (crosshair) for this chart
-        var xAxis1 = g.chartSNPAssocSNPS.xAxis[0];
-        /*
-        var points1 = chart1.series[0].points;
-
-        Highcharts.each(points1, function(point, i) {
-          if (i + 1 < points1.length && point.x <= xVal && points1[i + 1].x > xVal) {
-            //reset state
-            point.setState();
-            points1[i + 1].setState();
-
-            if (xVal - point.x <= points1[i + 1].x - xVal) {
-              chart1.tooltip.refresh(point);
-              point.setState('hover');
-            } else {
-              chart1.tooltip.refresh(points1[i + 1]);
-              points1[i + 1].setState('hover');
-            }
-          }
-        });
-        */
-
-        xAxis1.removePlotLine("myPlotLineId");
-        xAxis1.addPlotLine({
-            value: chart.xAxis[0].translate(x, true),
-            width: 1,
-            color: 'red',
-            //dashStyle: 'dash',
-            id: "myPlotLineId",
-            zIndex: 5
-        });
-        //remove old crosshair and draw new crosshair on chart2
-        var xAxis2 = g.chartSNPAssocGenes.xAxis[0];
-        xAxis2.removePlotLine("myPlotLineId");
-        xAxis2.addPlotLine({
-            value: chart.xAxis[0].translate(x, true),
-            width: 1,
-            color: 'red',
-            //dashStyle: 'dash',
-            id: "myPlotLineId",
-            zIndex: 5
-        });
-/*
-        Highcharts.each(g.chartSNPAssocGenes.series[0].points, function(point) {
-
-            if (point.x < xVal && point.x2 > xVal) {
-                //chart2.tooltip.refresh(point);
-
-                //point.update({
-                 // color: '#4879b2'
-                //});
-
-            } else {
-                //point.update({
-                //  color: '#fff'
-                //});
-
-            }
-        });
-    */
-        /*
-            var xAxis3 = chart3.xAxis[0];
-            var points3 = chart3.series[0].points;
-            Highcharts.each(points3, function(point, i) {
-              if (i + 1 < points3.length && point.x <= xVal && points3[i + 1].x > xVal) {
-                //reset state
-                point.setState();
-                points3[i + 1].setState();
-
-                if (xVal - point.x <= points3[i + 1].x - xVal) {
-                  chart3.tooltip.refresh(point);
-                  point.setState('hover');
-                } else {
-                  chart3.tooltip.refresh(points3[i + 1]);
-                  points3[i + 1].setState('hover');
-                }
-              }
-            });
-
-            xAxis3.removePlotLine("myPlotLineId");
-            xAxis3.addPlotLine({
-              value: chart.xAxis[0].translate(x, true),
-              width: 1,
-              color: 'red',
-              //dashStyle: 'dash',
-              id: "myPlotLineId"
-            });
-        */
-        //if you have other charts that need to be syncronized - update their crosshair (plot line) in the same way in this function.
-    });
-}
-
-
-
         function exportSNPAssocData(id, snps, genes) {
             // TODO: export genes?
-            let csvContent = `"id","position","alleles","csq","lod"\n`;
+            let csvContent = `"id","chr","position","alleles","csq","lod"\n`;
 
             $.each(snps, function(k, v) {
-                let pos = v.x / 1000000.0;
-                csvContent += `"${v.id}",${pos},"${v.alleles}","${v.csq}",${v.lod}\n`;
+                csvContent += `"${v.id}","${v.chr}",${v.pos},"${v.alleles}","${v.csq}",${v.lod}\n`;
             });
 
             downloadCSV(csvContent, `${id}_SNPASSOC.csv`, 'text/csv;encoding:utf-8');
         }
-
-
-
 
         function randomInterval(min, max) { // min and max included
             return Math.floor(Math.random() * (max - min + 1) + min)
@@ -2252,17 +2161,23 @@ function syncronizeCrossHairs(chart) {
                 (await debouncedFetchEnsimplSummary(ensembl_id));
 
             if (summary) {
+                let e = g.DATASETS[g.dataSetID].ensembl_version;
+
                 symbolSummaryCache.set(ensembl_id, summary);
+                logDebug(summary);
                 return genomeSpyEmbed.html`
                     <div class="title">
                         <strong>${summary.id}</strong>
-                        ${summary.symbol}
                     </div>
                     <p class="summary">
-                        ${summary.description}
+                        <strong>Symbol</strong> ${summary.symbol}
+                        <br/>
+                        <strong>Name</strong> ${summary.name}
+                        <br/>
+                        <strong>Location</strong> ${summary.chromosome}:${summary.start}-${summary.end}
                     </p>
                     <p class="source">
-                        Source: Ensimpl
+                        Source: Ensimpl ${e}
                     </p>
                 `;
             } else {
@@ -2306,11 +2221,13 @@ function syncronizeCrossHairs(chart) {
         async function fetchEnsimplSummary(ensemblID) {
             logDebug("Searching: " + ensemblID);
 
+            let ensembl = g.DATASETS[g.dataSetID].ensembl_version;
+
             //const opts = { mode: "cors" };
             const opts = { };
 
             const searchResult = await fetch(
-                `https://churchilllab.jax.org/ensimpl/api/gene/${ensemblID}?species=Mm&release=93`,
+                `https://churchilllab.jax.org/ensimpl/api/gene/${ensemblID}?species=Mm&release=${ensembl}`,
                 opts
             ).then(res => res.json());
 
@@ -2378,7 +2295,7 @@ function syncronizeCrossHairs(chart) {
                 if ((covar !== null) && (covar !== 'additive')) {
                     maxLODScore = Math.max(maxLODScore, snpData[0][11]);
 
-                    // grab the cobvar display name
+                    // grab the covar display name
                     $.each(g.DATASETS[g.dataSetID]['covar.info'], function(idx, elem) {
                         if (covar === elem['sample.column']) {
                             snpsCovarTitle = 'LOD (' + elem['display.name'] + ')';
@@ -2640,7 +2557,7 @@ function syncronizeCrossHairs(chart) {
                     },
                     {
                         "type": "filter",
-                        "expr": "datum._lane < 3"
+                        "expr": "datum._lane < 5"
                     }
                 ],
 
@@ -2653,7 +2570,7 @@ function syncronizeCrossHairs(chart) {
                             "align": 0,
                             "paddingInner": 0.4,
                             "paddingOuter": 0.2,
-                            "domain": [0, 3],
+                            "domain": [0, 5],
                             "reverse": true,
                             "zoom": false
                         },
@@ -2840,30 +2757,55 @@ function syncronizeCrossHairs(chart) {
 
                 };
 
-            logDebug('spec=', spec);
-
-                $('#snpWindowMenu').append(`<div class="col text-center font-weight-bold">${plotTitle}</div>`);
-
-                $('#plotSNPAssociation').height('500');
-
-                g.chartSNPAssoc = genomeSpyEmbed.embed(
-                        document.querySelector("#plotSNPAssociation"),
-                        spec,
-                        { bare: true,
-                         // Register the custom handler
-                         tooltipHandlers: {
-                             snpHandler: snpHandler,
-                             ensimplTooltipHandler: ensimplTooltipHandler
-                         }
-                        }
-                    );
+            // logDebug('spec=', spec);
 
 
-                    //genomeSpyObj.addEventListener("click", function(evt) {
-                    //    console.log(evt);
-                    //});
+            $('#snpWindowMenu').append(`<div class="col text-center font-weight-bold">${plotTitle}
+                <div class="dropdown dropleft float-right" id="snpMenuDropdown">
+                  <a class="text-secondary" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-bars"></i>
+                  </a>
+
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <a class="dropdown-item" id="snpDownloadPNG" style="font-size:11px !important">Download PNG image</a>
+                    <a class="dropdown-item" id="snpDownloadCSV" style="font-size:11px !important">Download CSV</a>
+                  </div>
+                </div>
 
 
+                <!--
+                TODO: change to the following icon when we switch out of highcharts
+                <i class="fa-solid fa-file-arrow-down float-right"></i>
+                //-->
+
+                </div>`);
+
+            $("#snpDownloadPNG").click(function (event) {
+                downloadGenomeSpy('#plotSNPAssociation', `${id}.png`, '255,255,255');
+            });
+
+            $("#snpDownloadCSV").click(function (event) {
+                exportSNPAssocData(id, snps, geneInfo);
+            });
+
+            $('#plotSNPAssociation').height('500');
+
+            g.chartSNPAssoc = genomeSpyEmbed.embed(
+                    document.querySelector("#plotSNPAssociation"),
+                    spec,
+                    { bare: true,
+                     // Register the custom handler
+                     tooltipHandlers: {
+                         snpHandler: snpHandler,
+                         ensimplTooltipHandler: ensimplTooltipHandler
+                     }
+                    }
+                );
+
+
+                //genomeSpyObj.addEventListener("click", function(evt) {
+                //    console.log(evt);
+                //});
         }
 
         /**
@@ -3127,7 +3069,7 @@ function syncronizeCrossHairs(chart) {
 
             logDebug('strainInfo=', strainInfo);
 
-            let xAxisTickNum = Math.floor(g.CHROMOSOMES.chr[chromosome].length / 20000000);
+            let xAxisTickNum = Math.floor(g.DATASETS[g.dataSetID].chromosomes.chr[chromosome].length / 20000000);
             let xAxisTickVals = [];
             let xAxisTickText = [];
             let series = [];
@@ -3188,9 +3130,9 @@ function syncronizeCrossHairs(chart) {
                 //
                 // element = {"[id]","[chr]",[position],[data]}
                 //
-                if ((element[1] in g.CHROMOSOMES.chr) && (element[1] === chromosome)) {
+                if ((element[1] in g.DATASETS[g.dataSetID].chromosomes.chr) && (element[1] === chromosome)) {
 
-                    let chr = g.CHROMOSOMES.chr[element[1]];
+                    let chr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
                     let x = element[2] * 1000000.0;//Math.round(chr.start + (element[2] * 1000000.0));
                     let y = element[3];
 
@@ -3381,8 +3323,8 @@ function syncronizeCrossHairs(chart) {
             if (g.DATASETS[dsMediateAgainst].datatype === 'mrna') {
                 // ["ENSMUSG00000000001", "Gnai3", "3", 108.1267, 140.1666]
                 $.each(mediationData, function(index, element) {
-                    if (element[2] in g.CHROMOSOMES.chr) {
-                        let chr = g.CHROMOSOMES.chr[element[2]];
+                    if (element[2] in g.DATASETS[g.dataSetID].chromosomes.chr) {
+                        let chr = g.DATASETS[g.dataSetID].chromosomes.chr[element[2]];
                         element.x = chr.start + (element[3] * 1000000.0);
                         element.y = element[4];
 
@@ -3403,8 +3345,8 @@ function syncronizeCrossHairs(chart) {
             } else if (g.DATASETS[dsMediateAgainst].datatype === 'protein') {
                 // ["ENSMUSP00000000001", "ENSMUSG00000000001", "Gnai3", "3", 108.126713, 7.1102046955]
                 $.each(mediationData, function(index, element) {
-                    if (element[3] in g.CHROMOSOMES.chr) {
-                        let chr = g.CHROMOSOMES.chr[element[3]];
+                    if (element[3] in g.DATASETS[g.dataSetID].chromosomes.chr) {
+                        let chr = g.DATASETS[g.dataSetID].chromosomes.chr[element[3]];
                         element.x = chr.start + (element[4] * 1000000.0);
                         element.y = element[5];
 
@@ -3436,7 +3378,7 @@ function syncronizeCrossHairs(chart) {
             let chromosomeAxisText = {};
             let chromosomeBands = [];
 
-            $.each(g.CHROMOSOMES.idx, function(index, element) {
+            $.each(g.DATASETS[g.dataSetID].chromosomes.idx, function(index, element) {
 
                 axisTickVals.push(element.mid);
                 axisTickText.push(element.chromosome);
@@ -3991,6 +3933,7 @@ function syncronizeCrossHairs(chart) {
             $('#lodPlotChart').html('');
             $('#lodPlotChartCovariateFull').html('');
             $('#lodPlotChartCovariateDiff').html('');
+            $('#correlationCovariateSelectionText').addClass('hidden').removeClass('visible');
 
             resetSecondaryPlots();
 
@@ -4448,8 +4391,8 @@ function syncronizeCrossHairs(chart) {
             }
 
             let options = {
-                species: g.SPECIES_ID,
-                release: g.ENSEMBL_RELEASE,
+                species: g.DATASETS[g.dataSetID].ensembl_species,
+                release: g.DATASETS[g.dataSetID].ensembl_release,
                 limit: 100
             };
 
@@ -4711,8 +4654,8 @@ function syncronizeCrossHairs(chart) {
                     // pheno
                     xAxisTitle = g.phenotypeID;
                     currentID = g.phenotypeID;
-                    if (currentID !== g.DATASETS[g.dataSetID].phenotypes[currentID]['short.name']) {
-                        xAxisTitle += (' (' + g.DATASETS[g.dataSetID].phenotypes[currentID]['short.name'] + ')');
+                    if (currentID !== g.DATASETS[g.dataSetID].phenotypes[currentID]['short_name']) {
+                        xAxisTitle += (' (' + g.DATASETS[g.dataSetID].phenotypes[currentID]['short_name'] + ')');
                     }
                 } else {
                     // TODO: handle error
@@ -4727,9 +4670,9 @@ function syncronizeCrossHairs(chart) {
                     //
                     // element = {"[id]","[chr]",[position],[data]}
                     //
-                    if (element[1] in g.CHROMOSOMES.chr) {
+                    if (element[1] in g.DATASETS[g.dataSetID].chromosomes.chr) {
 
-                        let chr = g.CHROMOSOMES.chr[element[1]];
+                        let chr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
                         let x = Math.round(chr.start + (element[2] * 1000000.0));
                         let y = element[3];
 
@@ -4770,7 +4713,7 @@ function syncronizeCrossHairs(chart) {
             let chromosomeAxisText = {};
             let chromosomeBands = [];
 
-            $.each(g.CHROMOSOMES.idx, function(index, element) {
+            $.each(g.DATASETS[g.dataSetID].chromosomes.idx, function(index, element) {
 
                 chromosomeAxisVals.push(element.mid);
                 chromosomeAxisText[element.mid] = element.chromosome;
@@ -5692,13 +5635,11 @@ function syncronizeCrossHairs(chart) {
         function resetSecondaryPlots() {
             g.chartMediation = null;
             g.chartEffect = {};
-            g.chartSNPAssocSNPS = null;
-            g.chartSNPAssocGenes = null;
+            g.chartSNPAssoc = null;
 
             $('#plotMediation').html('');
             $('#allEffectPlots').html('');
-            $('#plotSNPAssocSNPS').html('');
-            $('#plotSNPAssocGenes').html('');
+            $('#plotSNPAssociation').html('');
             $('#snpWindowMenu').html('');
         }
 
@@ -5908,7 +5849,6 @@ function syncronizeCrossHairs(chart) {
             $('#plotCorrelation').html('');
             $('#correlationDataTable').html('');
 
-
             // The following line fires a change event which we do not want
             // $('#correlationDatasetSelect').selectpicker('val', g.dataSetID);
 
@@ -6094,15 +6034,14 @@ function syncronizeCrossHairs(chart) {
         function selectGeneProtein(geneID, proteinID, dataSetID, covar) {
             logDebug(`selectGeneProtein(${geneID}, ${proteinID}, ${dataSetID}, ${covar})`);
 
-            let urlGeneData = `${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/gene/${geneID}?id=&species=${g.SPECIES_ID}`;
+            let urlGeneData = `${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/gene/${geneID}`;
+            urlGeneData += ('?release=' + g.DATASETS[dataSetID].ensembl_release);
+            urlGeneData += ('&species=' + g.DATASETS[dataSetID].ensembl_species);
+
             let urlExpression = `{{ config.API_R_BASE }}/expression?dataset=${dataSetID}&id=`;
             let urlLOD = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=`;
             let urlLODCovar = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=`;
             let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${dataSetID}&id=`;
-
-            if (g.ENSEMBL_RELEASE != null) {
-                urlGeneData += `&release=${g.ENSEMBL_RELEASE}`;
-            }
 
             g.gene = null;
             g.geneID = geneID;
@@ -6471,18 +6410,47 @@ function syncronizeCrossHairs(chart) {
             exporting: {
                 buttons: {
                     contextButton: {
+//                        symbol: "url({{ url_for('static', filename='fileDownload.svg') }})",
                         menuItems: [
-                            'downloadPNG',
-                            'downloadJPEG',
-                            'downloadPDF',
-                            'downloadSVG',
-                            'separator'
+                            'downloadPNG'
                         ]
                     }
                 },
             },
         });
+        Highcharts.theme =
+        {
+  "colors": ["#0266C8", "#F90101", "#F2B50F", "#00933B"],
+  "chart": {
+    "style": {
+      "fontFamily": "Roboto",
+      "color": "#444444"
+    }
+  },
+  "xAxis": {
+    "gridLineWidth": 1,
+    "gridLineColor": "#F3F3F3",
+    "lineColor": "#F3F3F3",
+    "minorGridLineColor": "#F3F3F3",
+    "tickColor": "#F3F3F3",
+    "tickWidth": 1
+  },
+  "yAxis": {
+    "gridLineColor": "#F3F3F3",
+    "lineColor": "#F3F3F3",
+    "minorGridLineColor": "#F3F3F3",
+    "tickColor": "#F3F3F3",
+    "tickWidth": 1
+  },
+  "legendBackgroundColor": "rgba(0, 0, 0, 0.5)",
+  "background2": "#505053",
+  "dataLabelsColor": "#B0B0B3",
+  "textColor": "#C0C0C0",
+  "contrastTextColor": "#F0F0F3",
+  "maskColor": "rgba(255,255,255,0.3)"
+};
 
+        //Highcharts.setOptions(Highcharts.theme);
 
         $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
            $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
