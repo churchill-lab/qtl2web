@@ -161,6 +161,7 @@
                                                     <div id="divInteractiveCovariatesPeaks"></div>
                                                 </div>
                                             </div>
+                                            <div class="row" id="divLODPeaksMenu"></div>
                                             <div class="row">
                                                 <div class="col">
                                                     <div id="divLODPeaks"></div>
@@ -413,8 +414,7 @@
                                             </div>
                                         </div>
                                         <div role="tabpanel" class="tab-pane" id="tabPlotSNPs">
-                                            <div class="row" id="snpWindowMenu">
-                                            </div>
+                                            <div class="row" id="snpWindowMenu"></div>
                                             <div class="row">
                                                 <div class="col">
                                                     <div id="plotSNPAssociation"></div>
@@ -787,6 +787,19 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             g.ENSIMPL = null;          // Ensimple API
             g.CHROMOSOMES = null;      // all chromosome information
 
+            g.PLOT_COLORS = [
+                "#3d7cb9",
+                "#c50004",
+                "#deca00",
+                "#38be2f",
+                "#8085e9",
+                "#2b908f",
+                "#f7a35c",
+                "#91e8e1",
+                "#f15c80",
+                "#434348"
+            ];
+
             /*
              * current selected information
              */
@@ -927,7 +940,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     if (g.DATASETS[requestedDataSetID] !== undefined) {
                         g.dataSetID = requestedDataSetID;
                     } else {
-                        g.dataSetID = data.result.datasets[0].id;
+                        g.dataSetID = datasets_dropdown[Object.keys(datasets_dropdown)[0]];
                     }
 
                     // the above if is working, but we need to think through all of
@@ -1211,175 +1224,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             $('#div_current_item_information_body').html(pheno.desc);
         }
 
-        function updatePeaks(minValue) {
-            logDebug('updatePeaks()');
-            let covar = $('#interactiveCovarPeaks').val();
-
-            g.LODThreshold = minValue;
-            let newData = [];
-
-            if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
-                $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function (index, element) {
-                    let markerChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
-                    let markerPos = element[2] * 1000000.0;
-                    let geneChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[5]];
-                    let genePos = element[6] * 1000000.0;
-
-                    if ((markerChr !== undefined) && (geneChr !== undefined)) {
-                        //data.push([+(geneChr.start + genePos), +(markerChr.start + markerPos)]);
-
-                        if (element[7] >= g.LODThreshold) {
-                            let d = {
-                                geneChr: geneChr,
-                                genePos: genePos,
-                                genePosOrig: element[2],
-                                markerChr: markerChr,
-                                markerPos: markerPos,
-                                x: +(markerChr.start + markerPos),
-                                y: +(geneChr.start + genePos),
-                                lod: element[7],
-                                markerID: element[0],
-                                geneID: element[3],
-                                geneSymbol: element[4],
-                                covar: covar
-                            };
-
-                            if (element.length === 16) {
-                                d['A'] = element[8];
-                                d['B'] = element[9];
-                                d['C'] = element[10];
-                                d['D'] = element[11];
-                                d['E'] = element[12];
-                                d['F'] = element[13];
-                                d['G'] = element[14];
-                                d['H'] = element[15];
-                            }
-
-                            newData.push(d);
-                        }
-                    }
-                });
-
-                g.chartPeaks.series[0].setData(newData, true, false, false);
-
-            } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
-                // [marker_id, chrom, position, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
-                // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
-                $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function (index, element) {
-                    let markerChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
-                    let markerPos = element[2] * 1000000.0;
-                    let geneChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[6]];
-                    let genePos = element[7] * 1000000.0;
-
-                    if ((markerChr !== undefined) && (geneChr !== undefined)) {
-                        //data.push([+(geneChr.start + genePos), +(markerChr.start + markerPos)]);
-
-                        if (element[8] >= g.LODThreshold) {
-                            let d = {
-                                geneChr: geneChr,
-                                genePos: genePos,
-                                genePosOrig: element[2],
-                                markerChr: markerChr,
-                                markerPos: markerPos,
-                                x: +(markerChr.start + markerPos),
-                                y: +(geneChr.start + genePos),
-                                lod: element[8],
-                                markerID: element[0],
-                                proteinID: element[3],
-                                geneID: element[4],
-                                geneSymbol: element[5],
-                                covar: covar
-                            };
-
-                            if (element.length === 17) {
-                                d['A'] = element[9];
-                                d['B'] = element[10];
-                                d['C'] = element[11];
-                                d['D'] = element[12];
-                                d['E'] = element[13];
-                                d['F'] = element[14];
-                                d['G'] = element[15];
-                                d['H'] = element[16];
-                            }
-
-                            newData.push(d);
-                        }
-                    }
-                });
-
-                g.chartPeaks.series[0].setData(newData, true, false, false);
-
-            } else {
-                let seriesData = {};
-                let minLOD = Infinity;
-                let maxLOD = -Infinity;
-                $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
-                    // element[0] = marker_id
-                    let markerChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
-                    let markerPos = element[2] * 1000000.0;
-
-                    // lookup the phenotype
-                    let phenotype = g.DATASETS[g.dataSetID].phenotypes[element[3]];
-
-                    if (!(phenotype.category in seriesData)) {
-                        seriesData[phenotype.category] = [];
-                    }
-
-                    let d = {
-                        x: markerChr.start + markerPos,
-                        y: element[6],
-                        lod: element[6],
-                        phenoDataName: element[3],
-                        phenoShortName: element[4],
-                        phenoDescription: element[5],
-                        markerPosOrig: element[2],
-                        markerChr: markerChr,
-                        markerPos: markerPos,
-                        markerID: element[0],
-                        covar: covar
-                    };
-
-                    if (element.length === 15) {
-                        d['A'] = element[7];
-                        d['B'] = element[8];
-                        d['C'] = element[9];
-                        d['D'] = element[10];
-                        d['E'] = element[11];
-                        d['F'] = element[12];
-                        d['G'] = element[13];
-                        d['H'] = element[14];
-                    }
-
-                    seriesData[phenotype.category].push(d);
-
-                    minLOD = Math.min(minLOD, element[6]);
-                    maxLOD = Math.max(maxLOD, element[6]);
-
-                });
-
-                // remove all the series
-                while(g.chartPeaks.series.length > 0 ) {
-                    g.chartPeaks.series[0].remove(false);
-                }
-
-                // add new series
-                $.each(seriesData, function(index, element) {
-                    g.chartPeaks.addSeries({
-                        data: element,
-                        name: index,
-                        turboThreshold: 0,
-                    }, false);
-                });
-
-                g.chartPeaks.yAxis[0].update({
-                    min: minLOD,
-                    max: maxLOD,
-                });
-
-                g.chartPeaks.redraw(true);
-            }
-        }
-
         function exportLODPeaks(id, peaks) {
 
             let covar = $('#interactiveCovarPeaks').val();
@@ -1416,7 +1260,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 //     0         1       2          3          4        5         6        7        8
                 // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
                 $.each(peaks, function(k, v) {
-                    let line = `"${v[3]}","${v[4]}","${v[5]}","${v[6]}",${v[7]},"${v[0]}","${v[1]}",${v[2]},"${v[8]}"\n`;
+                    let line = `"${v[3]}","${v[4]}","${v[5]}","${v[6]}",${v[7]},"${v[0]}","${v[1]}",${v[2]},"${v[8]}"`;
                     if (peaks[0].length === 17) {
                         line += `,${v[9]},${v[10]},${v[11]},${v[12]},${v[13]},${v[14]},${v[15]},${v[16]}`;
                     }
@@ -1445,60 +1289,524 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
         }
 
 
+        function calcLegend(elems, colors) {
+            let height = 12;
+            let legendData = [];
+            let xDomain = [0, 2];
+
+            if (elems.length == 1) {
+                xDomain = [0, 1];
+                legendData.push({
+                    "x": 1,
+                    "y": 1,
+                    "text": elems[0],
+                    "color": colors[0]
+                });
+            } else {
+                height = Math.ceil(elems.length / 2) * 12;
+                elems = elems.reverse();
+                let g = 0;
+                for(let i = elems.length - 1; i >=0 ; i--) {
+                    let x = g % 2;
+                    let y = ((elems.length % 2) == 1) ? Math.ceil(i / 2) : Math.floor(i / 2);
+                    let d = {
+                        "x": x,
+                        "y": y,
+                        "text": elems[i],
+                        "color": colors[i]
+                    };
+                    legendData.push(d);
+                    g++;
+                }
+
+            }
+
+            let legend =
+                {
+                    "height": height,
+                    "data": {
+                        "values": legendData
+                    },
+                    "mark": {
+                        "type": "text",
+                        "align": "left",
+                        "tooltip": {
+                            "handler": "nullHandler"
+                        },
+
+                    },
+                    "encoding": {
+                        "x": { "axis": null, "title": null, "field": "x", "type": "quantitative", "scale": {"domain": xDomain} },
+                        "y": { "axis": null, "title": null,  "field": "y", "type": "quantitative"},
+                        "color": { "field": "color", "type": "nominal" },
+                        "text": { "field": "text", "type": "nominal" },
+                        "size": { "value": 11 }
+                    }
+                };
+
+            return legend;
+        }
 
         /**
          * Plot LOD Peaks as a scatter plot.
          */
-         function plotLODPeaks() {
+        function plotLODPeaks() {
             logDebug('plotLODPeaks()');
             let covar = $('#interactiveCovarPeaks').val();
             logDebug('covar=', covar);
 
-            // DATA will depend on type
-            let ticksStartVals = [];
-            let ticksStartText = {};
-            let ticksMidVals = [];
-            let ticksMidText = {};
-            let plotLines = [];
-            let plotBands = [];
-            let i = 0;
+            let data = [];
+            let tracks = null;
+            let legend = null;
+            let handlers = null;
+            let minLOD = Infinity;
+            let maxLOD = -Infinity;
+            let html = `<div class="row">
+                            <div class="col">
+                                <div id="plotLodPeaks" style="width: 100%"></div>
+                            </div>
+                        </div>`;
 
-            $.each(g.DATASETS[g.dataSetID].chromosomes.chr, function(idx, value) {
-                plotLines.push({
-                   color: '#eeeeee',
-                   value: value.start,
-                   width: 2,
-                });
+            g.LODThreshold = null;
 
-                if ((i % 2) === 1) {
-                    plotBands.push({
-                        color: '#eeeeee',
-                        from: value.start,
-                        to: value.start + value.length
-                    });
+            let trackPeakLOD = null;
+
+            let chrs = g.DATASETS[g.dataSetID].chromosomes.chr;
+
+            logDebug('chrs=', chrs);
+
+            if ((g.DATASETS[g.dataSetID].datatype === 'mrna') ||
+                (g.DATASETS[g.dataSetID].datatype === 'protein')) {
+                // mrna
+                // [marker_id, chrom, position, gene_id, symbol, gene_chrom, gene_mid, lod
+                // ["1_100007442","1",100.0074,"ENSMUSG00000028028","Alpk1","3",127.7255,6.1147]
+                // protein
+                // [marker_id, chrom, position, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
+                // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
+
+                let idxGeneID = 3;
+                let idxGeneSymbol = 4;
+                let idxGeneChr = 5;
+                let idxGenePos = 6;
+                let idxLODPos = 7;
+                let isProtein = false;
+
+                if (g.DATASETS[g.dataSetID].datatype === 'protein') {
+                    idxGeneID = 4;
+                    idxGeneSymbol = 5;
+                    idxGeneChr = 6;
+                    idxGenePos = 7;
+                    idxLODPos = 8;
+                    isProtein = true;
                 }
 
-                i += 1;
+                logDebug('idxGeneChr=', idxGeneChr);
+                let lodThreshold =  +$('#lodSliderValue').val();
 
-                ticksStartVals.push(value.start);
-                ticksStartText[value.start] = value.chromosome;
-                ticksMidVals.push(value.mid);
-                ticksMidText[value.mid] = value.chromosome;
-            });
+                logDebug('lodThreshold=', lodThreshold);
 
-            if ((i % 2) === 0) {
-                plotBands.push({
-                    color: '#eeeeee',
-                    from: g.DATASETS[g.dataSetID].chromosomes.idx[i-1].start,
-                    to: g.DATASETS[g.dataSetID].chromosomes.idx[i-1].start + g.DATASETS[g.dataSetID].chromosomes.idx[i-1].length
+                $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
+                    if ((element[1] in chrs) && (element[idxGeneChr] in chrs)) {
+                        let markerChr = chrs[element[1]].chromosome;
+                        let markerPos = element[2] * 1000000.0;
+                        let geneChr = chrs[element[idxGeneChr]].chromosome;
+                        let genePos = element[idxGenePos] * 1000000.0;
+
+                        if ((lodThreshold != null) && (element[idxLODPos] >= lodThreshold)) {
+                            data.push({
+                                geneChr: geneChr,
+                                genePos: genePos,
+                                genePosOrig: element[idxGenePos],
+                                markerChr: markerChr,
+                                markerPos: markerPos,
+                                markerPosOrig: element[2],
+                                lod: element[idxLODPos],
+                                markerID: element[0],
+                                geneID: element[idxGeneID],
+                                geneSymbol: element[idxGeneSymbol],
+                                proteinID: isProtein ? element[3] : null,
+                                covar: covar,
+                                phenotype: true
+                            });
+                        }
+
+                        minLOD = Math.min(minLOD, element[idxLODPos]);
+                        maxLOD = Math.max(maxLOD, element[idxLODPos]);
+                    }
                 });
+
+                minLOD = Math.max(0, Math.floor(minLOD));
+
+                // round up to nearest 10, 11->20, 7->10, 88->90
+                maxLOD = Math.ceil(maxLOD / 10) * 10;
+
+                logDebug('minLOD=', minLOD, 'maxLOD=', maxLOD);
+
+                trackPeakLOD = {
+                    "name": "lod",
+                    "layer": [
+                        {
+                            "title": "Xbound",
+                            "data": {
+                                "values": g.DATASETS[g.dataSetID].chromosomes.contigs
+                            },
+                            "mark": {
+                                "type": "rule",
+                                "tooltip": {
+                                    "handler": "nullHandler"
+                                },
+                            },
+                            "encoding": {
+                                "x": {
+                                    "chrom": "name",
+                                    "pos": "size",
+                                    "type": "locus"
+                                },
+                                "color": {
+                                    "value": "lightgray"
+                                }
+                            },
+                        },
+                        {
+                            "title": "Ybound",
+                            "data": {
+                                "values": g.DATASETS[g.dataSetID].chromosomes.contigs
+                            },
+                            "mark": {
+                                "type": "rule",
+                                "tooltip": {
+                                    "handler": "nullHandler"
+                                },
+                            },
+                            "encoding": {
+                                "y": {
+                                    "chrom": "name",
+                                    "pos": "size",
+                                    "type": "locus"
+                                },
+                                "color": {
+                                    "value": "lightgray"
+                                }
+                            },
+                        },
+                        {
+                            "data": {
+                                "values": data
+                            },
+                            "title": "LODS",
+                            "mark": {
+                                "type": "point",
+                                "tooltip": {
+                                    "handler": "lodPeakGeneTooltipHandler"
+                                },
+                                "geometricZoomBound": 4
+                            },
+                            "encoding": {
+                                "x": {
+                                    "chrom": "geneChr",
+                                    "pos": "genePos",
+                                    "type": "locus",
+                                    "title": "Marker"
+                                },
+                                "y": {
+                                    "chrom": "markerChr",
+                                    "pos": "markerPos",
+                                    "type": "locus",
+                                    "title": "Gene"
+
+                                },
+                                "color": {
+                                    "value": "#7090c0"
+                                },
+                                "size": {
+                                    "value": 30
+                                },
+                                "opacity": {
+                                    "value": 0.5
+                                },
+                                "strokeWidth": {
+                                    "value": 0
+                                }
+                            }
+                        }
+                    ]
+                };
+
+                tracks = [trackPeakLOD];
+                handlers = {
+                    nullHandler: nullHandler,
+                    lodPeakGeneTooltipHandler: lodPeakGeneTooltipHandler
+                };
+
+            } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
+                // ["5_137006393","5",137.0064,"MEcyan","MEcyan","MEcyan",9.1161],[
+
+                let seriesData = {};
+                let data = [];
+                let rects = [];
+
+                $.each(g.DATASETS[g.dataSetID].chromosomes.contigs, function(k, v) {
+                    if ((k % 2) === 1) {
+                        rects.push({
+                            name: v.name,
+                            size: v.size,
+                            start: 1,
+                            end: v.size
+                        });
+                    }
+                });
+
+
+                $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
+                    // element[0] = marker_id
+                    let markerChr = chrs[element[1]].chromosome;
+                    let markerPos = element[2] * 1000000.0;
+
+                    // lookup the phenotype
+                    let phenotype = g.DATASETS[g.dataSetID].phenotypes[element[3]];
+
+                    if (!(phenotype.category in seriesData)) {
+                        seriesData[phenotype.category] = [];
+                    }
+
+                    seriesData[phenotype.category].push({
+                        x: markerChr.start + markerPos,
+                        y: element[6],
+                        lod: element[6],
+                        phenoDataName: element[3],
+                        phenoShortName: element[4],
+                        phenoDescription: element[5],
+                        markerPosOrig: element[2],
+                        markerChr: markerChr,
+                        markerPos: markerPos,
+                        markerID: element[0],
+                        covar: covar
+                    });
+
+                    data.push({
+                        lod: element[6],
+                        phenoDataName: element[3],
+                        phenoShortName: element[4],
+                        phenoDescription: element[5],
+                        phenoCategory: phenotype.category,
+                        markerPosOrig: element[2],
+                        markerChr: markerChr,
+                        markerPos: markerPos,
+                        markerID: element[0],
+                        covar: covar,
+                        phenotype: true
+                    });
+
+                    minLOD = Math.min(minLOD, element[6]);
+                    maxLOD = Math.max(maxLOD, element[6]);
+                });
+
+                minLOD = Math.max(0, Math.floor(minLOD));
+
+                // round up to nearest 10, 11->20, 7->10, 88->90
+                maxLOD = Math.ceil(maxLOD / 10) * 10;
+
+                let axisTicks = calculateTicks(minLOD, maxLOD, 5);
+
+                let axisLines = [];
+
+                $.each(axisTicks, function(k,v) {
+                    axisLines.push({
+                        axisLOD: v
+                    })
+                });
+
+
+                let phenotypeColorDomain = Object.keys(seriesData);
+                let phenotypeColorRange = g.PLOT_COLORS.slice(0, phenotypeColorDomain.length);
+
+                logDebug('phenotype lod=', data);
+                logDebug('minLOD=', minLOD);
+                logDebug('maxLOD=', maxLOD);
+                logDebug('phenotypeColorDomain=', phenotypeColorDomain);
+                logDebug('phenotypeColorRange=', phenotypeColorRange);
+
+                trackPeakLOD = {
+                    "name": "lod",
+                    "layer": [
+                        {
+                            "title": "Xbound",
+                            "data": {
+                                "values": rects
+                            },
+                            "mark": {
+                                "type": "rect",
+                                "tooltip": {
+                                    "handler": "nullHandler"
+                                },
+                            },
+                            "encoding": {
+                                "x": {
+                                    "chrom": "name",
+                                    "pos": "start",
+                                    "type": "locus",
+                                    "title": null
+                                },
+                                "x2": {
+                                    "chrom": "name",
+                                    "pos": "end",
+                                    "type": "locus",
+                                    "title": null
+                                },
+                                "color": {
+                                    "value": "#eeeeee"
+                                }
+                            },
+                        },
+                        {
+                            "title": "Ybound",
+                            "data": {
+                                "values": axisLines,
+                            },
+                            "mark": {
+                                "type": "rule",
+                                "tooltip": {
+                                    "handler": "nullHandler"
+                                },
+                            },
+                            "encoding": {
+                                "y": {
+                                    "field": "axisLOD",
+                                    "type": "quantitative",
+                                    "title": null
+                                },
+                                "color": {
+                                    "value": "#e5e5e5"
+                                }
+                            },
+                        },
+                        {
+                            "data": {
+                                "values": data
+                            },
+                            "title": "LODS",
+                            "mark": {
+                                "type": "point",
+                                "tooltip": {
+                                    "handler": "lodPeakPhenotypeTooltipHandler"
+                                },
+                                "geometricZoomBound": 4
+                            },
+                            "encoding": {
+                                "x": {
+                                    "chrom": "markerChr",
+                                    "pos": "markerPos",
+                                    "type": "locus",
+                                    "title": "Marker Location"
+                                },
+                                "y": {
+                                    "field": "lod",
+                                    "type": "quantitative",
+                                    "title": "LOD",
+                                    "scale": { "domain": [minLOD, maxLOD] },
+                                    "axis": {
+                                      "values": axisTicks
+                                    },
+                                },
+                                "color": {
+                                    "type": "nominal",
+                                    "field": "phenoCategory",
+                                    "scale": {
+                                        "domain": phenotypeColorDomain,
+                                        "range": phenotypeColorRange,
+                                    }
+                                },
+                                "size": {
+                                    "value": 100
+                                },
+                                "opacity": {
+                                    "value": 1
+                                },
+                                "strokeWidth": {
+                                    "value": 10
+                                }
+                            }
+                        }
+                    ]
+                };
+                legend = calcLegend(phenotypeColorDomain, phenotypeColorRange);
+                tracks = [trackPeakLOD, legend];
+                handlers = {
+                    nullHandler: nullHandler,
+                    lodPeakPhenotypeTooltipHandler: lodPeakPhenotypeTooltipHandler
+                };
             }
 
-            plotLines.push({
-               color: '#eeeeee',
-               value: g.DATASETS[g.dataSetID].chromosomes.totalLength,
-               width: 2,
+            const spec = {
+                "genome": {
+                    "name": g.DATASETS[g.dataSetID].ensembl_species + " " + g.DATASETS[g.dataSetID].ensembl_release,
+                    "contigs": g.DATASETS[g.dataSetID].chromosomes.contigs
+                },
+
+                "vconcat": tracks
+            };
+
+            logDebug('SPEC=', spec);
+
+            $("#plotLodPeaks").html('');
+            $('#divLODPeaksMenu').html('');
+            $('#plotLodPeaks').height('400');
+            $('#plotLodPeaks').width('400');
+
+            $('#divLODPeaksMenu').append(`<div class="col text-center font-weight-bold">LOD Peaks
+                <div class="dropdown dropleft float-right" id="lodPeaksMenuDropdown">
+                  <a class="text-secondary" href="#" role="button" id="peaksDropdownMenuLink" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-bars"></i>
+                  </a>
+
+                  <div class="dropdown-menu" aria-labelledby="peaksDropdownMenuLink">
+                    <a class="dropdown-item" id="peaksDownloadPNG" style="font-size:11px !important">Download PNG image</a>
+                    <a class="dropdown-item" id="peaksDownloadCSV" style="font-size:11px !important">Download CSV</a>
+                  </div>
+                </div>
+            </div>`);
+
+            let n = g.DATASETS[g.dataSetID].display_name;
+            $("#peaksDownloadPNG").click(function (event) {
+                downloadGenomeSpy('#plotLodPeaks', `${n}_PEAKS.png`, '255,255,255');
             });
+
+            $("#peaksDownloadCSV").click(function (event) {
+                exportLODPeaks(n, g.DATASETS[g.dataSetID].lodpeaks[covar]);
+            });
+
+
+            g.chartPeaks = genomeSpyEmbed.embed(
+                document.querySelector("#plotLodPeaks"),
+                spec,
+                {
+                    tooltipHandlers: handlers
+                }
+            ).then(function(api) {
+                api.addEventListener("click", function(event) {
+                    if (event.datum != null) {
+                        let datum = event.datum;
+
+                        if ('geneID' in datum) {
+                            logDebug('lodPeak clicked on', datum);
+                            logDebug(datum.geneID, datum.proteinID, g.dataSetID, covar);
+                            selectGeneProtein(datum.geneID, datum.proteinID, g.dataSetID, covar);
+                        } else if ('phenoDataName' in datum) {
+                            logDebug('lodPeak clicked on', datum);
+                            logDebug(datum.phenoDataName, g.dataSetID, covar);
+                            selectPhenotype(datum.phenoDataName, g.dataSetID, covar);
+                        } else {
+                            logDebug('DO NOTHING');
+                        }
+                    }
+                });
+            });
+        }
+
+        function generateLODPeaksHTML() {
+            logDebug('generateLODPeaksHTML()');
+            let covar = $('#interactiveCovarPeaks').val();
+            logDebug('covar=', covar);
 
             let data = [];
             let xAxis = null;
@@ -1515,51 +1823,73 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                             </div>
                         </div>`;
 
+
+
             g.LODThreshold = null;
 
-            let exporting = appendExportButton('Download CSV', function() {
-                exportLODPeaks(g.DATASETS[g.dataSetID]['display.name'], g.DATASETS[g.dataSetID].lodpeaks[covar]);
-            });
-            exporting.filename = g.DATASETS[g.dataSetID]['display.name'] + '_PEAKS';
+            let trackPeakLOD = null;
 
+            let chrs = g.DATASETS[g.dataSetID].chromosomes.chr;
 
-            //TODO: make sure g.LOD is defined above and g.chartPeaks and reset appropriately
+            logDebug('chrs=', chrs);
 
-            if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
+            if ((g.DATASETS[g.dataSetID].datatype === 'mrna') ||
+                (g.DATASETS[g.dataSetID].datatype === 'protein')) {
+                // mrna
                 // [marker_id, chrom, position, gene_id, symbol, gene_chrom, gene_mid, lod
                 // ["1_100007442","1",100.0074,"ENSMUSG00000028028","Alpk1","3",127.7255,6.1147]
-                $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
-                    let markerChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
-                    let markerPos = element[2] * 1000000.0;
-                    let geneChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[5]];
-                    let genePos = element[6] * 1000000.0;
+                // protein
+                // [marker_id, chrom, position, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
+                // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
 
-                    if ((markerChr !== undefined) && (geneChr !== undefined)) {
-                        //data.push([+(geneChr.start + genePos), +(markerChr.start + markerPos)]);
+                let idxGeneID = 3;
+                let idxGeneSymbol = 4;
+                let idxGeneChr = 5;
+                let idxGenePos = 6;
+                let idxLODPos = 7;
+                let isProtein = false;
+
+                if (g.DATASETS[g.dataSetID].datatype === 'protein') {
+                    idxGeneID = 4;
+                    idxGeneSymbol = 5;
+                    idxGeneChr = 6;
+                    idxGenePos = 7;
+                    idxLODPos = 8;
+                    isProtein = true;
+                }
+
+                logDebug('idxGeneChr=', idxGeneChr);
+
+                $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function (index, element) {
+                    if ((element[1] in chrs) && (element[idxGeneChr] in chrs)) {
+                        let markerChr = chrs[element[1]].chromosome;
+                        let markerPos = element[2] * 1000000.0;
+                        let geneChr = chrs[element[idxGeneChr]].chromosome;
+                        let genePos = element[idxGenePos] * 1000000.0;
+
                         data.push({
                             geneChr: geneChr,
                             genePos: genePos,
-                            genePosOrig: element[6],
+                            genePosOrig: element[idxGenePos],
                             markerChr: markerChr,
                             markerPos: markerPos,
                             markerPosOrig: element[2],
                             x: +(markerChr.start + markerPos),
                             y: +(geneChr.start + genePos),
-                            lod: element[7],
+                            lod: element[idxLODPos],
                             markerID: element[0],
-                            geneID: element[3],
-                            geneSymbol: element[4],
+                            geneID: element[idxGeneID],
+                            geneSymbol: element[idxGeneSymbol],
+                            proteinID: isProtein ? element[3] : '',
+                            covar: covar
                         });
 
-                        minLOD = Math.min(minLOD, element[7]);
-                        maxLOD = Math.max(maxLOD, element[7]);
+                        minLOD = Math.min(minLOD, element[idxLODPos]);
+                        maxLOD = Math.max(maxLOD, element[idxLODPos]);
                     }
                 });
 
                 minLOD = Math.max(0, Math.floor(minLOD));
-
-                // maxLOD will be 80% of max lod score
-                // maxLOD = maxLOD * 0.8;
 
                 // round up to nearest 10, 11->20, 7->10, 88->90
                 maxLOD = Math.ceil(maxLOD / 10) * 10;
@@ -1593,463 +1923,30 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                             <span>${maxLOD}</span>
                         </div>
                     </div>
-`;
-
-                $('#divLODPeaks').html(html);
-
-                $('#lodRange').on('change', function(evt) {
-                    $('#lodSliderValue').val(evt.target.value);
-                    updatePeaks(evt.target.value);
-                });
-
-                $('#btnGoLOD').click(function(evt) {
-                    $('#lodRange').val(+$('#lodSliderValue').val());
-                    updatePeaks(+$('#lodSliderValue').val());
-                });
-
-
-                $('#lodSliderValue').bind('keyup input', function(evt){
-                    $('#lodRange').val(+$('#lodSliderValue').val());
-                    updatePeaks(+$('#lodSliderValue').val());
-                });
-
-
-                series = [{
-                    data: data,
-                    // When a series contains a data array that is
-                    // longer than this, only one dimensional arrays
-                    // of numbers, or two dimensional arrays with
-                    // x and y values are allowed.
-                    // Also, only the first point is tested, and
-                    // the rest are assumed to be the same format.
-                    // This saves expensive data checking and
-                    // indexing in long series. Set it to 0 disable.
-                    // Defaults to 1000.
-                    turboThreshold: 0,
-                    //boostThreshold: 0,
-                    //fillOpacity: 0.1,
-                    //color: 'rgba(223, 83, 83, 0.5)',
-                }];
-
-                legend = {
-                    enabled: false
-                };
-
-                xAxis = {
-                    endOnTick: false,
-                    gridLineWidth: 0,
-                    labels: {
-                        formatter: function () {
-                            return ticksMidText[this.value];
-                        }
-                    },
-                    min: 0,
-                    max: g.DATASETS[g.dataSetID].chromosomes.totalLength,
-                    plotLines: plotLines,
-                    showLastLabel: true,
-                    startOnTick: false,
-                    tickPositions: ticksMidVals,
-                    title: {
-                        enabled: true,
-                        text: 'Marker'
-                    },
-                };
-
-                yAxis = {
-                    endOnTick: false,
-                    gridLineWidth: 0,
-                    labels: {
-                        formatter: function () {
-                            return ticksMidText[this.value];
-                        }
-                    },
-                    min: 0,
-                    max: g.DATASETS[g.dataSetID].chromosomes.totalLength,
-                    plotLines: plotLines,
-                    showLastLabel: true,
-                    startOnTick: false,
-                    tickPositions: ticksMidVals,
-                    title: {
-                        enabled: true,
-                        text: 'Gene'
-                    },
-                };
-
-                clickFunction = function (event) {
-                    logDebug('clickFunction:', this.geneID, null, g.dataSetID, this.covar);
-                    selectGeneProtein(this.geneID, null, g.dataSetID, this.covar);
-                };
-
-                tooltip = {
-                    followPointer: false,
-                    outside: true,
-                    formatter: function (a) {
-                        let ret = `LOD: ${this.point.lod}<br>Gene ID: ${this.point.geneID}<br>Symbol: ${this.point.geneSymbol}<br>Gene Location: ${this.point.geneChr.chromosome}:${this.point.genePos}<br>Marker ID: ${this.point.markerID}<br>Marker Location: ${this.point.markerChr.chromosome}:${this.point.markerPos}`;
-                        if ('A' in this.point) {
-                            ret += `<br>Allele Effects:<br>`;
-                            ret += `<br> A: ${this.point.A}`;
-                            ret += `<br> B: ${this.point.B}`;
-                            ret += `<br> C: ${this.point.C}`;
-                            ret += `<br> D: ${this.point.D}`;
-                            ret += `<br> E: ${this.point.E}`;
-                            ret += `<br> F: ${this.point.F}`;
-                            ret += `<br> G: ${this.point.G}`;
-                            ret += `<br> H: ${this.point.H}`;
-                        }
-                        return ret;
-
-                    }
-                };
-            } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
-                // [marker_id, chrom, position, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
-                // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
-                $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
-
-                    let markerChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
-                    let markerPos = element[2] * 1000000.0;
-                    let geneChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[6]];
-                    let genePos = element[7] * 1000000.0;
-
-                    if ((markerChr !== undefined) && (geneChr !== undefined)) {
-                        //data.push([+(geneChr.start + genePos), +(markerChr.start + markerPos)]);
-
-                        data.push({
-                            geneChr: geneChr,
-                            genePos: genePos,
-                            genePosOrig: element[7],
-                            markerChr: markerChr,
-                            markerPos: markerPos,
-                            markerPosOrig: element[2],
-                            x: +(markerChr.start + markerPos),
-                            y: +(geneChr.start + genePos),
-                            lod: element[8],
-                            markerID: element[0],
-                            proteinID: element[3],
-                            geneID: element[4],
-                            geneSymbol: element[5],
-                            covar: covar
-                        });
-
-                        minLOD = Math.min(minLOD, element[8]);
-                        maxLOD = Math.max(maxLOD, element[8]);
-                    }
-                });
-
-                minLOD = Math.max(0, Math.floor(minLOD));
-
-                // maxLOD will be 80% of max lod score
-                // maxLOD = maxLOD * 0.8;
-
-                // round up to nearest 10, 11->20, 7->10, 88->90
-                maxLOD = Math.ceil(maxLOD / 10) * 10;
-
-                let currentLOD = minLOD;
-
-                html = html + `
-                    <div class="row">
-                        <div class="col-sm-auto my-auto margin y auto font-weight-bold">
-                            <span class="align-bottom">LOD Threshold: </span>
-                        </div>
-                        <div class="col-sm-auto">
-                            <div class="input-group">
-                                <input id="lodSliderValue" type="number" min="${minLOD}" max="${maxLOD}" step=".5" value="${currentLOD}" class="form-control" size="6">
-                                <span class="input-group-append">
-                                    <button id="btnGoLOD" class="btn btn-primary"><i class="fas fa-caret-right"></i></button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-2 text-right">
-                            <span>${minLOD}</span>
-                        </div>
-                        <div class="col-8">
-                            <input type="range" class="custom-range" value="${currentLOD}" min="${minLOD}" max="${maxLOD}" id="lodRange">
-                        </div>
-                        <div class="col-2 text-left">
-                            <span>${maxLOD}</span>
-                        </div>
-                    </div>`;
-
-
-                $('#divLODPeaks').html(html);
-
-                $('#lodRange').on('change', function(evt) {
-                    $('#lodSliderValue').val(evt.target.value);
-                    updatePeaks(evt.target.value);
-                });
-
-                $('#btnGoLOD').click(function(evt) {
-                    $('#lodRange').val(+$('#lodSliderValue').val());
-                    updatePeaks(+$('#lodSliderValue').val());
-                });
-
-
-                $('#lodSliderValue').bind('keyup input', function(evt){
-                    $('#lodRange').val(+$('#lodSliderValue').val());
-                    updatePeaks(+$('#lodSliderValue').val());
-                });
-
-                series = [{
-                    // When a series contains a data array that is
-                    // longer than this, only one dimensional arrays
-                    // of numbers, or two dimensional arrays with
-                    // x and y values are allowed.
-                    // Also, only the first point is tested, and
-                    // the rest are assumed to be the same format.
-                    // This saves expensive data checking and
-                    // indexing in long series. Set it to 0 disable.
-                    // Defaults to 1000.
-                    turboThreshold: 0,
-                    //boostThreshold: 0,
-                    //fillOpacity: 0.1,
-                    //color: 'rgba(223, 83, 83, 0.5)',
-                    data: data
-                }];
-
-                legend = {
-                    enabled: false
-                };
-
-                xAxis = {
-                    endOnTick: false,
-                    gridLineWidth: 0,
-                    labels: {
-                        formatter: function () {
-                            return ticksMidText[this.value];
-                        }
-                    },
-                    min: 0,
-                    max: g.DATASETS[g.dataSetID].chromosomes.totalLength,
-                    plotLines: plotLines,
-                    showLastLabel: true,
-                    startOnTick: false,
-                    tickPositions: ticksMidVals,
-                    title: {
-                        enabled: true,
-                        text: 'Marker'
-                    },
-                };
-
-                yAxis = {
-                    endOnTick: false,
-                    gridLineWidth: 0,
-                    labels: {
-                        formatter: function () {
-                            return ticksMidText[this.value];
-                        }
-                    },
-                    min: 0,
-                    max: g.DATASETS[g.dataSetID].chromosomes.totalLength,
-                    plotLines: plotLines,
-                    showLastLabel: true,
-                    startOnTick: false,
-                    tickPositions: ticksMidVals,
-                    title: {
-                        enabled: true,
-                        text: 'Gene'
-                    },
-                };
-
-                clickFunction = function (event) {
-                    // dbg('clickFunction: ', this.geneID, this.proteinID, g.dataSetID, this.covar);
-                    selectGeneProtein(this.geneID, this.proteinID, g.dataSetID, this.covar);
-                };
-
-                tooltip = {
-                    followPointer: false,
-                    outside: true,
-                    formatter: function (a) {
-                        return `LOD: ${this.point.lod}<br>Protein ID: ${this.point.proteinID}<br>Gene ID: ${this.point.geneID}<br>Symbol: ${this.point.geneSymbol}<br>Gene Location: ${this.point.geneChr.chromosome}:${this.point.genePos}<br>Marker ID: ${this.point.markerID}<br>Marker Location: ${this.point.markerChr.chromosome}:${this.point.markerPos}`;
-                    }
-                };
-            } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
-                // ["5_137006393","5",137.0064,"MEcyan","MEcyan","MEcyan",9.1161],[
-
-                let seriesData = {};
-                $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
-                    // element[0] = marker_id
-                    let markerChr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
-                    let markerPos = element[2] * 1000000.0;
-
-                    // lookup the phenotype
-                    let phenotype = g.DATASETS[g.dataSetID].phenotypes[element[3]];
-
-                    if (!(phenotype.category in seriesData)) {
-                        seriesData[phenotype.category] = [];
-                    }
-
-                    seriesData[phenotype.category].push({
-                        x: markerChr.start + markerPos,
-                        y: element[6],
-                        lod: element[6],
-                        phenoDataName: element[3],
-                        phenoShortName: element[4],
-                        phenoDescription: element[5],
-                        markerPosOrig: element[2],
-                        markerChr: markerChr,
-                        markerPos: markerPos,
-                        markerID: element[0],
-                        covar: covar
-                    });
-                    minLOD = Math.min(minLOD, element[6]);
-                    maxLOD = Math.max(maxLOD, element[6]);
-                });
-
-                logDebug('minLOD=', minLOD, 'maxLOD=', maxLOD);
-
-                minLOD = Math.floor(minLOD);
-                maxLOD = Math.ceil(maxLOD);
-
-                logDebug('ADJUSTED: minLOD=', minLOD, 'maxLOD=', maxLOD);
-
-                $('#divLODPeaks').html(html);
-
-                // dbg('seriesData=', seriesData);
-
-                series = [];
-                $.each(seriesData, function(index, element) {
-                    // dbg(index, element);
-                    series.push({
-                        data: element,
-                        name: index,
-                        turboThreshold: 0,
-                    });
-                });
-
-                legend = {
-                    align: 'center',
-                    floating: false,
-                    layout: 'horizontal',
-                    verticalAlign: 'bottom',
-                };
-
-                xAxis = {
-                    endOnTick: false,
-                    gridLineWidth: 0,
-                    labels: {
-                        formatter: function () {
-                            return ticksMidText[this.value];
-                        }
-                    },
-                    min: 0,
-                    max: g.DATASETS[g.dataSetID].chromosomes.totalLength,
-                    plotBands: plotBands,
-                    plotLines: plotLines,
-                    showLastLabel: true,
-                    startOnTick: false,
-                    tickPositions: ticksMidVals,
-                    title: {
-                        enabled: true,
-                        text: 'Marker Location'
-                    },
-                };
-
-                yAxis = {
-                    title: {
-                        enabled: true,
-                        text: 'LOD'
-                    },
-                    min: minLOD,
-                    max: maxLOD,
-                    tickWidth: 0,
-                    startOnTick: true,
-                    endOnTick: true,
-                    showLastLabel: true
-                };
-
-                clickFunction = function (event) {
-                    // dbg('clickFunction: ', this.phenoDataName, g.dataSetID, this.covar);
-                    selectPhenotype(this.phenoDataName, g.dataSetID, this.covar);
-                };
-
-                tooltip = {
-                    followPointer: false,
-                    outside: true,
-                    formatter: function () {
-                        return `LOD: ${this.point.lod}<br>Phenotype: ${this.point.phenoShortName}<br>Category: ${this.series.name}<br><br>Marker ID: ${this.point.markerID}<br>Marker Location:${this.point.markerChr.chromosome}:${this.point.markerPos}`;
-                    }
-                };
-
+                `;
             } else {
-                logError('WHAT TO DO????????????????????????????');
+                html = html + '<div class="row"><div class="col" id="lodPeaksLegend"></div></div>';
             }
 
-            g.chartPeaks = Highcharts.chart('plotLodPeaks', {
-                boost: {
-                    debug: {
-                        showSkipSummary: true
-                    },
-                    enabled: true,
-                    useGPUTranslations: true,
-                },
-                chart: {
-                    type: 'scatter',
-                    zoomType: 'xy',
-                },
-                exporting: exporting,
-                legend: legend,
-                plotOptions: {
-                    scatter: {
-                        marker: {
-                            radius: 2,
-                            states: {
-                                hover: {
-                                    enabled: true,
-                                    lineColor: 'rgb(100,100,100)'
-                                }
-                            }
-                        },
-                        states: {
-                            hover: {
-                                marker: {
-                                    enabled: false
-                                }
-                            }
-                        }
-                    },
-                    series: {
-                        point: {
-                            events: {
-                                click: clickFunction,
-                                mouseOver: function(evt) {
-                                    if(this.series.halo) {
-                                        this.series.halo.attr({
-                                           'class': 'highcharts-tracker'
-                                        }).toFront();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                series: series,
-                subtitle: {
-                    text: ''
-                },
-                title: {
-                    text: 'LOD Peaks'
-                },
-                tooltip: tooltip,
-                xAxis: xAxis,
-                yAxis: yAxis,
+            $('#divLODPeaks').html(html);
+
+            $('#lodRange').on('change', function(evt) {
+                $('#lodSliderValue').val(evt.target.value);
+                plotLODPeaks(g.DATASETS[g.dataSetID].lodpeaks[covar], evt.target.value);
             });
 
-            if ((g.DATASETS[g.dataSetID].datatype === 'mrna') ||
-                (g.DATASETS[g.dataSetID].datatype === 'protein')) {
-                // this hack is awful and needs to be fixed
-                // this is the only way I could get the tooltips to appear
-                // without manually moving the slider
-                // I'm guessing it has something to do with canvas vs svg
-                setTimeout(function () {
-                    // dbg('updatingPeaks 1');
-                    updatePeaks(maxLOD);
-                    setTimeout(function () {
-                        // dbg('updatingPeaks 2');
-                        updatePeaks(minLOD);
-                    }, 250);
-                }, 250);
-            }
+            $('#btnGoLOD').click(function(evt) {
+                $('#lodRange').val(+$('#lodSliderValue').val());
+                plotLODPeaks(g.DATASETS[g.dataSetID].lodpeaks[covar], +$('#lodSliderValue').val());
+            });
+
+
+            $('#lodSliderValue').bind('keyup input', function(evt){
+                $('#lodRange').val(+$('#lodSliderValue').val());
+                plotLODPeaks(g.DATASETS[g.dataSetID].lodpeaks[covar], +$('#lodSliderValue').val());
+            });
+
+            plotLODPeaks(g.DATASETS[g.dataSetID].lodpeaks[covar], maxLOD);
         }
 
         function startTask() {
@@ -2138,11 +2035,60 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             return geneInfo;
         }
 
-        async function snpHandler(datum, mark, props) {
-            logDebug(datum, mark, props);
-            return genomeSpyEmbed.html`<p class="summary"><strong>${datum.chr}:${datum.pos}</strong> = ${datum.logScore}</p>`
+        async function lodPeakGeneTooltipHandler(datum, mark, props) {
+            //logDebug(datum, mark, props);
+            let alleleEffects = '';
+            if ('A' in datum){
+                alleleEffects = `
+                    <br><strong>Allele Effects</strong>
+                    <br> A: ${datum.A}
+                    <br> B: ${datum.B}
+                    <br> C: ${datum.C}
+                    <br> D: ${datum.D}
+                    <br> E: ${datum.E}
+                    <br> F: ${datum.F}
+                    <br> G: ${datum.G}
+                    <br> H: ${datum.H}
+                `
+            }
+
+            return genomeSpyEmbed.html`
+                <div class="title">
+                    <strong>${datum.lod}</strong>
+                </div>
+                <p class="summary">
+                    <strong>ID</strong> ${datum.geneID}
+                    <br/>
+                    <strong>Symbol</strong> ${datum.geneSymbol}
+                    ${alleleEffects}
+            `;
         }
 
+        async function lodPeakPhenotypeTooltipHandler(datum, mark, props) {
+            logDebug(datum);
+            return genomeSpyEmbed.html`
+                <div class="title">
+                    <strong>${datum.lod}</strong>
+                </div>
+                <p class="summary">
+                    <strong>ID</strong> ${datum.phenoDataName}
+                    <br/>
+                    <strong>Phenotype</strong> ${datum.phenoShortName}
+                    <br/>
+                    <strong>Category</strong> ${datum.phenoCategory}
+                    <br/>
+            `;
+        }
+
+        async function snpHandler(datum, mark, props) {
+            //logDebug(datum, mark, props);
+            return genomeSpyEmbed.html`<p class="summary"><strong>${datum.chr}:${datum.pos}</strong> = ${datum.lod}</p>`
+        }
+
+        async function nullHandler(datum, mark, props) {
+            //logDebug(datum, mark, props);
+            return null;//genomeSpyEmbed.html``
+        }
 
         // TODO: Replace with an LRU-cache
         const symbolSummaryCache = new Map();
@@ -2293,9 +2239,9 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     maxLODScore = Math.max(maxLODScore, snpData[0][11]);
 
                     // grab the covar display name
-                    $.each(g.DATASETS[g.dataSetID]['covar.info'], function(idx, elem) {
-                        if (covar === elem['sample.column']) {
-                            snpsCovarTitle = 'LOD (' + elem['display.name'] + ')';
+                    $.each(g.DATASETS[g.dataSetID]['covar_info'], function(idx, elem) {
+                        if (covar === elem['sample_column']) {
+                            snpsCovarTitle = 'LOD (' + elem['display_name'] + ')';
                         }
                     });
                 }
@@ -2788,16 +2734,16 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             $('#plotSNPAssociation').height('500');
 
             g.chartSNPAssoc = genomeSpyEmbed.embed(
-                    document.querySelector("#plotSNPAssociation"),
-                    spec,
-                    { bare: true,
-                     // Register the custom handler
-                     tooltipHandlers: {
-                         snpHandler: snpHandler,
-                         ensimplTooltipHandler: ensimplTooltipHandler
-                     }
+                document.querySelector("#plotSNPAssociation"),
+                spec,
+                {
+                    // Register the custom handler
+                    tooltipHandlers: {
+                        snpHandler: snpHandler,
+                        ensimplTooltipHandler: ensimplTooltipHandler
                     }
-                );
+                }
+            );
 
 
                 //genomeSpyObj.addEventListener("click", function(evt) {
@@ -3915,7 +3861,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 return;
             }
 
-            plotLODPeaks();
+            generateLODPeaksHTML();
 
             let ds = g.DATASETS[dataSetID];
             g.dataSetID = dataSetID;
@@ -5171,7 +5117,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     $('#interactiveCovarPeaks').selectpicker();
 
                     $('#interactiveCovarPeaks').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
-                        updatePeaks(+$('#lodSliderValue').val());
+                        generateLODPeaksHTML();
                     });
                 }
 
