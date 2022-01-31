@@ -414,6 +414,7 @@
                                             </div>
                                         </div>
                                         <div role="tabpanel" class="tab-pane" id="tabPlotSNPs">
+                                            <div class="row" id="snpWindowMenuShift"></div>
                                             <div class="row" id="snpWindowMenu"></div>
                                             <div class="row">
                                                 <div class="col">
@@ -2077,12 +2078,70 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     <br/>
                     <strong>Category</strong> ${datum.phenoCategory}
                     <br/>
+                </p>
             `;
         }
 
+        function parseCSQ(strCSQ) {
+            if (strCSQ.length <= 1) {
+                return "";
+            }
+
+            let consequences = new Set();
+            let csq_info_split = strCSQ.split(';');
+
+            for (let x = 0; x < csq_info_split.length; x++) {
+                let elems = csq_info_split[x].split('|')[4].split('&');
+                for (let y = 0; y < elems.length; y++) {
+                    consequences.add(elems[y]);
+                }
+            }
+
+            return Array.from(consequences).join(', ');
+        }
+
         async function snpHandler(datum, mark, props) {
-            //logDebug(datum, mark, props);
-            return genomeSpyEmbed.html`<p class="summary"><strong>${datum.chr}:${datum.pos}</strong> = ${datum.lod}</p>`
+            logDebug(datum, mark, props);
+            let sdp = sdpn_to_sdpD(datum.sdpn);
+            let csq = parseCSQ(datum.csq);
+
+            if ('lodc' in datum) {
+                return genomeSpyEmbed.html`
+                    <div class="title">
+                        <strong>${datum.snp}</strong>
+                    </div>
+                    <p class="summary">
+                        <strong>Position</strong> ${datum.chr}:${datum.pos}
+                        <br/>
+                        <strong>REF</strong> ${datum.ref}
+                        <br/>
+                        <strong>ALT</strong> ${datum.alt}
+                        <br/>
+                        <strong>SDP</strong> ${sdp}
+                        <br/>
+                        <strong>CSQ</strong> ${csq}
+                        <br/>
+                        <strong>LOD ${datum.cov}</strong> ${datum.lodc}
+                    </p>`;
+            } else {
+                return genomeSpyEmbed.html`
+                    <div class="title">
+                        <strong>${datum.snp}</strong>
+                    </div>
+                    <p class="summary">
+                        <strong>Position</strong> ${datum.chr}:${datum.pos}
+                        <br/>
+                        <strong>REF</strong> ${datum.ref}
+                        <br/>
+                        <strong>ALT</strong> ${datum.alt}
+                        <br/>
+                        <strong>SDP</strong> ${sdp}
+                        <br/>
+                        <strong>CSQ</strong> ${csq}
+                        <br/>
+                        <strong>LOD</strong> ${datum.lod}
+                    </p>`;
+            }
         }
 
         async function nullHandler(datum, mark, props) {
@@ -2206,7 +2265,8 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             let maxZoomPos = Math.min(location + zoomWindow, g.DATASETS[g.dataSetID].chromosomes.chr[chromosome].length);
             let minDomainPos = Math.max(location - domainWindow, 0);
             let maxDomainPos = Math.min(location + domainWindow, g.DATASETS[g.dataSetID].chromosomes.chr[chromosome].length);
-            let maxLODScore = null;
+            let maxLOD = -Infinity;
+            let minLOD = Infinity;
             let plotTitle = '';
             let currentID = '';
 
@@ -2233,11 +2293,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             let snpsCovarTitle = '';
 
             if (snpData) {
-                maxLODScore = snpData[0][10];
-
                 if ((covar !== null) && (covar !== 'additive')) {
-                    maxLODScore = Math.max(maxLODScore, snpData[0][11]);
-
                     // grab the covar display name
                     $.each(g.DATASETS[g.dataSetID]['covar_info'], function(idx, elem) {
                         if (covar === elem['sample_column']) {
@@ -2248,51 +2304,49 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             }
 
             /*
-         0   "snp":"rs245710663",
-         1   "chr":"1",
-         2   "pos":14.5001,
-         3   "alleles":"G|C",
-         4   "sdp":64,
-         5   "ensembl_gene":"",
-         6   "csq":"intergenic_variant",
-         7   "index":1,
-         8   "interval":147,
-         9   "on_map":false,
-         10  "lod":0.0015
+            0: SNP:  "rs12345678"
+            1: CHR:  "3"
+            2: POS:  118281232
+            3: REF:  "C"
+            4: ALT:  "T,G"
+            5: SDPN: 21853
+            6: CSQ:  "T||||intergenic_variant||||||||"
+            7: LOD:  0.24
 
-         IF covar:
-         11  "lod_interactiveCovar":0.0029
+            IF covar:
+            8: LODC: 0.0029
             */
 
             $.each(snpData, function(index, element) {
-                maxLODScore = Math.max(maxLODScore, element[10]);
+                maxLOD = Math.max(maxLOD, element[7]);
+                minLOD = Math.min(minLOD, element[7]);
 
-                snps.push({
-                    id: element[0],
-                    chr: element[1],
-                    pos: element[2] * 1000000,
-                    alleles: element[3],
-                    csq: element[6],
-                    lod: 1.0 * element[10],
-                });
+                let snp = {
+                    snp:  element[0],
+                    chr:  element[1],
+                    pos:  element[2],
+                    ref:  element[3],
+                    alt:  element[4],
+                    sdpn: element[5],
+                    csq:  element[6],
+                    lod:  element[7] * 1.0,
+                    cov:  covar
+                };
 
                 if ((covar !== null) && (covar !== 'additive')) {
-                    maxLODScore = Math.max(maxLODScore, element[11]);
-
-                    snpsCovar.push({
-                        id: element[0],
-                        chr: element[1],
-                        pos: element[2] * 1000000,
-                        alleles: element[3],
-                        csq: element[6],
-                        lod: 1.0 * element[11],
-                    });
+                    maxLOD = Math.max(maxLOD, element[8]);
+                    minLOD = Math.min(minLOD, element[8]);
+                    snp['lodc'] = element[8] * 1.0;
                 }
+
+                snps.push(snp);
             });
 
-            maxLODScore = Math.ceil(maxLODScore);
+            maxLOD = Math.ceil(maxLOD);
+            minLOD = Math.floor(minLOD);
 
-            logDebug('maxLODScore', maxLODScore);
+            logDebug('minLOD', minLOD);
+            logDebug('maxLOD', maxLOD);
             logDebug('minZoomPos', minZoomPos);
             logDebug('maxZoomPos', maxZoomPos);
             logDebug('minDomainPos', minDomainPos);
@@ -2308,146 +2362,151 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
             let tracksAll = [];
 
+            let layers = [];
+            layers.push({
+                "title": "SNPs",
+                "mark": {
+                    "type": "point",
+                    "geometricZoomBound": 4,
+                    "tooltip": {
+                        "handler": "snpHandler"
+                    },
+                },
+
+                "encoding": {
+                    "x": {
+                        "chrom": "chr",
+                        "pos": "pos",
+                        "type": "locus",
+                        "scale": {
+                            "domain": [
+                                {
+                                    "chrom": chromosome,
+                                    "pos": minDomainPos
+                                },
+                                {
+                                    "chrom": chromosome,
+                                    "pos": maxDomainPos
+                                }
+                            ],
+
+                            "zoom": {
+                                "extent": [
+                                    {
+                                        "chrom": chromosome,
+                                        "pos": minZoomPos
+                                    },
+                                    {
+                                        "chrom": chromosome,
+                                        "pos": maxZoomPos
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "y": {
+                        "field": "lod",
+                        "type": "quantitative",
+                        "title": "LOD",
+                        "scale": { "domain": [minLOD, maxLOD] }
+                    },
+                    "color": {
+                        "value": "#ed3215"
+                    },
+                    "size": {
+                        "value": 30
+                    },
+                    "opacity": {
+                        "value": 0.5
+                    },
+                    "strokeWidth": {
+                        "value": 10
+                    }
+                }
+            }
+            );
+
+            if ((covar !== null) && (covar !== 'additive')) {
+                layers.push({
+                    "title": "SNPs Covar",
+                    "mark": {
+                        "type": "point",
+                        "geometricZoomBound": 4,
+                        "tooltip": {
+                            "handler": "snpHandler"
+                        },
+                    },
+
+                    "encoding": {
+                        "x": {
+                            "chrom": "chr",
+                            "pos": "pos",
+                            "type": "locus",
+                            "scale": {
+                                "domain": [
+                                    {
+                                        "chrom": chromosome,
+                                        "pos": minDomainPos
+                                    },
+                                    {
+                                        "chrom": chromosome,
+                                        "pos": maxDomainPos
+                                    }
+                                ],
+
+                                "zoom": {
+                                    "extent": [
+                                        {
+                                            "chrom": chromosome,
+                                            "pos": minZoomPos
+                                        },
+                                        {
+                                            "chrom": chromosome,
+                                            "pos": maxZoomPos
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "y": {
+                            "field": "lodc",
+                            "type": "quantitative",
+                            "title": "LOD",
+                            "scale": { "domain": [minLOD, maxLOD] }
+                        },
+                        "color": {
+                            "value": "#7cb5ec"
+                        },
+                        "size": {
+                            "value": 30
+                        },
+                        "opacity": {
+                            "value": 0.5
+                        },
+                        "strokeWidth": {
+                            "value": 10
+                        }
+                    }
+                }
+                );
+
+            }
+
+
+            logDebug('layers=', layers);
+
+
+
             let trackSNPs = {
                 "name": "snps",
                 "data": {
                     "values": snps
                 },
-                "layer": [
-                    {
-                        "title": "SNPs",
-                        "mark": {
-                            "type": "point",
-                            "geometricZoomBound": 4
-                        },
+                "layer": layers
 
-                        "encoding": {
-                            "x": {
-                                "chrom": "chr",
-                                "pos": "pos",
-                                "type": "locus",
-                                "scale": {
-                                    "domain": [
-                                        {
-                                            "chrom": chromosome,
-                                            "pos": minDomainPos
-                                        },
-                                        {
-                                            "chrom": chromosome,
-                                            "pos": maxDomainPos
-                                        }
-                                    ],
-
-                                    "zoom": {
-                                        "extent": [
-                                            {
-                                                "chrom": chromosome,
-                                                "pos": minZoomPos
-                                            },
-                                            {
-                                                "chrom": chromosome,
-                                                "pos": maxZoomPos
-                                            }
-                                        ]
-                                    }
-                                }
-                            },
-                            "y": {
-                                "field": "lod",
-                                "type": "quantitative",
-                                "title": "LOD",
-                                "scale": { "domain": [0, maxLODScore] }
-                            },
-                            "color": {
-                                "value": "#ed3215"
-                            },
-                            "size": {
-                                "value": 30
-                            },
-                            "opacity": {
-                                "value": 0.5
-                            },
-                            "strokeWidth": {
-                                "value": 0
-                            }
-                        }
-                    }
-                ]
             };
-
+            //"value": "#7cb5ec"
             tracksAll.push(trackSNPs);
-
-            if ((covar !== null) && (covar !== 'additive')) {
-               let trackSNPCovars = {
-                    "name": "snpsCovar",
-                    "data": {
-                        "values": snpsCovar
-                    },
-                    "layer": [
-                        {
-                            "title": snpsCovarTitle,
-                            "mark": {
-                                "type": "point",
-                                "geometricZoomBound": 4
-                            },
-
-                            "encoding": {
-                                "x": {
-                                    "chrom": "chr",
-                                    "pos": "pos",
-                                    "type": "locus",
-                                    "scale": {
-                                        "domain": [
-                                            {
-                                                "chrom": chromosome,
-                                                "pos": minDomainPos
-                                            },
-                                            {
-                                                "chrom": chromosome,
-                                                "pos": maxDomainPos
-                                            }
-                                        ],
-
-                                        "zoom": {
-                                            "extent": [
-                                                {
-                                                    "chrom": chromosome,
-                                                    "pos": minZoomPos
-                                                },
-                                                {
-                                                    "chrom": chromosome,
-                                                    "pos": maxZoomPos
-                                                }
-                                            ]
-                                        }
-                                    }
-                                },
-                                "y": {
-                                    "field": "lod",
-                                    "type": "quantitative",
-                                    "title": snpsCovarTitle,
-                                    "scale": { "domain": [0, maxLODScore] }
-                                },
-                                "color": {
-                                    "value": "#7cb5ec"
-                                },
-                                "size": {
-                                    "value": 30
-                                },
-                                "opacity": {
-                                    "value": 0.5
-                                },
-                                "strokeWidth": {
-                                    "value": 0
-                                }
-                            }
-                        }
-                    ]
-                };
-
-                tracksAll.push(trackSNPCovars);
-            }
-
 
             let trackGenes = {
                 "name": "geneAnnotations",
@@ -2677,6 +2736,17 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
             tracksAll.push(trackGenes);
 
+            /*
+
+            if ((covar !== null) && (covar !== 'additive')) {
+                let colors = ["#ed3215", "#7cb5ec"];
+                let legend = calcLegend(["LOD", "LOD " + covar], colors);
+                tracksAll.push(legend);
+            }
+
+            */
+
+
             const spec =
                 {
                     "description":[
@@ -2703,7 +2773,28 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             // logDebug('spec=', spec);
 
 
-            $('#snpWindowMenu').append(`<div class="col text-center font-weight-bold">${plotTitle}
+            $('#snpWindowMenuShift').html(`
+                <div class="col">
+                    <button id="snpShiftLeft" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Shift Plot Left</button>
+                </div>
+                <div class="col">
+                    <button id="snpShiftRight" class="btn btn-secondary float-right">Shift Plot Right <i class="fas fa-arrow-right"></i></button>
+                </div>`);
+
+            $('#snpShiftLeft').button().on('click', function(event) {
+                console.log(location);
+                console.log(id, chromosome, (location / 1000000.0) - 2, covar);
+                generateSNPAssocPlot(id, chromosome, (location / 1000000.0) - 2, covar);
+            });
+
+            $('#snpShiftRight').button().on('click', function(event) {
+                console.log(location);
+                console.log(id, chromosome, (location / 1000000.0) + 2, covar);
+                generateSNPAssocPlot(id, chromosome, (location / 1000000.0) + 2, covar);
+            });
+
+            $('#snpWindowMenu').append(`
+                <div class="col text-center font-weight-bold">${plotTitle}
                 <div class="dropdown dropleft float-right" id="snpMenuDropdown">
                   <a class="text-secondary" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-expanded="false">
                     <i class="fa-solid fa-bars"></i>
@@ -2797,7 +2888,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 }]
             };
 
-            if (g.DATASETS[QTL.g.dataSetID].datatype.toLowerCase() === 'phenotype') {
+            if (g.DATASETS[QTL.g.dataSetID].datatype.toLowerCase() !== 'phenotype') {
                 let genesRankingURL = `{{ config.API_R_BASE }}/rankings?dataset=${g.dataSetID}&chrom=${chromosome}`;
                 submitData['urls'].push({
                     url_id: 'genesRankingURL',
@@ -2809,6 +2900,8 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
             // reset the chart and clear it
             g.chartSNPAssoc = null;
+
+            $('#snpWindowMenuShift').html('');
             $('#snpWindowMenu').html('');
             $('#plotSNPAssociation').html('');
 
@@ -2906,6 +2999,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 let cancelURL = `{{ url_for('api.api_cancel', group_id='', _external=False) }}${groupID}`;
                 $.getJSON(cancelURL, function (data) {
                     g.chartSNPAssoc = null;
+                    $('#snpWindowMenuShift').html('');
                     $('#snpWindowMenu').html('');
                     $('#plotSNPAssociation').html('');
                 });
@@ -5583,6 +5677,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             $('#plotMediation').html('');
             $('#allEffectPlots').html('');
             $('#plotSNPAssociation').html('');
+            $('#snpWindowMenuShift').html('');
             $('#snpWindowMenu').html('');
         }
 

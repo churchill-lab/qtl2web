@@ -294,3 +294,73 @@ function calculateTicks(start, stop, count) {
 
   return ticks;
 }
+
+
+/////////
+const BASES_LIST = ['A','C','G','T'];
+const BASES_DICT = {'A': '0', 'C': '1', 'G': '2', 'T': '3'};
+const CC = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+function numberToBase(n, b) {
+    if (n === 0)
+        return [0]
+    let digits = [];
+    while (n) {
+        digits.push(Math.round(n % b))
+        n = Math.floor(n / b)
+    }
+    return digits.reverse().join('')
+}
+
+function sdpn_to_sdpN(sdpn, fill=-1) {
+    return numberToBase(sdpn, 4).padStart(8, '0');
+}
+function sdpN_to_sdpn(sdpN) {
+    return parseInt(""+sdpN, 4)
+}
+function sdpn_to_sdpB(sdpn) {
+    let spdN = sdpn_to_sdpN(sdpn);
+    let B = [];
+    for (let x = 0; x < spdN.length; x++) {
+        B.push(BASES_LIST[parseInt(spdN[x])]);
+    }
+    return B;
+}
+function sdpn_to_sdpD(sdpn, sort=null) {
+    let l = {};
+    let sdpB = sdpn_to_sdpB(sdpn);
+
+    for (let x = 0; x < sdpB.length; x++) {
+        if (sdpB[x] in l) {
+            l[sdpB[x]] = l[sdpB[x]] + CC[x];
+        } else {
+            l[sdpB[x]] = CC[x];
+        }
+    }
+
+    let n = [];
+
+    if (sort != null) {
+        for (let b in sort) {
+            if (sort[b] in l) {
+                n.push(l[sort[b]]);
+            }
+        }
+    } else {
+        let temp = [];
+        for (const [key, value] of Object.entries(l)) {
+            temp.push({'base': key, 'num': value.length});
+        }
+        temp = temp.sort(function(a, b) {
+            return (a.num > b.num) ? 1 : -1;
+
+        }).reverse();
+
+        for (let x = 0; x < temp.length; x++) {
+            n.push(l[temp[x].base]);
+        }
+
+    }
+
+    return n.join(':');
+}
