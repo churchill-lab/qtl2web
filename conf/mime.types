@@ -73,6 +73,7 @@ types {
     application/octet-stream                         iso img;
     application/octet-stream                         msi msp msm;
     application/octet-stream                         rdata;
+    application/octet-stream                         rds;
 
     audio/midi                                       mid midi kar;
     audio/mpeg                                       mp3;

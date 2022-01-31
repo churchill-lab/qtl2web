@@ -10,6 +10,7 @@ from flask import url_for
 
 
 from qtlweb import utils
+from qtlweb import tech
 
 import ntpath
 import os
@@ -77,7 +78,8 @@ def index():
 
     return render_template('page/index.html',
                            search_term=search_term, datasetid=datasetid,
-                           debug=debug, app_version=app_version, admin=admin)
+                           debug=debug, app_version=app_version, admin=admin,
+                           TECHNOLOGIES=tech.TECHNOLOGIES)
 
 
 '''
@@ -130,18 +132,15 @@ def info():
     return '{}'.format(socket.gethostname())
 
 
-@page.route('/rdata')
-def rdata():
-    # attempt to get the RData file and send it
-    real_file_name = os.getenv('HOST_FILE_RDATA', '')
-    real_file_name = ntpath.basename(real_file_name)
-
+@page.route('/dl')
+def dl():
+    file_name = request.values.get('fileName', '')
     root_url = url_for('page.index')
 
     if root_url[-1] == '/':
-        redirect_url = '{}data/{}'.format(root_url, real_file_name)
+        redirect_url = '{}data/{}'.format(root_url, file_name)
     else:
-        redirect_url = '{}/data/{}'.format(root_url, real_file_name)
+        redirect_url = '{}/data/{}'.format(root_url, file_name)
 
     return redirect(redirect_url)
 

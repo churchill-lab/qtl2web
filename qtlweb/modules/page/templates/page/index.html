@@ -29,9 +29,7 @@
     <link rel="stylesheet"
           href="{{ url_for('static', filename='styles/main.css') }}"/>
 
-
-
-  <style>
+    <style>
     <!--
         body {
             /*font-family: 'Roboto', sans-serif !important;*/
@@ -43,9 +41,29 @@
             opacity: 100;
         }
 
-.snpMenuIcon a:hover {
-    background: #3374C2;
+        .snpMenuIcon a:hover {
+            background: #3374C2;
+        }
+
+.modal.modal-fullscreen .modal-dialog {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  max-width: none;
 }
+
+.modal.modal-fullscreen .modal-content {
+  height: auto;
+  height: 100vh;
+  border-radius: 0;
+  border: none;
+}
+
+.modal.modal-fullscreen .modal-body {
+  overflow-y: auto;
+}
+
     //-->
     </style>
 {% endblock %}
@@ -56,12 +74,13 @@
     <nav id="dataSetSelectMenu" class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
         <a class="navbar-brand" href="#">{{ config.NAV_TITLE|safe }}</a>
         <!-- will be filled in programatically //-->
+
     </nav>
 
     <div class="container-fluid">
+
         <main class="col-12" role="main">
             <div class="row">
-
 
                 <div class="col-md-6 col-lg-5 col-xl-4">
 
@@ -469,11 +488,11 @@
         {% endif %}
     <!--
         <li class="nav-item pr-5">
-            <strong><a class="text-light" href="{{ url_for('page.rdata') }}"><i class="fas fa-file-download"></i> Download Data</a></strong>
+            <strong><a class="text-light" href="{{ url_for('page.dl') }}"><i class="fas fa-file-download"></i> Download Data</a></strong>
         </li>
      //-->
         <li class="nav-item">
-            <span class="text-light">VERSION {{ app_version }}</span>
+            <a class="font-italic text-primary nav-link" id="viewerInfoInformation" data-toggle="modal" data-target="#viewerInfoModal"><i class="fa-solid fa-circle-info"></i> VERSION {{ app_version }}</a>
         </li>
     </ul>
 </nav>
@@ -481,6 +500,142 @@
 
 
 </div>
+
+
+
+<!-- START DOWNLOAD DATA MODAL ========================================== //-->
+<div class="modal fade modal-fullscreen" id="downloadModal" tabindex="-1" aria-labelledby="downloadLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header rounded-0 bg-dark text-light">
+                <h5 class="modal-title" id="downloadLabel">Download Data</h5>
+                <a data-dismiss="modal" aria-label="Close"><i class="fa-solid fa-circle-xmark"></i></a>
+            </div>
+
+            <div class="modal-body bg-light">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <h2>{{ config.MAIN_TITLE|safe }}</h2>
+                            <hr/>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <p class="lead">To download data from {{ config.MAIN_TITLE|safe }}, please click on the filename from the table below.</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div id="envInfoDiv"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--
+            <div class="modal-footer">
+            </div>
+            //-->
+        </div>
+    </div>
+</div>
+<!-- END DOWNLOAD DATA MODAL ============================================ //-->
+
+<!-- START VIEWER INFO MODAL ============================================ //-->
+<div class="modal fade modal-fullscreen" id="viewerInfoModal" tabindex="-1" aria-labelledby="viewerInfoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header rounded-0 bg-dark text-light">
+                <h5 class="modal-title" id="viewerInfoLabel">Viewer Information</h5>
+                <a data-dismiss="modal" aria-label="Close"><i class="fa-solid fa-circle-xmark"></i></a>
+            </div>
+
+            <div class="modal-body bg-light">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <h2>{{ config.MAIN_TITLE|safe }}</h2>
+                            <hr/>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <p class="lead">The QTL Viewer is makes use of a variety of technologies and libraries.</p>
+                            QTL Viewer Github Repository: <a target="_new" href="https://github.com/churchill-lab/qtlweb">https://github.com/churchill-lab/qtlweb</a>
+                        </div>
+                    </div>
+
+                    <br/><br/>
+
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="modal-title" id="viewerInfoLabel">HTML/Javascript</h5>
+                            <hr/>
+                            {% for tech in TECHNOLOGIES %}
+                                {% if "html" in tech.category %}
+                                <a target="_new" href="{{ tech.url }}">{{ tech.name }}</a> {{ tech.version }}<br/>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <br/><br/>
+
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="modal-title" id="viewerInfoLabel">Python</h5>
+                            <hr/>
+                            {% for tech in TECHNOLOGIES %}
+                                {% if "python" in tech.category %}
+                                <a target="_new" href="{{ tech.url }}">{{ tech.name }}</a> {{ tech.version }}<br/>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <br/><br/>
+
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="modal-title" id="viewerInfoLabel">R</h5>
+                            <hr/>
+                            {% for tech in TECHNOLOGIES %}
+                                {% if "R" in tech.category %}
+                                <a target="_new" href="{{ tech.url }}">{{ tech.name }}</a> {{ tech.version }}<br/>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <br/><br/>
+
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="modal-title" id="viewerInfoLabel">Docker</h5>
+                            <hr/>
+                            {% for tech in TECHNOLOGIES %}
+                                {% if "docker" in tech.category %}
+                                <a target="_new" href="{{ tech.url }}">{{ tech.name }}</a> {{ tech.version }}<br/>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+            <!--
+            <div class="modal-footer">
+            </div>
+            //-->
+        </div>
+    </div>
+</div>
+<!-- END VIEWER INFO MODAL ============================================== //-->
+
 </body>
 {% endblock %}
 
@@ -772,7 +927,47 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             result[key] = obj[key];
             return result;
             },
-            {});
+            {}
+        );
+    }
+
+    function buildEnvInfo(envInfo) {
+        let htmlBody = '<table id="envInfoTable" class="table table-striped table-bordered table-sm table-sm-text">';
+        htmlBody += '<thead><th>Filename</th><th>Elements</th></thead>';
+        $.each(envInfo, function(idx, value) {
+            logDebug('value=', value);
+            htmlBody += `
+            <tr>
+                <td data-order="${value.baseFileName}">
+                    <a href="#" baseFileName="${value.baseFileName}">${value.baseFileName}</a>
+                </td>
+                <td>`;
+
+            if(typeof value.elements === 'string') {
+                htmlBody += value.elements;
+            } else {
+                htmlBody += value.elements.join('<br>');
+            }
+
+            htmlBody += '</tr>';
+        });
+
+        htmlBody += '</table>';
+        $('#envInfoDiv').html(htmlBody);
+
+        $('#envInfoTable').DataTable({
+            "info":   false,
+            "filter": false,
+            "paging": false
+        });
+
+        $('#envInfoTable a').click(function(evt) {
+            evt.preventDefault();
+            let that = $(this);
+            let f = that.attr('baseFileName');
+            window.location = "{{ url_for('page.dl') }}" + `?fileName=${f}`;
+            return false;
+        });
     }
 
     QTL = function() {
@@ -843,8 +1038,10 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             g.PROTOCOL = window.location.protocol;
 
             d3.queue()
+                .defer(downloadEnvInfo)
                 .defer(downloadDataSets)
-                .await(function(error, data) {
+                .await(function(error, envInfo, data) {
+                    logDebug('envInfo=', envInfo);
                     logDebug('dataSetsData=', data);
 
                     if (error) {
@@ -867,13 +1064,21 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
                     g.DATASETS = {};
 
+                    buildEnvInfo(envInfo.result);
+
                     let ensembl_release = null;
                     if ('ensembl.version' in data.result) {
                         ensembl_release  = data.result['ensembl.version'];
                     }
+                    if ('ensembl_version' in data.result) {
+                        ensembl_release  = data.result['ensembl_version'];
+                    }
                     // the new way is RELEASE, replacing VERSION
                     if ('ensembl.release' in data.result) {
                         ensembl_release  = data.result['ensembl.release'];
+                    }
+                    if ('ensembl_release' in data.result) {
+                        ensembl_release  = data.result['ensembl_release'];
                     }
 
                     // to display dropdown menu by alphabetical name
@@ -883,7 +1088,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                         ds.gene_ids = {};
                         ds.protein_ids = {};
                         ds.phenotypes = {};
-
 
                         if ('ensembl_version' in ds) {
                             ds.ensembl_release  = ds['ensembl_version'];
@@ -957,6 +1161,9 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                                         <li class="nav-item active" style="color:white">
                                             ${g.DATASETS[g.dataSetID]['display_name']}
                                         </li>
+                                        <li class="nav-item">
+                                            <a class="font-italic text-primary nav-link" id="downloadInformation" data-toggle="modal" data-target="#downloadModal"><i class="fa-solid fa-download"></i> Download Data</a>
+                                        </li>
                                     </ul>`;
 
                         $('#dataSetSelectMenu').append(html);
@@ -969,9 +1176,20 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                                         <span class="navbar-toggler-icon"></span>
                                     </button>
                                     <div class="collapse navbar-dark navbar-collapse" id="navbarTogglerQTL">
-                                    <span class="navbar-text text-white pr-2">{{ config.NAV_DATASET|safe }} <i class="fas fa-long-arrow-alt-right"></i></span>
-                                    <select data-style="btn-sm btn-light" class="selectpicker" id="datasetSelect">
-                                    </select></div>`;
+                                        <span class="navbar-text text-white pr-2">
+                                            {{ config.NAV_DATASET|safe }} <i class="fas fa-long-arrow-alt-right"></i>
+                                        </span>
+                                        <form class="form-inline">
+                                            <select data-style="btn-sm btn-light" class="selectpicker" id="datasetSelect">
+                                            </select>
+                                        </form>
+                                        <ul class="navbar-nav mr-auto">
+                                            <li class="nav-item">
+                                                <a class="font-italic text-primary nav-link" id="downloadInformation" data-toggle="modal" data-target="#downloadModal"><i class="fa-solid fa-download"></i> Download Data</a>
+                                            </li>
+                                        </ul>
+                                     </div>
+                                    `;
 
                         $('#dataSetSelectMenu').append(html);
 
@@ -1295,7 +1513,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             let legendData = [];
             let xDomain = [0, 2];
 
-            if (elems.length == 1) {
+            if (elems.length === 1) {
                 xDomain = [0, 1];
                 legendData.push({
                     "x": 1,
@@ -1309,7 +1527,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 let g = 0;
                 for(let i = elems.length - 1; i >=0 ; i--) {
                     let x = g % 2;
-                    let y = ((elems.length % 2) == 1) ? Math.ceil(i / 2) : Math.floor(i / 2);
+                    let y = ((elems.length % 2) === 1) ? Math.ceil(i / 2) : Math.floor(i / 2);
                     let d = {
                         "x": x,
                         "y": y,
@@ -1322,30 +1540,26 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
             }
 
-            let legend =
-                {
-                    "height": height,
-                    "data": {
-                        "values": legendData
+            return {
+                "height": height,
+                "data": {
+                    "values": legendData
+                },
+                "mark": {
+                    "type": "text",
+                    "align": "left",
+                    "tooltip": {
+                        "handler": "nullHandler"
                     },
-                    "mark": {
-                        "type": "text",
-                        "align": "left",
-                        "tooltip": {
-                            "handler": "nullHandler"
-                        },
-
-                    },
-                    "encoding": {
-                        "x": { "axis": null, "title": null, "field": "x", "type": "quantitative", "scale": {"domain": xDomain} },
-                        "y": { "axis": null, "title": null,  "field": "y", "type": "quantitative"},
-                        "color": { "field": "color", "type": "nominal" },
-                        "text": { "field": "text", "type": "nominal" },
-                        "size": { "value": 11 }
-                    }
-                };
-
-            return legend;
+                },
+                "encoding": {
+                    "x": { "axis": null, "title": null, "field": "x", "type": "quantitative", "scale": {"domain": xDomain} },
+                    "y": { "axis": null, "title": null,  "field": "y", "type": "quantitative"},
+                    "color": { "field": "color", "type": "nominal" },
+                    "text": { "field": "text", "type": "nominal" },
+                    "size": { "value": 11 }
+                }
+            };
         }
 
         /**
@@ -1998,6 +2212,11 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
         function downloadLODPeaks(dataSetID, callback) {
             let lodPeaksURL = `{{ url_for('api.api_get', url=config.API_R_BASE + '/lodpeaks', _external=False) }}?dataset=${dataSetID}`;
             downloadData(lodPeaksURL, 'LODPeaks', callback);
+        }
+
+        function downloadEnvInfo(callback) {
+            let envInfoURL = '{{ url_for('api.api_get', url=config.API_R_BASE + '/envinfo', _external=False) }}';
+            downloadData(envInfoURL, 'envInfo', callback);
         }
 
         function downloadDataSets(callback) {
@@ -4627,7 +4846,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             }
         }
 
-
         function exportLODChartData(id, data, covar, exportName) {
             let csvContent = '"id","chromosome","position","lod"\n';
             $.each(data, function(k, v) {
@@ -4639,7 +4857,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             } else {
                 downloadCSV(csvContent, `${id}_LOD.csv`, 'text/csv;encoding:utf-8');
             }
-
         }
 
         function plotLODChart(dataLOD, covar, dataDiff) {
@@ -6448,7 +6665,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             exporting: {
                 buttons: {
                     contextButton: {
-//                        symbol: "url({{ url_for('static', filename='fileDownload.svg') }})",
                         menuItems: [
                             'downloadPNG'
                         ]
@@ -6456,39 +6672,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 },
             },
         });
-        Highcharts.theme =
-        {
-  "colors": ["#0266C8", "#F90101", "#F2B50F", "#00933B"],
-  "chart": {
-    "style": {
-      "fontFamily": "Roboto",
-      "color": "#444444"
-    }
-  },
-  "xAxis": {
-    "gridLineWidth": 1,
-    "gridLineColor": "#F3F3F3",
-    "lineColor": "#F3F3F3",
-    "minorGridLineColor": "#F3F3F3",
-    "tickColor": "#F3F3F3",
-    "tickWidth": 1
-  },
-  "yAxis": {
-    "gridLineColor": "#F3F3F3",
-    "lineColor": "#F3F3F3",
-    "minorGridLineColor": "#F3F3F3",
-    "tickColor": "#F3F3F3",
-    "tickWidth": 1
-  },
-  "legendBackgroundColor": "rgba(0, 0, 0, 0.5)",
-  "background2": "#505053",
-  "dataLabelsColor": "#B0B0B3",
-  "textColor": "#C0C0C0",
-  "contrastTextColor": "#F0F0F3",
-  "maskColor": "rgba(255,255,255,0.3)"
-};
-
-        //Highcharts.setOptions(Highcharts.theme);
 
         $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
            $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
