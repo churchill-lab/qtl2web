@@ -4,7 +4,7 @@ from flask import current_app
 from flask import redirect
 from flask import render_template
 from flask import request
-from flask import send_file
+from flask import send_from_directory
 from flask import session
 from flask import url_for
 
@@ -12,7 +12,6 @@ from flask import url_for
 from qtlweb import utils
 from qtlweb import tech
 
-import ntpath
 import os
 import socket
 
@@ -135,14 +134,9 @@ def info():
 @page.route('/dl')
 def dl():
     file_name = request.values.get('fileName', '')
-    root_url = url_for('page.index')
-
-    if root_url[-1] == '/':
-        redirect_url = '{}data/{}'.format(root_url, file_name)
-    else:
-        redirect_url = '{}/data/{}'.format(root_url, file_name)
-
-    return redirect(redirect_url)
+    return send_from_directory('/app/qtlweb/data/rdata',
+                               file_name,
+                               as_attachment=True)
 
 
 

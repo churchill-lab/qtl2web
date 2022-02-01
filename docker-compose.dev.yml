@@ -23,7 +23,7 @@ services:
     volumes:
       - ./qtlweb:/app/qtlweb
       - ${HOST_FILE_QTLWEB_SETTINGS}:${CONTAINER_FILE_QTLWEB_SETTINGS}
-      - ${HOST_FILE_RDATA}:/app/qtlapi/data/${QTLAPI_RDATA}
+      - ${HOST_FILE_RDATA}:/app/qtlweb/data/rdata
       - ${HOST_DIR_QTLWEB_CACHE}:${CONTAINER_DIR_QTLWEB_CACHE}
 
   celery:
@@ -33,7 +33,7 @@ services:
       - '.env'
     volumes:
       - ${HOST_FILE_QTLWEB_SETTINGS}:${CONTAINER_FILE_QTLWEB_SETTINGS}
-      - ${HOST_FILE_RDATA}:/app/qtlapi/data/${QTLAPI_RDATA}
+      - ${HOST_FILE_RDATA}:/app/qtlweb/data/rdata
       - ${HOST_DIR_QTLWEB_CACHE}:${CONTAINER_DIR_QTLWEB_CACHE}
 
 #  flower:

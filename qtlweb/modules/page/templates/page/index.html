@@ -1620,12 +1620,18 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
                 logDebug('lodThreshold=', lodThreshold);
 
+                let mult = 1.0;
+
+                if (g.DATASETS[g.dataSetID].lodpeaks[covar][0][2] < 1000) {
+                    mult = 1000000.0;
+                }
+
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
                     if ((element[1] in chrs) && (element[idxGeneChr] in chrs)) {
                         let markerChr = chrs[element[1]].chromosome;
-                        let markerPos = element[2] * 1000000.0;
+                        let markerPos = element[2] * mult;
                         let geneChr = chrs[element[idxGeneChr]].chromosome;
-                        let genePos = element[idxGenePos] * 1000000.0;
+                        let genePos = element[idxGenePos] * mult;
 
                         if ((lodThreshold != null) && (element[idxLODPos] >= lodThreshold)) {
                             data.push({
@@ -1771,11 +1777,16 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     }
                 });
 
+                let mult = 1.0;
+
+                if (g.DATASETS[g.dataSetID].lodpeaks[covar][0][2] < 1000) {
+                    mult = 1000000.0;
+                }
 
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
                     // element[0] = marker_id
                     let markerChr = chrs[element[1]].chromosome;
-                    let markerPos = element[2] * 1000000.0;
+                    let markerPos = element[2] * mult;
 
                     // lookup the phenotype
                     let phenotype = g.DATASETS[g.dataSetID].phenotypes[element[3]];
@@ -2057,6 +2068,12 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 // [marker_id, chrom, position, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
                 // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
 
+                let mult = 1.0;
+
+                if (g.DATASETS[g.dataSetID].lodpeaks[covar][0][2] < 1000) {
+                    mult = 1000000.0;
+                }
+
                 let idxGeneID = 3;
                 let idxGeneSymbol = 4;
                 let idxGeneChr = 5;
@@ -2078,9 +2095,9 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function (index, element) {
                     if ((element[1] in chrs) && (element[idxGeneChr] in chrs)) {
                         let markerChr = chrs[element[1]].chromosome;
-                        let markerPos = element[2] * 1000000.0;
+                        let markerPos = element[2] * mult;
                         let geneChr = chrs[element[idxGeneChr]].chromosome;
-                        let genePos = element[idxGenePos] * 1000000.0;
+                        let genePos = element[idxGenePos] * mult;
 
                         data.push({
                             geneChr: geneChr,
