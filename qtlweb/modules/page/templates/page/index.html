@@ -933,13 +933,17 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
     function buildEnvInfo(envInfo) {
         let htmlBody = '<table id="envInfoTable" class="table table-striped table-bordered table-sm table-sm-text">';
-        htmlBody += '<thead><th>Filename</th><th>Elements</th></thead>';
+        htmlBody += '<thead><th>Filename</th><th>Size</th><th>Elements</th></thead>';
         $.each(envInfo, function(idx, value) {
             logDebug('value=', value);
+            let fileSize = niceBytes(value.fileSize);
             htmlBody += `
             <tr>
-                <td data-order="${value.baseFileName}">
-                    <a href="#" baseFileName="${value.baseFileName}">${value.baseFileName}</a>
+                <td data-order="${value.fileName}">
+                    <a href="#" fileName="${value.fileName}">${value.fileName}</a>
+                </td>
+                <td>
+                    ${fileSize}
                 </td>
                 <td>`;
 
@@ -949,7 +953,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 htmlBody += value.elements.join('<br>');
             }
 
-            htmlBody += '</tr>';
+            htmlBody += '</td></tr>';
         });
 
         htmlBody += '</table>';
@@ -964,7 +968,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
         $('#envInfoTable a').click(function(evt) {
             evt.preventDefault();
             let that = $(this);
-            let f = that.attr('baseFileName');
+            let f = that.attr('fileName');
             window.location = "{{ url_for('page.dl') }}" + `?fileName=${f}`;
             return false;
         });
@@ -1370,8 +1374,8 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 geneData = geneData[key];
             }
 
-            let startFormat = formatMbp(geneData.start/1000000);
-            let endFormat = formatMbp(geneData.end/1000000);
+            let startFormat = Number(geneData.start/1000000).toFixed(2);
+            let endFormat = Number(geneData.end/1000000).toFixed(2);
             let mbpDesc = 'Mbp';
 
             if (startFormat < 1) {
@@ -2034,13 +2038,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             let covar = $('#interactiveCovarPeaks').val();
             logDebug('covar=', covar);
 
-            let data = [];
-            let xAxis = null;
-            let yAxis = null;
-            let tooltip = null;
-            let clickFunction = null;
-            let series = [];
-            let legend = null;
             let minLOD = Infinity;
             let maxLOD = -Infinity;
             let html = `<div class="row">
@@ -2049,15 +2046,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                             </div>
                         </div>`;
 
-
-
             g.LODThreshold = null;
-
-            let trackPeakLOD = null;
-
-            let chrs = g.DATASETS[g.dataSetID].chromosomes.chr;
-
-            logDebug('chrs=', chrs);
 
             if ((g.DATASETS[g.dataSetID].datatype === 'mrna') ||
                 (g.DATASETS[g.dataSetID].datatype === 'protein')) {
@@ -2068,65 +2057,22 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 // [marker_id, chrom, position, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
                 // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
 
-                let mult = 1.0;
-
-                if (g.DATASETS[g.dataSetID].lodpeaks[covar][0][2] < 1000) {
-                    mult = 1000000.0;
-                }
-
-                let idxGeneID = 3;
-                let idxGeneSymbol = 4;
-                let idxGeneChr = 5;
-                let idxGenePos = 6;
                 let idxLODPos = 7;
-                let isProtein = false;
 
                 if (g.DATASETS[g.dataSetID].datatype === 'protein') {
-                    idxGeneID = 4;
-                    idxGeneSymbol = 5;
-                    idxGeneChr = 6;
-                    idxGenePos = 7;
                     idxLODPos = 8;
-                    isProtein = true;
                 }
 
-                logDebug('idxGeneChr=', idxGeneChr);
+                let lods = g.DATASETS[g.dataSetID].lodpeaks[covar];
 
-                $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function (index, element) {
-                    if ((element[1] in chrs) && (element[idxGeneChr] in chrs)) {
-                        let markerChr = chrs[element[1]].chromosome;
-                        let markerPos = element[2] * mult;
-                        let geneChr = chrs[element[idxGeneChr]].chromosome;
-                        let genePos = element[idxGenePos] * mult;
-
-                        data.push({
-                            geneChr: geneChr,
-                            genePos: genePos,
-                            genePosOrig: element[idxGenePos],
-                            markerChr: markerChr,
-                            markerPos: markerPos,
-                            markerPosOrig: element[2],
-                            x: +(markerChr.start + markerPos),
-                            y: +(geneChr.start + genePos),
-                            lod: element[idxLODPos],
-                            markerID: element[0],
-                            geneID: element[idxGeneID],
-                            geneSymbol: element[idxGeneSymbol],
-                            proteinID: isProtein ? element[3] : '',
-                            covar: covar
-                        });
-
-                        minLOD = Math.min(minLOD, element[idxLODPos]);
-                        maxLOD = Math.max(maxLOD, element[idxLODPos]);
-                    }
-                });
-
-                minLOD = Math.max(0, Math.floor(minLOD));
+                // a.reduce((a,b)=>a.size>b.size?a:b).size;
+                minLOD = lods.reduce((a, b) => a[idxLODPos] < b[idxLODPos] ? a : b)[idxLODPos];
+                maxLOD = lods.reduce((a, b) => a[idxLODPos] > b[idxLODPos] ? a : b)[idxLODPos];
 
                 // round up to nearest 10, 11->20, 7->10, 88->90
                 maxLOD = Math.ceil(maxLOD / 10) * 10;
-
-                let currentLOD = minLOD;
+                // round down
+                minLOD = Math.max(0, Math.floor(minLOD));
 
                 logDebug('minLOD=', minLOD, 'maxLOD=', maxLOD);
 
@@ -2137,7 +2083,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                         </div>
                         <div class="col-auto">
                             <div class="input-group">
-                                <input id="lodSliderValue" type="number" min="${minLOD}" max="${maxLOD}" step=".5" value="${currentLOD}" class="form-control" size="6">
+                                <input id="lodSliderValue" type="number" min="${minLOD}" max="${maxLOD}" step=".5" value="${minLOD}" class="form-control" size="6">
                                 <span class="input-group-append">
                                     <button id="btnGoLOD" class="btn btn-primary"><i class="fas fa-caret-right"></i></button>
                                 </span>
@@ -2149,38 +2095,42 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                             <span>${minLOD}</span>
                         </div>
                         <div class="col-8">
-                            <input type="range" class="custom-range" value="${currentLOD}" min="${minLOD}" max="${maxLOD}" id="lodRange">
+                            <input type="range" class="custom-range" value="${minLOD}" min="${minLOD}" max="${maxLOD}" id="lodRange">
                         </div>
                         <div class="col text-left">
                             <span>${maxLOD}</span>
                         </div>
                     </div>
                 `;
+
+
+                $('#divLODPeaks').html(html);
+
+                $('#lodRange').on('change', function (evt) {
+                    $('#lodSliderValue').val(evt.target.value);
+                    plotLODPeaks(g.DATASETS[g.dataSetID].lodpeaks[covar], evt.target.value);
+                });
+
+                $('#btnGoLOD').click(function (evt) {
+                    $('#lodRange').val(+$('#lodSliderValue').val());
+                    plotLODPeaks(g.DATASETS[g.dataSetID].lodpeaks[covar], +$('#lodSliderValue').val());
+                });
+
+
+                $('#lodSliderValue').bind('keyup input', function (evt) {
+                    $('#lodRange').val(+$('#lodSliderValue').val());
+                    plotLODPeaks(g.DATASETS[g.dataSetID].lodpeaks[covar], +$('#lodSliderValue').val());
+                });
             } else {
-                html = html + '<div class="row"><div class="col" id="lodPeaksLegend"></div></div>';
+                $('#divLODPeaks').html(html);
             }
-
-            $('#divLODPeaks').html(html);
-
-            $('#lodRange').on('change', function(evt) {
-                $('#lodSliderValue').val(evt.target.value);
-                plotLODPeaks(g.DATASETS[g.dataSetID].lodpeaks[covar], evt.target.value);
-            });
-
-            $('#btnGoLOD').click(function(evt) {
-                $('#lodRange').val(+$('#lodSliderValue').val());
-                plotLODPeaks(g.DATASETS[g.dataSetID].lodpeaks[covar], +$('#lodSliderValue').val());
-            });
-
-
-            $('#lodSliderValue').bind('keyup input', function(evt){
-                $('#lodRange').val(+$('#lodSliderValue').val());
-                plotLODPeaks(g.DATASETS[g.dataSetID].lodpeaks[covar], +$('#lodSliderValue').val());
-            });
 
             plotLODPeaks(g.DATASETS[g.dataSetID].lodpeaks[covar], maxLOD);
         }
 
+        /**
+         *
+         */
         function startTask() {
             g.runningTask = true;
             Swal.fire({
@@ -2210,6 +2160,13 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             Swal.close();
         }
 
+        /**
+         * Download chomo
+         * @param release
+         * @param species
+         * @param _id
+         * @param callback
+         */
         function downloadChromosomes(release, species, _id, callback) {
             let chromosomeURL = `{{ url_for('api.api_get', url='', _external=False) }}${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/chromosomes`;
             let amp = '';
@@ -4876,6 +4833,13 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             }
         }
 
+        /**
+         * Plot the LOD chart.
+         *
+         * @param {Array} dataLOD Array of objects containing LOD scores.
+         * @param {string} covar The covariate (additive) for default.
+         * @param {Array} dataDiff Array of covariate objects containing LOD score.
+         */
         function plotLODChart(dataLOD, covar, dataDiff) {
             // "1_3000000", "1", 3, 1.4975
             let maxLOD = -Infinity;

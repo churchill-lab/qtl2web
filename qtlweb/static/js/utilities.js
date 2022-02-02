@@ -5,11 +5,11 @@
 
 /**
  * Simple compare function.
- * @param {object} a - first object
- * @param {number} a.x - first number
- * @param {object} b - second object
- * @param {number} b.x - second number
- * @return {number} 0 if equal, 1 if a.x > b.x, -1 if a.x < b.x
+ * @param {Object} a The first object to compare.
+ * @param {number} a.x Sub element x to compare.
+ * @param {Object} b The second object to compare.
+ * @param {number} b.x Sub element x to compare.
+ * @returns {number} 0 if equal, 1 if a.x > b.x, -1 if a.x < b.x.
  */
 function compareX(a, b) {
     if (a.x < b.x)
@@ -19,28 +19,18 @@ function compareX(a, b) {
     return 0;
 }
 
-/**
- * Format Mbp to two decimal places.
- * @param {number} Mbp - the number to round
- * @return {string} Mbp formatted to two decimal places
- */
-function formatMbp(Mbp) {
-    return Number(Mbp).toFixed(2);
-}
-
 
 /**
  * Get a random integer between min and max.
- * @param {number} minn - the number to round
- * @param {number} maxx - the number to round
- * @return {number} a number between minn and maxx
+ * @param {number} min The minimum number.
+ * @param {number} max The maximum number.
+ * @return {number} A number between min and max.
  */
-function getRandomInt(minn, maxx) {
-    minn = Math.ceil(minn);
-    maxx = Math.floor(maxx);
-    return Math.floor(Math.random() * (maxx - minn + 1)) + minn;
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
 
 
 /**
@@ -87,14 +77,33 @@ function permutateArrays(arraysToCombine) {
     for (let i = 0; i < numPerms; i++) {
         combinations.push(getPermutation(i, arraysToCombine));
     }
+
     return combinations;
 }
 
 
 /**
+ * Convert bytes into highest unit.
+ * @param x {number} Array of numbers.
+ * @returns {string} The converted bytes into the highest unit.
+ */
+function niceBytes(x){
+    let units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    let l = 0;
+    let n = parseInt(x, 10) || 0;
+
+    while(n >= 1024 && ++l){
+        n = n/1024;
+    }
+
+  return(n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]);
+}
+
+
+/**
  * Get the mean of an array of numbers.
- * @param data {Array} - array of numbers
- * @returns {number} mean of "data"
+ * @param data {Array[number]} Array of numbers.
+ * @returns {number} The mean of data.
  */
 function mean(data) {
     let len = data.length;
@@ -108,9 +117,9 @@ function mean(data) {
 
 /**
  * Because .sort() doesn't sort numbers correctly
- * @param a {number} - 1st value to compare
- * @param b {number} - 2nd value to compare
- * @returns {number} positive, negative, or zero
+ * @param a {number} The 1st number to compare.
+ * @param b {number} The 2nd number to compare.
+ * @returns {number} -1, 0, 1.
  */
 function numSort(a, b) {
     return a - b;
