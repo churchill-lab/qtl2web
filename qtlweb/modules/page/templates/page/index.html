@@ -1631,6 +1631,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 }
 
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
+
                     if ((element[1] in chrs) && (element[idxGeneChr] in chrs)) {
                         let markerChr = chrs[element[1]].chromosome;
                         let markerPos = element[2] * mult;
@@ -1638,7 +1639,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                         let genePos = element[idxGenePos] * mult;
 
                         if ((lodThreshold != null) && (element[idxLODPos] >= lodThreshold)) {
-                            data.push({
+                            let lod = {
                                 geneChr: geneChr,
                                 genePos: genePos,
                                 genePosOrig: element[idxGenePos],
@@ -1652,7 +1653,20 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                                 proteinID: isProtein ? element[3] : null,
                                 covar: covar,
                                 phenotype: true
-                            });
+                            };
+
+                            if (element.length > idxLODPos) {
+                                lod['A'] = element[idxLODPos + 1]
+                                lod['B'] = element[idxLODPos + 2]
+                                lod['C'] = element[idxLODPos + 3]
+                                lod['D'] = element[idxLODPos + 4]
+                                lod['E'] = element[idxLODPos + 5]
+                                lod['F'] = element[idxLODPos + 6]
+                                lod['G'] = element[idxLODPos + 7]
+                                lod['H'] = element[idxLODPos + 8]
+                            }
+
+                            data.push(lod);
                         }
 
                         minLOD = Math.min(minLOD, element[idxLODPos]);
@@ -1666,6 +1680,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 maxLOD = Math.ceil(maxLOD / 10) * 10;
 
                 logDebug('minLOD=', minLOD, 'maxLOD=', maxLOD);
+                logDebug(data);
 
                 trackPeakLOD = {
                     "name": "lod",
@@ -2230,22 +2245,32 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
         }
 
         async function lodPeakGeneTooltipHandler(datum, mark, props) {
-            //logDebug(datum, mark, props);
-            let alleleEffects = '';
+            logDebug(datum, mark, props);
             if ('A' in datum){
-                alleleEffects = `
-                    <br><strong>Allele Effects</strong>
-                    <br> A: ${datum.A}
-                    <br> B: ${datum.B}
-                    <br> C: ${datum.C}
-                    <br> D: ${datum.D}
-                    <br> E: ${datum.E}
-                    <br> F: ${datum.F}
-                    <br> G: ${datum.G}
-                    <br> H: ${datum.H}
-                `
-            }
-
+                return genomeSpyEmbed.html`
+                <div class="title">
+                    <strong>${datum.lod}</strong>
+                </div>
+                <p class="summary">
+                    <strong>ID</strong> ${datum.geneID}
+                    <br/>
+                    <strong>Symbol</strong> ${datum.geneSymbol}
+                    <br/>
+                    <strong>Gene Position</strong> ${datum.geneChr}:${datum.genePos}
+                    <br/>
+                    <strong>Marker Position</strong> ${datum.markerChr}:${datum.markerPos}
+                    <br/>
+                    <strong>Allele Effects</strong>
+                    <br/>  A: ${datum.A}
+                    <br/>  B: ${datum.B}
+                    <br/>  C: ${datum.C}
+                    <br/>  D: ${datum.D}
+                    <br/>  E: ${datum.E}
+                    <br/>  F: ${datum.F}
+                    <br/>  G: ${datum.G}
+                    <br/>  H: ${datum.H}
+                </p>`;
+            } else {
             return genomeSpyEmbed.html`
                 <div class="title">
                     <strong>${datum.lod}</strong>
@@ -2254,8 +2279,14 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     <strong>ID</strong> ${datum.geneID}
                     <br/>
                     <strong>Symbol</strong> ${datum.geneSymbol}
-                    ${alleleEffects}
-            `;
+                    <br/>
+                    <strong>Gene Position</strong> ${datum.geneChr}:${datum.genePos}
+                    <br/>
+                    <strong>Marker Position</strong> ${datum.markerChr}:${datum.markerPos}
+                    <br/>
+                </p>`;
+            }
+
         }
 
         async function lodPeakPhenotypeTooltipHandler(datum, mark, props) {
