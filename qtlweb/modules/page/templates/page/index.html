@@ -1620,6 +1620,8 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 }
 
                 logDebug('idxGeneChr=', idxGeneChr);
+                logDebug('idxLODPos=', idxLODPos);
+
                 let lodThreshold =  +$('#lodSliderValue').val();
 
                 logDebug('lodThreshold=', lodThreshold);
@@ -1655,7 +1657,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                                 phenotype: true
                             };
 
-                            if (element.length > idxLODPos) {
+                            if (element.length > idxLODPos + 1) {
                                 lod['A'] = element[idxLODPos + 1]
                                 lod['B'] = element[idxLODPos + 2]
                                 lod['C'] = element[idxLODPos + 3]
