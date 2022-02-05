@@ -1647,7 +1647,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                                 genePosOrig: element[idxGenePos],
                                 markerChr: markerChr,
                                 markerPos: markerPos,
-                                markerPosOrig: element[2],
+                                markerPOrig: element[2],
                                 lod: element[idxLODPos],
                                 markerID: element[0],
                                 geneID: element[idxGeneID],
@@ -1676,10 +1676,8 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     }
                 });
 
-                minLOD = Math.max(0, Math.floor(minLOD));
-
-                // round up to nearest 10, 11->20, 7->10, 88->90
-                maxLOD = Math.ceil(maxLOD / 10) * 10;
+                minLOD = Math.max(0, Math.floor(minLOD) - 1);
+                maxLOD = Math.ceil(maxLOD) + 1;
 
                 logDebug('minLOD=', minLOD, 'maxLOD=', maxLOD);
                 logDebug(data);
@@ -1848,10 +1846,8 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     maxLOD = Math.max(maxLOD, element[6]);
                 });
 
-                minLOD = Math.max(0, Math.floor(minLOD));
-
-                // round up to nearest 10, 11->20, 7->10, 88->90
-                maxLOD = Math.ceil(maxLOD / 10) * 10;
+                minLOD = Math.max(0, Math.floor(minLOD) - 1);
+                maxLOD = Math.ceil(maxLOD) + 1;
 
                 let axisTicks = calculateTicks(minLOD, maxLOD, 5);
 
@@ -2086,10 +2082,8 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 minLOD = lods.reduce((a, b) => a[idxLODPos] < b[idxLODPos] ? a : b)[idxLODPos];
                 maxLOD = lods.reduce((a, b) => a[idxLODPos] > b[idxLODPos] ? a : b)[idxLODPos];
 
-                // round up to nearest 10, 11->20, 7->10, 88->90
-                maxLOD = Math.ceil(maxLOD / 10) * 10;
-                // round down
-                minLOD = Math.max(0, Math.floor(minLOD));
+                minLOD = Math.max(0, Math.floor(minLOD) - 1);
+                maxLOD = Math.ceil(maxLOD) + 1;
 
                 logDebug('minLOD=', minLOD, 'maxLOD=', maxLOD);
 
@@ -2246,6 +2240,43 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             return geneInfo;
         }
 
+        async function mediationTooltipHandler(datum, mark, props) {
+            logDebug(datum);
+
+            if ('protein_id' in datum) {
+                return genomeSpyEmbed.html`
+                    <div class="title">
+                        <strong>${datum.LOD}</strong>
+                    </div>
+                    <p class="summary">
+                        <strong>Protein ID</strong> ${datum.protein_id}
+                        <br/>
+                        <strong>Gene ID</strong> ${datum.gene_id}
+                        <br/>
+                        <strong>Symbol</strong> ${datum.symbol}
+                        <br/>
+                        <strong>Location</strong> ${datum.chrom}:${datum.position.toLocaleString()}
+                        <br/>
+                    </p>
+                `;
+
+            } else {
+                return genomeSpyEmbed.html`
+                    <div class="title">
+                        <strong>${datum.LOD}</strong>
+                    </div>
+                    <p class="summary">
+                        <strong>Gene ID</strong> ${datum.gene_id}
+                        <br/>
+                        <strong>Symbol</strong> ${datum.symbol}
+                        <br/>
+                        <strong>Location</strong> ${datum.chrom}:${datum.position.toLocaleString()}
+                        <br/>
+                    </p>
+                `;
+            }
+        }
+
         async function lodPeakGeneTooltipHandler(datum, mark, props) {
             logDebug(datum, mark, props);
             if ('A' in datum){
@@ -2307,6 +2338,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 </p>
             `;
         }
+
 
         function parseCSQ(strCSQ) {
             if (strCSQ.length <= 1) {
@@ -3575,30 +3607,43 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             downloadCSV(csvContent, `${id}_MEDIATION.csv`, 'text/csv;encoding:utf-8');
         }
 
-
         /**
          * Plot mediation data
          * @param {Object} mediationData - mediation data
          */
         function plotMediation(mediationData, dsMediateAgainst) {
+            logDebug('mediation');
             let newData = [];
+            let mult = 1.0;
+
+            if (mediationData[0][3] < 1000) {
+                mult = 1.0;
+            }
+
+            // build the chomosome rects
+            let rects = [];
+            $.each(g.DATASETS[g.dataSetID].chromosomes.contigs, function(k, v) {
+                if ((k % 2) === 1) {
+                    rects.push({
+                        name: v.name,
+                        size: v.size,
+                        start: 1,
+                        end: v.size
+                    });
+                }
+            });
+
 
             if (g.DATASETS[dsMediateAgainst].datatype === 'mrna') {
                 // ["ENSMUSG00000000001", "Gnai3", "3", 108.1267, 140.1666]
                 $.each(mediationData, function(index, element) {
                     if (element[2] in g.DATASETS[g.dataSetID].chromosomes.chr) {
-                        let chr = g.DATASETS[g.dataSetID].chromosomes.chr[element[2]];
-                        element.x = chr.start + (element[3] * 1000000.0);
-                        element.y = element[4];
-
                         newData.push({
-                            chr: element[2],
                             gene_id: element[0],
-                            LOD: element[4],
-                            pos: element[3],
                             symbol: element[1],
-                            x: chr.start + (element[3] * 1000000.0),
-                            y: element[4]
+                            chrom: element[2],
+                            position: (element[3] * mult),
+                            LOD: element[4]
                         });
                     } else {
                         //logDebug(element);
@@ -3609,19 +3654,13 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 // ["ENSMUSP00000000001", "ENSMUSG00000000001", "Gnai3", "3", 108.126713, 7.1102046955]
                 $.each(mediationData, function(index, element) {
                     if (element[3] in g.DATASETS[g.dataSetID].chromosomes.chr) {
-                        let chr = g.DATASETS[g.dataSetID].chromosomes.chr[element[3]];
-                        element.x = chr.start + (element[4] * 1000000.0);
-                        element.y = element[5];
-
                         newData.push({
-                            chr: element[3],
-                            gene_id: element[1],
                             protein_id: element[0],
-                            LOD: element[5],
-                            pos: element[4],
+                            gene_id: element[1],
                             symbol: element[2],
-                            x: chr.start + (element[4] * 1000000.0),
-                            y: element[5]
+                            chrom: element[3],
+                            position: (element[4] * mult),
+                            LOD: element[5]
                         });
                     } else {
                         //logDebug(element);
@@ -3631,37 +3670,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 // TODO: handle error
                 logError('MAJOR PROBLEM');
             }
-
-            let axisTickVals = [];
-            let axisTickText = [];
-
-            // rectangles to display
-            let dataChromosome = {};
-            let chromosomeAxisVals = [];
-            let chromosomeAxisText = {};
-            let chromosomeBands = [];
-
-            $.each(g.DATASETS[g.dataSetID].chromosomes.idx, function(index, element) {
-
-                axisTickVals.push(element.mid);
-                axisTickText.push(element.chromosome);
-
-                dataChromosome[element.chromosome] = {};
-                dataChromosome[element.chromosome].data = [];
-
-                chromosomeAxisVals.push(element.mid);
-                chromosomeAxisText[element.mid] = element.chromosome;
-
-                // TODO: style this
-                let fillColor = '#eeeeee';
-                if ((index % 2) === 1) {
-                    chromosomeBands.push({
-                        color: fillColor,
-                        from: element.start,
-                        to: element.end
-                    });
-                }
-            });
 
             let plotTitle = '';
             let currentID = '';
@@ -3680,81 +3688,190 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 logError('MAJOR PROBLEM');
             }
 
-            let exporting = appendExportButton('Download CSV', function() {
+            let minLOD = newData.reduce((a, b) => a.LOD < b.LOD ? a : b).LOD;
+            let maxLOD = newData.reduce((a, b) => a.LOD > b.LOD ? a : b).LOD;
+
+            logDebug('minLOD=', minLOD);
+            logDebug('maxLOD=', maxLOD);
+
+            minLOD = Math.max(0, Math.floor(minLOD) - 1);
+            maxLOD = Math.ceil(maxLOD) + 1;
+
+            logDebug('minLOD=', minLOD);
+            logDebug('maxLOD=', maxLOD);
+
+            let axisTicks = calculateTicks(minLOD, maxLOD, 5);
+            let axisLines = [];
+
+            $.each(axisTicks, function(k,v) {
+                axisLines.push({
+                    axisLOD: v
+                })
+            });
+
+            logDebug('minLOD=', minLOD);
+            logDebug('maxLOD=', maxLOD);
+            logDebug('axisLines=', axisLines);
+            logDebug('newData=', newData);
+
+            let trackMediation = {
+                "name": "lod",
+                "layer": [
+                    {
+                        "title": "Xbound",
+                        "data": {
+                            "values": rects
+                        },
+                        "mark": {
+                            "type": "rect",
+                            "tooltip": {
+                                "handler": "nullHandler"
+                            },
+                        },
+                        "encoding": {
+                            "x": {
+                                "chrom": "name",
+                                "pos": "start",
+                                "type": "locus",
+                                "title": null
+                            },
+                            "x2": {
+                                "chrom": "name",
+                                "pos": "end",
+                                "type": "locus",
+                                "title": null
+                            },
+                            "color": {
+                                "value": "#eeeeee"
+                            }
+                        },
+                    },
+                    {
+                        "title": "Ybound",
+                        "data": {
+                            "values": axisLines,
+                        },
+                        "mark": {
+                            "type": "rule",
+                            "tooltip": {
+                                "handler": "nullHandler"
+                            },
+                        },
+                        "encoding": {
+                            "y": {
+                                "field": "axisLOD",
+                                "type": "quantitative",
+                                "title": null
+                            },
+                            "color": {
+                                "value": "#e5e5e5"
+                            }
+                        },
+                    },
+                    {
+                        "data": {
+                            "values": newData
+                        },
+                        "title": "LODS",
+                        "mark": {
+                            "type": "point",
+                            "tooltip": {
+                                "handler": "mediationTooltipHandler"
+                            },
+                            "geometricZoomBound": 4,
+                            "inwardStroke": true,
+                            "stroke": "#233b5e",
+                            "strokeWidth": 0.7,
+                            "fillOpacity": 0.6,
+                            "strokeOpacity": 0.8
+                        },
+                        "encoding": {
+                            "x": {
+                                "chrom": "chrom",
+                                "pos": "position",
+                                "type": "locus"
+                            },
+                            "y": {
+                                "field": "LOD",
+                                "type": "quantitative",
+                                "title": "LOD",
+                                "scale": { "domain": [minLOD, maxLOD] },
+                                "axis": {
+                                  "values": axisTicks
+                                },
+                            },
+                            "color": {
+                                "value": "#7090c0"
+                            },
+                            "size": {
+                                "value": 100
+                            },
+                            "opacity": {
+                                "value": 1
+                            }
+                        }
+                    }
+                ]
+            };
+            let tracks = [trackMediation];
+            let handlers = {
+                nullHandler: nullHandler,
+                mediationTooltipHandler: mediationTooltipHandler
+            };
+
+            const spec = {
+                "genome": {
+                    "name": g.DATASETS[g.dataSetID].ensembl_species + " " + g.DATASETS[g.dataSetID].ensembl_release,
+                    "contigs": g.DATASETS[g.dataSetID].chromosomes.contigs
+                },
+
+                "vconcat": tracks
+            };
+
+            logDebug("g.DATASETS[g.dataSetID].chromosomes.contigs=", g.DATASETS[g.dataSetID].chromosomes.contigs);
+            logDebug('SPEC=', spec);
+
+            $("#plotMediation").html('<div class="row"><div class="col" id="plotMediationMenu"></div></div><div class="row"><div class="col" id="plotMediationChart"></div></div>');
+            $("#plotMediationChart").html('');
+            $('#plotMediationMenu').html('');
+            $('#plotMediationChart').height('500');
+
+            $('#plotMediationMenu').append(`<div class="col text-center font-weight-bold">${plotTitle}
+                <div class="dropdown dropleft float-right" id="mediationMenuDropdown">
+                  <a class="text-secondary" href="#" role="button" id="mediationDropdownMenuLink" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-bars"></i>
+                  </a>
+
+                  <div class="dropdown-menu" aria-labelledby="mediationDropdownMenuLink">
+                    <a class="dropdown-item" id="mediationDownloadPNG" style="font-size:11px !important">Download PNG image</a>
+                    <a class="dropdown-item" id="mediationDownloadCSV" style="font-size:11px !important">Download CSV</a>
+                  </div>
+                </div>
+            </div>`);
+
+            let n = g.DATASETS[g.dataSetID].display_name;
+            $("#mediationDownloadPNG").click(function (event) {
+                downloadGenomeSpy('#plotMediationChart', `${n}_MEDIATION.png`, '255,255,255');
+            });
+
+            $("#mediationDownloadCSV").click(function (event) {
                 exportMediationData(currentID, newData);
             });
-            exporting.filename = currentID + '_MEDIATION';
 
-            g.chartMediation = Highcharts.chart({
-                chart: {
-                    renderTo: 'plotMediation',
-                    zoomType: 'x',
-                },
-                exporting: exporting,
-                plotOptions: {
-                    scatter: {
-                        marker: {
-                            radius: 5,
-                            states: {
-                                hover: {
-                                    enabled: true,
-                                    lineColor: 'rgb(100,100,100)'
-                                }
-                            }
-                        },
-                        states: {
-                            hover: {
-                                marker: {
-                                    enabled: false
-                                }
-                            }
-                        },
-                    }
-                },
-                series: [{
-                    data: newData,
-                    downsample: {
-                        threshold: 0 // 0 disables downsampling
-                    },
-                    marker: {
-                          radius: 2
-                    },
-                    showInLegend: false,
-                    turboThreshold: 0,
-                    type: 'scatter',
-                }],
-                title: {
-                    text: plotTitle,
-                },
-                tooltip: {
-                    useHTML: true,
-                    formatter: function () {
-                        let p = this.point;
-                        if (p.protein_id) {
-                            return `<b>${p.protein_id}</b><br/>Symbol: ${p.symbol}<br/>Chromosome: ${p.chr}<br/>Location: ${p.pos}<br/>LOD: ${p.LOD}`;
 
-                        } else {
-                            return `<b>${p.gene_id}</b><br/>Symbol: ${p.symbol}<br/>Chromosome: ${p.chr}<br/>Location: ${p.pos}<br/>LOD: ${p.LOD}`;
-                        }
-                    },
-                    outside: true,
-                },
-                xAxis: {
-                    gridLineWidth: 0,
-                    labels: {
-                        formatter: function () {
-                            return chromosomeAxisText[this.value];
-                        }
-                    },
-                    opposite: true,
-                    plotBands: chromosomeBands,
-                    tickPositions: chromosomeAxisVals,
-                },
-                yAxis: {
-                    title: {
-                        text: 'LOD'
+            g.chartMediation = genomeSpyEmbed.embed(
+                document.querySelector("#plotMediationChart"),
+                spec,
+                {
+                    tooltipHandlers: handlers
+                }
+            ).then(function(api) {
+                api.addEventListener("click", function(event) {
+                    if (event.datum != null) {
+                        let datum = event.datum;
+                        logDebug('mediation clicked on', datum);
                     }
-                },
+                });
             });
         }
 
