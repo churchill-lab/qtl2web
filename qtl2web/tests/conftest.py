@@ -1,6 +1,6 @@
 import pytest
 
-from qtlweb.app import create_app
+from qtl2web.app import create_app
 
 
 @pytest.yield_fixture(scope='session')

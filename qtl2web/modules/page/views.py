@@ -9,8 +9,8 @@ from flask import session
 from flask import url_for
 
 
-from qtlweb import utils
-from qtlweb import tech
+from qtl2web import utils
+from qtl2web import tech
 
 import os
 import socket
@@ -134,7 +134,7 @@ def info():
 @page.route('/dl')
 def dl():
     file_name = request.values.get('fileName', '')
-    return send_from_directory('/app/qtlweb/data/rdata',
+    return send_from_directory('/app/qtl2web/data/rdata',
                                file_name,
                                as_attachment=True)
 

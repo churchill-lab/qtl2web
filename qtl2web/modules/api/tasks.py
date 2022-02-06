@@ -3,8 +3,8 @@ import time
 import requests
 import json
 
-from qtlweb.app import create_celery_app
-from qtlweb.utils import format_time
+from qtl2web.app import create_celery_app
+from qtl2web.utils import format_time
 
 celery = create_celery_app()
 

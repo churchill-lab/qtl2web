@@ -1,5 +1,5 @@
-from qtlweb.extensions import mail
-from qtlweb.blueprints.contact.tasks import deliver_contact_email
+from qtl2web.extensions import mail
+from qtl2web.blueprints.contact.tasks import deliver_contact_email
 
 
 class TestTasks(object):

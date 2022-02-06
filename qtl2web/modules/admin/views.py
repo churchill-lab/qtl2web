@@ -9,7 +9,7 @@ from flask import session
 from flask import url_for
 
 
-from qtlweb import utils
+from qtl2web import utils
 
 import ntpath
 import os

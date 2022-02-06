@@ -11,15 +11,15 @@ from flask import url_for
 import requests
 import requests_cache
 
-from qtlweb.modules.admin.views import admin
-from qtlweb.modules.api.views import api
-from qtlweb.modules.page.views import page
-from qtlweb.extensions import compress
-from qtlweb.utils import ReverseProxied
+from qtl2web.modules.admin.views import admin
+from qtl2web.modules.api.views import api
+from qtl2web.modules.page.views import page
+from qtl2web.extensions import compress
+from qtl2web.utils import ReverseProxied
 
 
 CELERY_TASK_LIST = [
-    'qtlweb.modules.api.tasks',
+    'qtl2web.modules.api.tasks',
 ]
 
 
@@ -66,7 +66,7 @@ def create_app():
     """
     app = Flask(__name__, instance_relative_config=True)
 
-    app.config.from_object('qtlweb.config.settings')
+    app.config.from_object('qtl2web.config.settings')
 
     app.logger.setLevel(app.config['LOG_LEVEL'])
 

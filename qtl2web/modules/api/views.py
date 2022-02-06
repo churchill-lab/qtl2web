@@ -10,7 +10,7 @@ import json
 import time
 import requests
 
-from qtlweb.utils import format_time
+from qtl2web.utils import format_time
 
 api = Blueprint('api', __name__, template_folder='templates', url_prefix='/api')
 
@@ -86,7 +86,7 @@ def api_get(url):
 
 @api.route('/submit', methods=['POST'])
 def api_submit():
-    from qtlweb.modules.api.tasks import call_api
+    from qtl2web.modules.api.tasks import call_api
 
     json_data = request.get_json()
     urls = json_data['urls']
@@ -124,7 +124,7 @@ def api_status(group_id):
     REVOKED - Job get cancelled
     """
     print('status called for: ', group_id)
-    from qtlweb.modules.api.tasks import celery
+    from qtl2web.modules.api.tasks import celery
 
     # there is a rare occasion when an exception would be raised
     # code was added to make 5 attempts to enable more robust or
@@ -138,7 +138,7 @@ def api_status(group_id):
         try:
             # get the GroupResult
             rs = celery.GroupResult.restore(group_id)
-            from qtlweb.modules.api.tasks import call_api
+            from qtl2web.modules.api.tasks import call_api
 
             if rs.ready():
                 results = rs.get(propagate=False)
@@ -215,7 +215,7 @@ def api_status_task(task_id):
     FAILURE - Job failed
     REVOKED - Job get cancelled
     """
-    from qtlweb.modules.api.tasks import call_api
+    from qtl2web.modules.api.tasks import call_api
     task = call_api.AsyncResult(task_id)
     print(task)
 
@@ -248,7 +248,7 @@ def api_cancel_task(task_id):
     Cancel Celery task
     REVOKED - Job get cancelled
     """
-    from qtlweb.modules.api.tasks import celery, call_api
+    from qtl2web.modules.api.tasks import celery, call_api
     task = call_api.AsyncResult(task_id)
     task.revoke(terminate=True)
     return jsonify({'status': task.state})
