@@ -42,7 +42,7 @@ RUN python3 -m ensurepip && \
     rm -r /root/.cache
 
 # Add app
-COPY ./qt2lweb /app/qtl2web
+COPY ./qtl2web /app/qtl2web
 COPY ./qtl2web/static /app/static
 
 RUN /bin/sh -c cat /app/qtl2web/entrust_l1k.cer >> /usr/lib/python3.6/site-packages/certifi/cacert.pem

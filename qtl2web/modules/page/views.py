@@ -68,7 +68,7 @@ def index():
     datasetid = request.values.get('datasetid', '')
     debug = utils.str2bool(request.values.get('debug', ''))
     admin = utils.str2bool(request.values.get('admin', ''))
-    app_version = os.getenv('DOCKER_QTLWEB_VERSION', '')
+    app_version = os.getenv('DOCKER_QTL2WEB_VERSION', '')
 
     if current_app.config['LOGIN_REQUIRED'] and not session.get('auth'):
         #print('session.get("auth")')

@@ -70,9 +70,9 @@ def create_app():
 
     app.logger.setLevel(app.config['LOG_LEVEL'])
 
-    if app.config.from_envvar('CONTAINER_FILE_QTLWEB_SETTINGS', silent=True):
-        env_settings = os.environ['CONTAINER_FILE_QTLWEB_SETTINGS']
-        app.logger.info('Using CONTAINER_FILE_QTLWEB_SETTINGS: {}'.format(env_settings))
+    if app.config.from_envvar('CONTAINER_FILE_QTL2WEB_SETTINGS', silent=True):
+        env_settings = os.environ['CONTAINER_FILE_QTL2WEB_SETTINGS']
+        app.logger.info('Using CONTAINER_FILE_QTL2WEB_SETTINGS: {}'.format(env_settings))
 
     app.logger.setLevel(app.config['LOG_LEVEL'])
 
@@ -107,7 +107,7 @@ def extensions(app):
     compress.init_app(app)
 
     try:
-        cache_dir = os.environ['CONTAINER_DIR_QTLWEB_CACHE']
+        cache_dir = os.environ['CONTAINER_DIR_QTL2WEB_CACHE']
         cache_name = os.environ['CONTAINER_CACHE_NAME']
         cache_path = os.path.join(cache_dir, cache_name)
     except:

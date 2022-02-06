@@ -29,7 +29,7 @@ def index():
     datasetid = request.values.get('datasetid', '')
     debug = utils.str2bool(request.values.get('debug', ''))
 
-    app_version = os.getenv('DOCKER_QTLWEB_VERSION', '')
+    app_version = os.getenv('DOCKER_QTL2WEB_VERSION', '')
 
     return render_template('admin/index.html',
                            search_term=search_term, datasetid=datasetid,
