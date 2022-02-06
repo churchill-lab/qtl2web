@@ -2523,8 +2523,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             let maxZoomPos = Math.min(location + zoomWindow, g.DATASETS[g.dataSetID].chromosomes.chr[chromosome].length);
             let minDomainPos = Math.max(location - domainWindow, 0);
             let maxDomainPos = Math.min(location + domainWindow, g.DATASETS[g.dataSetID].chromosomes.chr[chromosome].length);
-            let maxLOD = -Infinity;
-            let minLOD = Infinity;
             let plotTitle = '';
             let currentID = '';
 
@@ -2576,9 +2574,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             */
 
             $.each(snpData, function(index, element) {
-                maxLOD = Math.max(maxLOD, element[7]);
-                minLOD = Math.min(minLOD, element[7]);
-
                 let snp = {
                     snp:  element[0],
                     chr:  element[1],
@@ -2592,19 +2587,22 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 };
 
                 if ((covar !== null) && (covar !== 'additive')) {
-                    maxLOD = Math.max(maxLOD, element[8]);
-                    minLOD = Math.min(minLOD, element[8]);
                     snp['lodc'] = element[8] * 1.0;
                 }
 
                 snps.push(snp);
             });
+            let minLOD = snps.reduce((a, b) => a.lod < b.lod ? a : b).lod;
+            let maxLOD = snps.reduce((a, b) => a.lod > b.lod ? a : b).lod;
 
-            maxLOD = Math.ceil(maxLOD);
-            minLOD = Math.floor(minLOD);
+            logDebug('minLOD=', minLOD);
+            logDebug('maxLOD=', maxLOD);
 
-            logDebug('minLOD', minLOD);
-            logDebug('maxLOD', maxLOD);
+            minLOD = Math.max(0, Math.floor(minLOD) - 1);
+            maxLOD = Math.ceil(maxLOD) + 1;
+
+            logDebug('minLOD=', minLOD);
+            logDebug('maxLOD=', maxLOD);
             logDebug('minZoomPos', minZoomPos);
             logDebug('maxZoomPos', maxZoomPos);
             logDebug('minDomainPos', minDomainPos);
@@ -2625,10 +2623,15 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 "title": "SNPs",
                 "mark": {
                     "type": "point",
-                    "geometricZoomBound": 4,
                     "tooltip": {
                         "handler": "snpHandler"
                     },
+                    "geometricZoomBound": 4,
+                    "inwardStroke": true,
+                    "stroke": "#962e1e",
+                    "strokeWidth": 0.7,
+                    "fillOpacity": 0.6,
+                    "strokeOpacity": 0.8
                 },
 
                 "encoding": {
@@ -2669,7 +2672,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                         "scale": { "domain": [minLOD, maxLOD] }
                     },
                     "color": {
-                        "value": "#ed3215"
+                        "value": "#f35137"
                     },
                     "size": {
                         "value": 30
@@ -2677,9 +2680,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     "opacity": {
                         "value": 0.5
                     },
-                    "strokeWidth": {
-                        "value": 10
-                    }
                 }
             }
             );
@@ -2689,10 +2689,16 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     "title": "SNPs Covar",
                     "mark": {
                         "type": "point",
-                        "geometricZoomBound": 4,
                         "tooltip": {
                             "handler": "snpHandler"
                         },
+                        "geometricZoomBound": 4,
+                        "inwardStroke": true,
+                        "stroke": "#113c65",
+                        "strokeWidth": 0.7,
+                        "fillOpacity": 0.6,
+                        "strokeOpacity": 0.8
+
                     },
 
                     "encoding": {
@@ -2741,9 +2747,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                         "opacity": {
                             "value": 0.5
                         },
-                        "strokeWidth": {
-                            "value": 10
-                        }
                     }
                 }
                 );
@@ -3146,13 +3149,17 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 }]
             };
 
-            if (g.DATASETS[QTL.g.dataSetID].datatype.toLowerCase() !== 'phenotype') {
+            logDebug('g.DATASETS[QTL.g.dataSetID].datatype.toLowerCase()=', g.DATASETS[QTL.g.dataSetID].datatype.toLowerCase());
+
+            if (g.DATASETS[QTL.g.dataSetID].datatype !== 'pheno') {
                 let genesRankingURL = `{{ config.API_R_BASE }}/rankings?dataset=${g.dataSetID}&chrom=${chromosome}`;
                 submitData['urls'].push({
                     url_id: 'genesRankingURL',
                     url: genesRankingURL
                 });
             }
+
+            logDebug('submitData=', submitData);
 
             startTask();
 
@@ -3597,7 +3604,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             }
 
             $.each(data, function(k, v) {
-                let line = `"${v.gene_id}","${v.symbol}","${v.chr}",${v.pos},${v.LOD}`;
+                let line = `"${v.gene_id}","${v.symbol}","${v.chrom}",${v.position},${v.LOD}`;
                 if (protein) {
                     line = `"${v.protein_id}",` + line;
                 }
@@ -4532,14 +4539,14 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
         function exportProfileData(id, data, factors) {
             // TODO: look into changing 'column.name', 'display_name'
-            let csvContent = '"mouse_id","expression"';
+            let csvContent = '"sample_id","expression"';
             $.each(factors, function(k, v) {
                 csvContent += `,"${v['display_name']}"`;
             });
             csvContent += '\n';
 
             $.each(data.data, function(k, v) {
-                let line = `"${v['mouse_id']}",${v.expression}`;
+                let line = `"${v['sample_id']}",${v.expression}`;
                 $.each(factors, function(fk, fv) {
                     line += `,"${v[fv['sample_column']]}"`;
                 });
@@ -4736,7 +4743,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                                 outside: true,
                                 pointFormatter: function () {
                                     let val = this.obj;
-                                    let hoverText = `<b>${val['mouse.id']}</><br><p>${val.expression}</p>`;
+                                    let hoverText = `<b>${val['sample_id']}</><br><p>${val.expression}</p>`;
 
                                     $.each(data.datatypes, function (i, e) {
                                         hoverText += `<br><p>${cfMap[i]}: ${val[i]}</p>`;
@@ -5748,10 +5755,10 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
         }
 
         function exportCorrelationPlotData(id, idCorrelate, data) {
-            let csvContent = `"mouse.id","${id}","${idCorrelate}"\n`;
+            let csvContent = `"sample_id","${id}","${idCorrelate}"\n`;
 
             $.each(data, function(k, v) {
-                csvContent += `"${v['mouse.id']}",${v.x},${v.y}\n`;
+                csvContent += `"${v['sample_id']}",${v.x},${v.y}\n`;
             });
 
             downloadCSV(csvContent, `${id}_${idCorrelate}_CORRELATION.csv`, 'text/csv;encoding:utf-8');
@@ -5849,7 +5856,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                             outside: true,
                             pointFormatter: function() {
                                 let val = this.options;
-                                let hoverText = `<b>${val['mouse.id']}</>`;
+                                let hoverText = `<b>${val['sample_id']}</>`;
 
                                 $.each(data.datatypes, function(i, e) {
                                     hoverText += `<br><p>${cfMap[i]}: ${val[i]}</p>`;
