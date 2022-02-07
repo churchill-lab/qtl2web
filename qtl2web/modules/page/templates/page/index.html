@@ -1876,8 +1876,8 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 let phenotypeColorRange = g.PLOT_COLORS.slice(0, phenotypeColorDomain.length);
                 let revColors = [];
 
-                for (let x = phenotypeColorRange.length - 1; x > 0; x--) {
-                    revColors.push(phenotypeColorRange[x])
+                for (let x = phenotypeColorRange.length - 1; x >= 0; x--) {
+                    revColors.push(phenotypeColorRange[x]);
                 }
 
                 logDebug('phenotype lod=', data);
@@ -1885,6 +1885,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 logDebug('maxLOD=', maxLOD);
                 logDebug('phenotypeColorDomain=', phenotypeColorDomain);
                 logDebug('phenotypeColorRange=', phenotypeColorRange);
+                logDebug('revColors=', revColors);
 
                 trackPeakLOD = {
                     "name": "lod",
