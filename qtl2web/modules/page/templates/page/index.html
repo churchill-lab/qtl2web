@@ -990,13 +990,13 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             g.PLOT_COLORS = [
                 "#3d7cb9",
                 "#c50004",
-                "#deca00",
                 "#38be2f",
                 "#8085e9",
-                "#2b908f",
-                "#f7a35c",
                 "#91e8e1",
+                "#f7a35c",
                 "#f15c80",
+                "#deca00",
+                "#2b908f",
                 "#434348"
             ];
 
@@ -1517,7 +1517,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             let legendData = [];
             let xDomain = [0, 2];
 
-            if (elems.length === 1) {
+            if (elems.length == 1) {
                 xDomain = [0, 1];
                 legendData.push({
                     "x": 1,
@@ -1531,39 +1531,51 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 let g = 0;
                 for(let i = elems.length - 1; i >=0 ; i--) {
                     let x = g % 2;
-                    let y = ((elems.length % 2) === 1) ? Math.ceil(i / 2) : Math.floor(i / 2);
+                    let y = ((elems.length % 2) == 1) ? Math.ceil(i / 2) : Math.floor(i / 2);
                     let d = {
                         "x": x,
                         "y": y,
                         "text": elems[i],
-                        "color": colors[i]
+                        "color": colors[g]
                     };
+                    console.log(d);
                     legendData.push(d);
                     g++;
                 }
-
             }
 
-            return {
-                "height": height,
-                "data": {
-                    "values": legendData
-                },
-                "mark": {
-                    "type": "text",
-                    "align": "left",
-                    "tooltip": {
-                        "handler": "nullHandler"
+            let legend =
+                {
+                    "height": height,
+                    "data": {
+                        "values": legendData
                     },
-                },
-                "encoding": {
-                    "x": { "axis": null, "title": null, "field": "x", "type": "quantitative", "scale": {"domain": xDomain} },
-                    "y": { "axis": null, "title": null,  "field": "y", "type": "quantitative"},
-                    "color": { "field": "color", "type": "nominal" },
-                    "text": { "field": "text", "type": "nominal" },
-                    "size": { "value": 11 }
-                }
-            };
+                    "mark": {
+                        "type": "text",
+                        "align": "left",
+                        "tooltip": {
+                                            "handler": "nullHandler"
+                                        },
+
+                    },
+                    "encoding": {
+                        "x": { "axis": null, "title": null, "field": "x", "type": "quantitative", "scale": {"domain": xDomain} },
+                        "y": { "axis": null, "title": null,  "field": "y", "type": "quantitative"},
+                        "color": {
+                            "field": "color",
+                            "type": "nominal" ,
+                            "scale": {
+                                "domain": elems,
+                                "range": colors,
+                            }
+                        },
+                        "text": { "field": "text", "type": "nominal" },
+                        "size": { "value": 11 }
+                    }
+                };
+
+            return legend;
+
         }
 
         /**
@@ -1862,6 +1874,11 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
                 let phenotypeColorDomain = Object.keys(seriesData);
                 let phenotypeColorRange = g.PLOT_COLORS.slice(0, phenotypeColorDomain.length);
+                let revColors = [];
+
+                for (let x = phenotypeColorRange.length - 1; x > 0; x--) {
+                    revColors.push(phenotypeColorRange[x])
+                }
 
                 logDebug('phenotype lod=', data);
                 logDebug('minLOD=', minLOD);
@@ -1956,7 +1973,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                                     "field": "phenoCategory",
                                     "scale": {
                                         "domain": phenotypeColorDomain,
-                                        "range": phenotypeColorRange,
+                                        "range": revColors,
                                     }
                                 },
                                 "size": {
@@ -2369,7 +2386,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                         <strong>${datum.snp}</strong>
                     </div>
                     <p class="summary">
-                        <strong>Position</strong> ${datum.chr}:${datum.pos}
+                        <strong>Position</strong> ${datum.chr}:${datum.pos.toLocaleString()}
                         <br/>
                         <strong>REF</strong> ${datum.ref}
                         <br/>
@@ -2379,6 +2396,8 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                         <br/>
                         <strong>CSQ</strong> ${csq}
                         <br/>
+                        <strong>LOD</strong> ${datum.lod}
+                        <br/>
                         <strong>LOD ${datum.cov}</strong> ${datum.lodc}
                     </p>`;
             } else {
@@ -2387,7 +2406,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                         <strong>${datum.snp}</strong>
                     </div>
                     <p class="summary">
-                        <strong>Position</strong> ${datum.chr}:${datum.pos}
+                        <strong>Position</strong> ${datum.chr}:${datum.pos.toLocaleString()}
                         <br/>
                         <strong>REF</strong> ${datum.ref}
                         <br/>
@@ -5784,10 +5803,8 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
             $.each(data.data, function(idx, element) {
                 if ((element.x !== undefined) && (element.y !== undefined)) {
-                    minValue = Math.min(minValue, element.x);
-                    minValue = Math.min(minValue, element.y);
-                    maxValue = Math.max(maxValue, element.x);
-                    maxValue = Math.max(maxValue, element.y);
+                    minValue = Math.min(minValue, element.x, element.y);
+                    maxValue = Math.max(maxValue, element.x, element.y);
 
                     $.each(data.datatypes[categorySeries], function (i, v) {
                         // put the data in the correct buckets
@@ -5991,7 +6008,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             if ((interactiveCovariate !== undefined) &&
                 (interactiveCovariate !== null) &&
                 (interactiveCovariate !== 'none')) {
-                //if (interactiveCovariate !== null) {
                 urlCorrelationPlot += `&intcovar=${interactiveCovariate}`;
             }
 

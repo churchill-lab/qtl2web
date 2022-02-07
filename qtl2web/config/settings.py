@@ -75,6 +75,8 @@ PLOT_EFFECT_STRAINS = [
     {'key':'G', 'color':"#FF4136", 'name':"PWK/PhJ"},
     {'key':'H', 'color':"#B10DC9", 'name':"WSB/EiJ"}
 ]
+
+
 LOGIN_REQUIRED=False
 LOGIN_USERID='ADMIN'
 LOGIN_PASSWORD='PASSWORD'
