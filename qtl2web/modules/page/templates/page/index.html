@@ -1538,7 +1538,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                         "text": elems[i],
                         "color": colors[g]
                     };
-                    console.log(d);
                     legendData.push(d);
                     g++;
                 }
@@ -1553,10 +1552,10 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     "mark": {
                         "type": "text",
                         "align": "left",
-                        "tooltip": {
-                                            "handler": "nullHandler"
-                                        },
 
+                        "tooltip": {
+                            "handler": "nullHandler"
+                        },
                     },
                     "encoding": {
                         "x": { "axis": null, "title": null, "field": "x", "type": "quantitative", "scale": {"domain": xDomain} },
@@ -1953,7 +1952,12 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                                 "tooltip": {
                                     "handler": "lodPeakPhenotypeTooltipHandler"
                                 },
-                                "geometricZoomBound": 4
+                                "geometricZoomBound": 4,
+                                "inwardStroke": true,
+                                "stroke": "#222222",
+                                "strokeWidth": 0.7,
+                                "fillOpacity": 0.6,
+                                "strokeOpacity": 0.8
                             },
                             "encoding": {
                                 "x": {
@@ -1985,9 +1989,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                                 "opacity": {
                                     "value": 1
                                 },
-                                "strokeWidth": {
-                                    "value": 10
-                                }
                             }
                         }
                     ]
