@@ -1751,7 +1751,12 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                                 "tooltip": {
                                     "handler": "lodPeakGeneTooltipHandler"
                                 },
-                                "geometricZoomBound": 4
+                                "geometricZoomBound": 4,
+                                "inwardStroke": true,
+                                "stroke": "#233b5e",
+                                "strokeWidth": 0.7,
+                                "fillOpacity": 0.6,
+                                "strokeOpacity": 0.8
                             },
                             "encoding": {
                                 "x": {
@@ -1771,13 +1776,10 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                                     "value": "#7090c0"
                                 },
                                 "size": {
-                                    "value": 30
+                                    "value": 100
                                 },
                                 "opacity": {
-                                    "value": 0.5
-                                },
-                                "strokeWidth": {
-                                    "value": 0
+                                    "value": 1
                                 }
                             }
                         }
