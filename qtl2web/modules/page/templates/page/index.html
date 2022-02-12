@@ -1372,21 +1372,9 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 geneData = geneData[key];
             }
 
-            let startFormat = Number(geneData.start/1000000).toFixed(2);
-            let endFormat = Number(geneData.end/1000000).toFixed(2);
-            let mbpDesc = 'Mbp';
-
-            if (startFormat < 1) {
-                startFormat = geneData.start;
-                endFormat = geneData.end;
-                mbpDesc = 'bp';
-            }
-
-            let strand = 'forward';
-            if (geneData.strand === '-') {
-                strand = 'negative';
-            }
-
+            let startFormat = geneData.start.toLocaleString();
+            let endFormat = geneData.end.toLocaleString();
+            let strand = geneData.strand;
             let htmlHeader = geneData.id;
             htmlHeader += ` <em>${geneData.symbol}</em>`;
 
@@ -1418,7 +1406,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
             htmlBody += '</td></tr>';
             htmlBody += `<tr><td><strong>Symbol</strong></td><td>${geneData.symbol}</td></tr>`;
-            htmlBody += `<tr><td><strong>Location</strong></td><td>${geneData.chromosome}:${startFormat}-${endFormat}</td></tr>`;
+            htmlBody += `<tr><td><strong>Location</strong></td><td>${geneData.chromosome}:${startFormat}-${endFormat} (${strand})</td></tr>`;
 
             if (geneData.synonyms !== undefined) {
                 let synonyms = geneData.synonyms.join(', ');
@@ -1640,19 +1628,13 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
                 logDebug('lodThreshold=', lodThreshold);
 
-                let mult = 1.0;
-
-                if (g.DATASETS[g.dataSetID].lodpeaks[covar][0][2] < 1000) {
-                    mult = 1000000.0;
-                }
-
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
 
                     if ((element[1] in chrs) && (element[idxGeneChr] in chrs)) {
                         let markerChr = chrs[element[1]].chromosome;
-                        let markerPos = element[2] * mult;
+                        let markerPos = element[2];
                         let geneChr = chrs[element[idxGeneChr]].chromosome;
-                        let genePos = element[idxGenePos] * mult;
+                        let genePos = element[idxGenePos];
 
                         if ((lodThreshold != null) && (element[idxLODPos] >= lodThreshold)) {
                             let lod = {
@@ -1812,16 +1794,10 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     }
                 });
 
-                let mult = 1.0;
-
-                if (g.DATASETS[g.dataSetID].lodpeaks[covar][0][2] < 1000) {
-                    mult = 1000000.0;
-                }
-
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
                     // element[0] = marker_id
                     let markerChr = chrs[element[1]].chromosome;
-                    let markerPos = element[2] * mult;
+                    let markerPos = element[2];
 
                     // lookup the phenotype
                     let phenotype = g.DATASETS[g.dataSetID].phenotypes[element[3]];
@@ -2263,56 +2239,48 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
         async function mediationTooltipHandler(datum, mark, props) {
             logDebug(datum);
+            let protein = '';
 
-            if ('protein_id' in datum) {
-                return genomeSpyEmbed.html`
-                    <div class="title">
-                        <strong>${datum.LOD}</strong>
-                    </div>
-                    <p class="summary">
-                        <strong>Protein ID</strong> ${datum.protein_id}
-                        <br/>
-                        <strong>Gene ID</strong> ${datum.gene_id}
-                        <br/>
-                        <strong>Symbol</strong> ${datum.symbol}
-                        <br/>
-                        <strong>Location</strong> ${datum.chrom}:${datum.position.toLocaleString()}
-                        <br/>
-                    </p>
-                `;
-
-            } else {
-                return genomeSpyEmbed.html`
-                    <div class="title">
-                        <strong>${datum.LOD}</strong>
-                    </div>
-                    <p class="summary">
-                        <strong>Gene ID</strong> ${datum.gene_id}
-                        <br/>
-                        <strong>Symbol</strong> ${datum.symbol}
-                        <br/>
-                        <strong>Location</strong> ${datum.chrom}:${datum.position.toLocaleString()}
-                        <br/>
-                    </p>
-                `;
+            if (('protein_id' in datum) &&
+                (datum['protein_id'] != null) &&
+                (datum['protein_id'] !== '')) {
+                protein = genomeSpyEmbed.html`
+                    <strong>Protein ID</strong> ${datum.protein_id}
+                    <br/>`;
             }
+
+            return genomeSpyEmbed.html`
+                <div class="title">
+                    <strong>${datum.LOD}</strong>
+                </div>
+                <p class="summary">
+                    ${protein}
+                    <br/>
+                    <strong>Gene ID</strong> ${datum.gene_id}
+                    <br/>
+                    <strong>Symbol</strong> ${datum.symbol}
+                    <br/>
+                    <strong>Location</strong> ${datum.chrom}:${datum.position.toLocaleString()}
+                    <br/>
+                </p>
+            `;
         }
 
         async function lodPeakGeneTooltipHandler(datum, mark, props) {
             logDebug(datum, mark, props);
-            if ('A' in datum){
-                return genomeSpyEmbed.html`
-                <div class="title">
-                    <strong>${datum.lod}</strong>
-                </div>
-                <p class="summary">
-                    <strong>ID</strong> ${datum.geneID}
-                    <br/>
-                    <strong>Symbol</strong> ${datum.geneSymbol}
-                    <br/>
-                    <strong>Gene Position</strong> ${datum.geneChr}:${datum.genePos}
-                    <br/>
-                    <strong>Marker Position</strong> ${datum.markerChr}:${datum.markerPos}
+            let AH = '';
+            let protein = ''
+
+            if (('proteinID' in datum) &&
+                (datum['proteinID'] != null) &&
+                (datum['proteinID'] !== '')) {
+                protein = genomeSpyEmbed.html`
+                    <strong>Protein ID</strong> ${datum.proteinID}
+                    <br/>`;
+            }
+
+            if ('A' in datum) {
+                AH = genomeSpyEmbed.html`
                     <br/>
                     <strong>Allele Effects</strong>
                     <br/>  A: ${datum.A}
@@ -2323,24 +2291,24 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     <br/>  F: ${datum.F}
                     <br/>  G: ${datum.G}
                     <br/>  H: ${datum.H}
-                </p>`;
-            } else {
+                `;
+            }
+
             return genomeSpyEmbed.html`
                 <div class="title">
                     <strong>${datum.lod}</strong>
                 </div>
                 <p class="summary">
-                    <strong>ID</strong> ${datum.geneID}
+                    ${protein}
+                    <strong>Gene ID</strong> ${datum.geneID}
                     <br/>
                     <strong>Symbol</strong> ${datum.geneSymbol}
                     <br/>
-                    <strong>Gene Position</strong> ${datum.geneChr}:${datum.genePos}
+                    <strong>Gene Position</strong> ${datum.geneChr}:${datum.genePos.toLocaleString()}
                     <br/>
-                    <strong>Marker Position</strong> ${datum.markerChr}:${datum.markerPos}
-                    <br/>
+                    <strong>Marker Position</strong> ${datum.markerChr}:${datum.markerPos.toLocaleString()}
+                    ${AH}
                 </p>`;
-            }
-
         }
 
         async function lodPeakPhenotypeTooltipHandler(datum, mark, props) {
@@ -2356,6 +2324,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     <br/>
                     <strong>Category</strong> ${datum.phenoCategory}
                     <br/>
+                    <strong>Marker Position</strong> ${datum.markerChr}:${datum.markerPos.toLocaleString()}
                 </p>
             `;
         }
@@ -3067,14 +3036,14 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
             $('#snpShiftLeft').button().on('click', function(event) {
                 console.log(location);
-                console.log(id, chromosome, (location / 1000000.0) - 2, covar);
-                generateSNPAssocPlot(id, chromosome, (location / 1000000.0) - 2, covar);
+                console.log(id, chromosome, location - 2000000, covar);
+                generateSNPAssocPlot(id, chromosome, location - 2000000, covar);
             });
 
             $('#snpShiftRight').button().on('click', function(event) {
                 console.log(location);
-                console.log(id, chromosome, (location / 1000000.0) + 2, covar);
-                generateSNPAssocPlot(id, chromosome, (location / 1000000.0) + 2, covar);
+                console.log(id, chromosome, location + 2000000, covar);
+                generateSNPAssocPlot(id, chromosome, location + 2000000, covar);
             });
 
             $('#snpWindowMenu').append(`
@@ -3131,7 +3100,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
          */
         function generateSNPAssocPlot(id, chromosome, location, covar) {
             // TODO: windowSize needs to be figured out
-            let locationMb = Math.round(location * 1000000.0);
+            let locationMb = location;
 
             // what data is retrieved
             // [locationMb - zoomWindow, locationMb + zoomWindow]
@@ -3366,7 +3335,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             $.each(effectData, function(index, element) {
                 //{"A":-0.1224,..."H":1.45,"chr":"4","id":"4_156339889","pos":156.3399}
                 //id,chrom,pos,A-H
-                let position = element[2] * 1000000;
+                let position = element[2];
 
             {%- for s in config.PLOT_EFFECT_STRAINS -%}
                 {#- when data is expanded -#}
@@ -3420,7 +3389,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                         shared: false,
                         headerFormat:'<b>{series.name}</b>',
                         pointFormatter: function() {
-                            return '<br>Effect: ' + this.y + '<br>Position: ' +  (this.x/1000000);
+                            return `<br>Effect: ${this.y}<br>Position: ${this.x.toLocaleString()}`;
                         }
                     },
                     turboThreshold: 0,
@@ -3458,7 +3427,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 if ((element[1] in g.DATASETS[g.dataSetID].chromosomes.chr) && (element[1] === chromosome)) {
 
                     let chr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
-                    let x = element[2] * 1000000.0;//Math.round(chr.start + (element[2] * 1000000.0));
+                    let x = element[2];
                     let y = element[3];
 
                     let d = {
@@ -3488,8 +3457,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     shared: false,
                     headerFormat: '',
                     pointFormatter: function() {
-                        let pos = this.x/1000000;
-                        return `<br>LOD: ${this.y}<br>Position: ${pos}`;
+                        return `<br>LOD: ${this.y}<br>Position: ${this.x.toLocaleString()}`;
                     }
                 },
                 turboThreshold: 1000000, // TODO: what should this value be
@@ -3644,11 +3612,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
         function plotMediation(mediationData, dsMediateAgainst) {
             logDebug('mediation');
             let newData = [];
-            let mult = 1.0;
-
-            if (mediationData[0][3] < 1000) {
-                mult = 1.0;
-            }
 
             // build the chomosome rects
             let rects = [];
@@ -3672,7 +3635,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                             gene_id: element[0],
                             symbol: element[1],
                             chrom: element[2],
-                            position: (element[3] * mult),
+                            position: element[3],
                             LOD: element[4]
                         });
                     } else {
@@ -3689,7 +3652,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                             gene_id: element[1],
                             symbol: element[2],
                             chrom: element[3],
-                            position: (element[4] * mult),
+                            position: element[4],
                             LOD: element[5]
                         });
                     } else {
@@ -4827,7 +4790,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 return;
             }
 
-            let tbl = '<table id="searchResultsTable" class="table table-striped table-hover table-sm table-bordered">';
+            let tbl = '<table id="searchResultsTable" class="table table-striped table-hover table-sm table-sm-text table-bordered">';
             tbl += '<thead>';
             tbl += '<tr>';
             tbl += '<th class="" scope="col">ID</th>';
@@ -4917,7 +4880,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                             let d = searchResults[elem.getAttribute('geneid')];
                             let h = `<table class="table table-sm">
                                         <tr><td><strong>Symbol</strong> </td><td>${d.symbol}</td></tr>
-                                        <tr><td><strong>Location</strong> </td><td>${d.chromosome}:${d.position_start}-${d.position_end}</td></tr>
+                                        <tr><td><strong>Location</strong> </td><td>${d.chromosome}:${d.position_start.toLocaleString()}-${d.position_end.toLocaleString()}</td></tr>
                                         <tr><td><strong>Name</strong> </td><td>${d.name}</td></tr>
                                         <tr><td><strong>Synonyms</strong> </td><td>`;
 
@@ -5088,7 +5051,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     if (element[1] in g.DATASETS[g.dataSetID].chromosomes.chr) {
 
                         let chr = g.DATASETS[g.dataSetID].chromosomes.chr[element[1]];
-                        let x = Math.round(chr.start + (element[2] * 1000000.0));
+                        let x = chr.start + element[2];
                         let y = element[3];
 
                         if (!isFull) {
@@ -5314,7 +5277,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     useHTML: true,
                     formatter: function () {
                         let p = this.point;
-                        return `<b>${p.id}</b><br/>LOD: ${p.y}<br/>Chromosome: ${p.chr}<br/>Position: ${p.chrPos}`;
+                        return `<b>${p.id}</b><br/>LOD: ${p.y}<br/>Position: ${p.chr}:${p.chrPos.toLocaleString()}`;
                     }
                 },
                 xAxis: {
@@ -5696,9 +5659,9 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 $.each(correlationData, function(idx, value) {
                     if (idx < 1000) {
                         {% if config.IS_CC_VIEWER %}
-                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.symbol}</td><td>${value.chr}:` + formatStrToNum(value.start, 2) + '-' + formatStrToNum(value.end, 2) + '</td></tr>';
+                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.symbol}</td><td>${value.chr}:${value.start.toLocaleString()}-${value.end.toLocaleString()}</td></tr>`;
                         {% else %}
-                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}:` + formatStrToNum(value.start, 2) + '-' + formatStrToNum(value.end, 2) + '</td></tr>';
+                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}:${value.start.toLocaleString()}-${value.end.toLocaleString()}</td></tr>`;
                         {% endif %}
                     }
                 });
@@ -5707,9 +5670,9 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 $.each(correlationData, function(idx, value) {
                     if (idx < 1000) {
                         {% if config.IS_CC_VIEWER %}
-                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.symbol}</td><td>${value.chr}:` + formatStrToNum(value.start, 2) + '-' + formatStrToNum(value.end, 2) + '</td></tr>';
+                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.symbol}</td><td>${value.chr}:${value.start.toLocaleString()}-${value.end.toLocaleString()}</td></tr>`;
                         {% else %}
-                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}:` + formatStrToNum(value.start, 2) + '-' + formatStrToNum(value.end, 2) + '</td></tr>';
+                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}:${value.start.toLocaleString()}-${value.end.toLocaleString()}</td</tr>`;
                         {% endif %}                        
                     }
                 });
