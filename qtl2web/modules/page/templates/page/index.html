@@ -5970,8 +5970,9 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                 ]
             };
 
-            let legend = calcLegend(correlationColorDomain, correlationColorRange, "correlationLegend");
-            let tracks = [trackCorrelation, legend];
+            // TODO: figure out legend
+            //let legend = calcLegend(correlationColorDomain, correlationColorRange, "correlationLegend");
+            let tracks = [trackCorrelation]; //, legend];
             let handlers = {
                 nullHandler: nullHandler,
                 correlationTooltipHandler: correlationTooltipHandler
