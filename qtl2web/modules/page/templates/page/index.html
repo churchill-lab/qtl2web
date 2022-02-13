@@ -657,39 +657,36 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
 }(HTMLCanvasElement.prototype.getContext));
 
 
-function downloadGenomeSpy(parentId, imageName, bgRGB = null){
-    let downloadLink = document.createElement('a');
-    downloadLink.setAttribute('download', imageName);
+    function downloadGenomeSpy(parentId, imageName, bgRGB = null){
+        let downloadLink = document.createElement('a');
+        downloadLink.setAttribute('download', imageName);
 
-    let canvas = document.querySelector(`${parentId} canvas`);
+        let canvas = document.querySelector(`${parentId} canvas`);
 
-    if (bgRGB != null) {
-        var canvasBG = document.createElement('canvas');
-        canvasBG.id = 'bgCanvas';
-        canvasBG.width = canvas.width;
-        canvasBG.height = canvas.height;
+        if (bgRGB != null) {
+            var canvasBG = document.createElement('canvas');
+            canvasBG.id = 'bgCanvas';
+            canvasBG.width = canvas.width;
+            canvasBG.height = canvas.height;
 
-        var ctx = canvasBG.getContext('2d');
-        ctx.fillStyle = `rgba(${bgRGB}, 1.0)`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(canvas, 0, 0);
+            var ctx = canvasBG.getContext('2d');
+            ctx.fillStyle = `rgba(${bgRGB}, 1.0)`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(canvas, 0, 0);
 
-        canvasBG.toBlob(function(blob) {
-            let url = URL.createObjectURL(blob);
-            downloadLink.setAttribute('href', url);
-            downloadLink.click();
-        });
-
-    } else {
-        canvas.toBlob(function(blob) {
-            let url = URL.createObjectURL(blob);
-            downloadLink.setAttribute('href', url);
-            downloadLink.click();
-        });
+            canvasBG.toBlob(function(blob) {
+                let url = URL.createObjectURL(blob);
+                downloadLink.setAttribute('href', url);
+                downloadLink.click();
+            });
+        } else {
+            canvas.toBlob(function(blob) {
+                let url = URL.createObjectURL(blob);
+                downloadLink.setAttribute('href', url);
+                downloadLink.click();
+            });
+        }
     }
-
-    //downloadLink.remove();
-}
 
     window.loading_screen = window.pleaseWait({
         logo: '',
@@ -699,7 +696,6 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
     </script>
 
     <script src="//cdn.jsdelivr.net/npm/bootstrap-select@1.13.7/dist/js/bootstrap-select.min.js"></script>
-
 
     <!-- ENSIMPL API -->
     <script src="//churchilllab.jax.org/ensimpl/js/ensimpl.js"></script>
@@ -1498,12 +1494,12 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
         }
 
 
-        function calcLegend(elems, colors) {
+        function calcLegend(elems, colors, name) {
             let height = 12;
             let legendData = [];
             let xDomain = [0, 2];
 
-            if (elems.length == 1) {
+            if (elems.length === 1) {
                 xDomain = [0, 1];
                 legendData.push({
                     "x": 1,
@@ -1517,7 +1513,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 let g = 0;
                 for(let i = elems.length - 1; i >=0 ; i--) {
                     let x = g % 2;
-                    let y = ((elems.length % 2) == 1) ? Math.ceil(i / 2) : Math.floor(i / 2);
+                    let y = ((elems.length % 2) === 1) ? Math.ceil(i / 2) : Math.floor(i / 2);
                     let d = {
                         "x": x,
                         "y": y,
@@ -1531,6 +1527,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
 
             let legend =
                 {
+                    "name": name,
                     "height": height,
                     "data": {
                         "values": legendData
@@ -1779,7 +1776,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                 // ["5_137006393","5",137.0064,"MEcyan","MEcyan","MEcyan",9.1161],[
 
-                let seriesData = {};
+                let seriesData = new Set();
                 let data = [];
                 let rects = [];
 
@@ -1802,23 +1799,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     // lookup the phenotype
                     let phenotype = g.DATASETS[g.dataSetID].phenotypes[element[3]];
 
-                    if (!(phenotype.category in seriesData)) {
-                        seriesData[phenotype.category] = [];
-                    }
-
-                    seriesData[phenotype.category].push({
-                        x: markerChr.start + markerPos,
-                        y: element[6],
-                        lod: element[6],
-                        phenoDataName: element[3],
-                        phenoShortName: element[4],
-                        phenoDescription: element[5],
-                        markerPosOrig: element[2],
-                        markerChr: markerChr,
-                        markerPos: markerPos,
-                        markerID: element[0],
-                        covar: covar
-                    });
+                    seriesData.add(phenotype.category);
 
                     data.push({
                         lod: element[6],
@@ -1852,7 +1833,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                 });
 
 
-                let phenotypeColorDomain = Object.keys(seriesData);
+                let phenotypeColorDomain = Array.from(seriesData);
                 let phenotypeColorRange = g.PLOT_COLORS.slice(0, phenotypeColorDomain.length);
                 let revColors = [];
 
@@ -1972,7 +1953,7 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                         }
                     ]
                 };
-                legend = calcLegend(phenotypeColorDomain, phenotypeColorRange);
+                legend = calcLegend(phenotypeColorDomain, phenotypeColorRange, "peaksLegend");
                 tracks = [trackPeakLOD, legend];
                 handlers = {
                     nullHandler: nullHandler,
@@ -2237,8 +2218,30 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             return geneInfo;
         }
 
+        async function correlationTooltipHandler(datum, mark, props) {
+            logDebug(datum);
+            const itemTemplates = [];
+
+            $.each(datum.map, function(k, v) {
+                itemTemplates.push(genomeSpyEmbed.html`
+                    <strong>${v}</strong> ${datum[k]}<br/>
+                `);
+            });
+
+
+            return genomeSpyEmbed.html`
+                <div class="title">
+                    <strong>${datum.sample_id}</strong>
+                </div>
+                <p class="summary">
+                    ${itemTemplates}
+                </p>
+            `;
+        }
+
         async function mediationTooltipHandler(datum, mark, props) {
             logDebug(datum);
+            /*
             let protein = '';
 
             if (('protein_id' in datum) &&
@@ -2248,14 +2251,13 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     <strong>Protein ID</strong> ${datum.protein_id}
                     <br/>`;
             }
+            */
 
             return genomeSpyEmbed.html`
                 <div class="title">
                     <strong>${datum.LOD}</strong>
                 </div>
                 <p class="summary">
-                    ${protein}
-                    <br/>
                     <strong>Gene ID</strong> ${datum.gene_id}
                     <br/>
                     <strong>Symbol</strong> ${datum.symbol}
@@ -5724,6 +5726,8 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
                     cid = g.phenotypeID;
                 }
 
+                g.currentCorrelateID =  that.attr('dID');
+
                 let interactiveCovariate = $('#interactiveCovarCorrelation').find(':selected').val();
 
                 if (interactiveCovariate === 'none') {
@@ -5758,58 +5762,96 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             let categorySeries = $('#divFactorSeriesCorrelation').find(':selected').val();
             logDebug('categorySeries=', categorySeries);
 
-            let seriesData = {};
+            let plotTitle = '';
+            let xAxis = '';
+            let yAxis = g.currentCorrelateID;
+            let currentID = '';
 
-            // need to pass  back factors or use global?
-            $.each(data.datatypes[categorySeries], function(idx, val) {
-                seriesData[val] = { values: [] };
-            });
+            if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
+                plotTitle = g.geneID;
+                currentID = g.geneID;
+                xAxis = plotTitle;
+            } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
+                plotTitle = g.proteinID;
+                currentID = g.proteinID;
+                xAxis = plotTitle;
+            } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
+                plotTitle = g.phenotypeID;
+                currentID = g.phenotypeID;
+                xAxis = plotTitle;
+                if (g.phenotypeID !== g.DATASETS[g.dataSetID].phenotypes[g.phenotypeID]['short_name']) {
+                    plotTitle += (' (' + g.DATASETS[g.dataSetID].phenotypes[g.phenotypeID]['short_name'] + ')');
+                }
+            }
+
+            let seriesData = new Set();
+
+            if (Array.isArray(data.datatypes[categorySeries])) {
+                seriesData = new Set(data.datatypes[categorySeries]);
+            } else {
+                seriesData.add(data.datatypes[categorySeries]);
+            }
 
             let minValue = Infinity;
             let maxValue = -Infinity;
-
-            $.each(data.data, function(idx, element) {
-                if ((element.x !== undefined) && (element.y !== undefined)) {
-                    minValue = Math.min(minValue, element.x, element.y);
-                    maxValue = Math.max(maxValue, element.x, element.y);
-
-                    $.each(data.datatypes[categorySeries], function (i, v) {
-                        // put the data in the correct buckets
-                        if (v === element[categorySeries]) {
-                            seriesData[v].values.push(element);
-                        }
-                    });
-                }
-            });
 
             let cfMap = {};
             $.each(g.DATASETS[g.dataSetID]['covar_info'], function(idx, elem) {
                 cfMap[elem['sample_column']] = elem['display_name'];
             });
 
-            // convert from object, to array
+            let newData = [];
 
-            let series = [];
-            let colors = ['#7cb5ec', '#ed3215', '#8085e9', '#f7a35c', '#90ed7d',
-                '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
-            $.each(seriesData, function(key, val) {
-                series.push({
-                    data: val.values,
-                    name: key,
-                    marker: {
-                        radius: 2
-                    },
-                    type: 'scatter',
-                    color: colors[series.length % colors.length]
-                });
+            $.each(data.data, function(idx, element) {
+                if ((element.x !== undefined) && (element.y !== undefined)) {
+                    minValue = Math.min(minValue, element.x, element.y);
+                    maxValue = Math.max(maxValue, element.x, element.y);
+
+                    // make a copy of element
+                    let d = JSON.parse(JSON.stringify(element));
+                    d['map'] = cfMap;
+                    d['seriesValue'] = element[categorySeries];
+                    newData.push(d);
+                }
             });
 
             minValue = Math.floor(minValue);
             maxValue = Math.ceil(maxValue);
 
+
+            let axisTicks = calculateTicks(minValue, maxValue, 5);
+
+            let axisLines = [];
+
+            $.each(axisTicks, function(k,v) {
+                axisLines.push({
+                    axisLOD: v
+                })
+            });
+
+            let colors = ['#7cb5ec', '#ed3215', '#8085e9', '#f7a35c', '#90ed7d',
+                '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
+
+
+            let correlationColorDomain = Array.from(seriesData);
+            //let correlationColorRange = g.PLOT_COLORS.slice(0, correlationColorDomain.length);
+            let correlationColorRange = colors.slice(0, correlationColorDomain.length);
+            let revColors = [];
+
+            for (let x = correlationColorRange.length - 1; x >= 0; x--) {
+                revColors.push(correlationColorRange[x]);
+            }
+
+            logDebug('newData=', newData);
             logDebug('minValue=', minValue);
             logDebug('maxValue=', maxValue);
-            logDebug('series=', series);
+            logDebug('correlationColorDomain=', correlationColorDomain);
+            logDebug('correlationColorRange=', correlationColorRange);
+            logDebug('revColors=', revColors);
+            logDebug('seriesData=', seriesData);
+            logDebug('cfMap=', cfMap);
+            logDebug('axisTicks=', axisTicks);
+
 
             let yAxisTitle = data['id.correlate'];
 
@@ -5819,80 +5861,167 @@ function downloadGenomeSpy(parentId, imageName, bgRGB = null){
             }
             */
 
+            /*
             let exporting = appendExportButton('Download CSV', function() {
                 exportCorrelationPlotData(data.id, data['id.correlate'], data.data);
             });
             exporting.filename = data.id + '_' + data['id.correlate'] + '_CORRELATION';
+            */
 
-            g.chartCorrelation = Highcharts.chart({
-                chart: {
-                    type: 'scatter',
-                    renderTo: 'plotCorrelation',
-                    zoomType: 'xy',
-                    height: 350,
-                    width: 350
-                },
-                exporting: exporting,
-                plotOptions: {
-                    scatter: {
-                        tooltip: {
-                            headerFormat: null,
-                            outside: true,
-                            pointFormatter: function() {
-                                let val = this.options;
-                                let hoverText = `<b>${val['sample_id']}</>`;
-
-                                $.each(data.datatypes, function(i, e) {
-                                    hoverText += `<br><p>${cfMap[i]}: ${val[i]}</p>`;
-                                });
-
-                                return hoverText;
-                            }
-                        },
-                        marker: {
-                            radius: 5,
-                            states: {
-                                hover: {
-                                    enabled: true,
-                                    lineColor: 'rgb(100,100,100)'
+            let trackCorrelation = {
+                "name": "correlation",
+                "layer": [
+                        {
+                            "title": "Xbound",
+                            "data": {
+                                "values": axisLines,
+                            },
+                            "mark": {
+                                "type": "rule",
+                                "tooltip": {
+                                    "handler": "nullHandler"
+                                },
+                            },
+                            "encoding": {
+                                "y": {
+                                    "field": "axisLOD",
+                                    "type": "quantitative",
+                                    "title": null
+                                },
+                                "color": {
+                                    "value": "#e5e5e5"
                                 }
-                            }
+                            },
                         },
-                        states: {
-                            hover: {
-                                marker: {
-                                    enabled: false
+                        {
+                            "title": "Ybound",
+                            "data": {
+                                "values": axisLines,
+                            },
+                            "mark": {
+                                "type": "rule",
+                                "tooltip": {
+                                    "handler": "nullHandler"
+                                },
+                            },
+                            "encoding": {
+                                "x": {
+                                    "field": "axisLOD",
+                                    "type": "quantitative",
+                                    "title": null
+                                },
+                                "color": {
+                                    "value": "#e5e5e5"
                                 }
-                            }
+                            },
                         },
+                        {
+                        "data": {
+                            "values": newData
+                        },
+                        "title": "Correlation",
+                        "mark": {
+                            "type": "point",
+                            "tooltip": {
+                                "handler": "correlationTooltipHandler"
+                            },
+                            "geometricZoomBound": 4,
+                            "inwardStroke": true,
+                            "stroke": "#333333",
+                            "strokeWidth": 0.7,
+                            "fillOpacity": 0.6,
+                            "strokeOpacity": 0.8
+                        },
+                        "encoding": {
+                            "x": {
+                                "title": xAxis,
+                                "field": "x",
+                                "type": "quantitative",
+                                "scale": { "domain": [minValue, maxValue] },
+                                "axis": {
+                                    "values": axisTicks
+                                },
+                            },
+                            "y": {
+                                "title": yAxis,
+                                "field": "y",
+                                "type": "quantitative",
+                                "scale": { "domain": [minValue, maxValue] },
+                                "axis": {
+                                    "values": axisTicks
+                                },
+                            },
+                            "color": {
+                                "type": "nominal",
+                                "field": "seriesValue",
+                                "scale": {
+                                    "domain": correlationColorDomain,
+                                    "range": revColors,
+                                }
+                            },
+                            "size": {
+                                "value": 150
+                            },
+                            "opacity": {
+                                "value": 1
+                            }
+                        }
                     }
-                },
-                series: series,
-                title: {
-                    text: '',
-                },
-                xAxis: {
-                    endOnTick: true,
-                    gridLineWidth: 1,
-                    //min: minValue,
-                    //max: maxValue,
-                    //tickAmount: 4,
-                    title: {
-                        text: data.id
-                    },
-                },
-                yAxis: {
-                    endOnTick: true,
-                    gridLineWidth: 1,
-                    //min: minValue,
-                    //max: maxValue,
-                    //tickAmount: 4,
-                    title: {
-                        text: yAxisTitle
-                    }
-                },
+                ]
+            };
+
+            let legend = calcLegend(correlationColorDomain, correlationColorRange, "correlationLegend");
+            let tracks = [trackCorrelation, legend];
+            let handlers = {
+                nullHandler: nullHandler,
+                correlationTooltipHandler: correlationTooltipHandler
+            };
+
+            const spec = {
+                "vconcat": tracks
+            };
+
+            logDebug('SPEC=', spec);
+            $("#plotCorrelation").html('<div class="row"><div class="col" id="plotCorrelationMenu"></div></div><div class="row"><div class="col" id="plotCorrelationChart"></div></div>');
+            $('#plotCorrelationChart').width('400');
+            $('#plotCorrelationChart').height('400');
+
+            $('#plotCorrelationMenu').append(`<div class="col text-center font-weight-bold">${plotTitle}
+                <div class="dropdown dropleft float-right" id="correlationMenuDropdown">
+                  <a class="text-secondary" href="#" role="button" id="correlationDropdownMenuLink" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-bars"></i>
+                  </a>
+
+                  <div class="dropdown-menu" aria-labelledby="correlationDropdownMenuLink">
+                    <a class="dropdown-item" id="correlationDownloadPNG" style="font-size:11px !important">Download PNG image</a>
+                    <a class="dropdown-item" id="correlationDownloadCSV" style="font-size:11px !important">Download CSV</a>
+                  </div>
+                </div>
+            </div>`);
+
+            let n = currentID + '_CORRELATION';
+            $("#correlationDownloadPNG").click(function (event) {
+                downloadGenomeSpy('#plotCorrelationChart', `${n}.png`, '255,255,255');
             });
 
+            $("#correlationDownloadCSV").click(function (event) {
+                exportCorrelationPlotData(currentID, g.currentCorrelateID, data.data);
+            });
+
+            g.chartCorrelation = genomeSpyEmbed.embed(
+                document.querySelector("#plotCorrelationChart"),
+                spec,
+                {
+                    tooltipHandlers: handlers
+                }
+            ).then(function(api) {
+                api.addEventListener("click", function(event) {
+                    if (event.datum != null) {
+                        let datum = event.datum;
+                        logDebug('correlation clicked on', datum);
+                    }
+                });
+            });
         }
 
         function updateCorrelationData(groupID, currentDataset, currentID, correlateDataset, correlateID, correlateSymbol) {
