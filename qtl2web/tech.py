@@ -20,7 +20,7 @@ TECHNOLOGIES = [
   {
     "category": "html",
     "name": "HighCharts",
-    "version": "8.0.4",
+    "version": "9.3",
     "url": "https://www.highcharts.com/"
   },
   {
@@ -38,7 +38,7 @@ TECHNOLOGIES = [
   {
     "category": "python",
     "name": "Celery",
-    "version": "4.3.0",
+    "version": "4.4.7",
     "url": "https://docs.celeryproject.org/en/stable/"
   },
   {
@@ -85,8 +85,8 @@ TECHNOLOGIES = [
   },
   {
     "category": "docker",
-    "name": "redis:4.0.11-alpine",
-    "version": "4.0.11",
+    "name": "redis:6.2-alpine",
+    "version": "6.2",
     "url": "https://hub.docker.com/_/redis"
   }
 ]
