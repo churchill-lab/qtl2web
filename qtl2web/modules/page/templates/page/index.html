@@ -263,6 +263,13 @@
                                             <div class="row row-spacer"></div>
 
                                             <div class="row">
+                                                <div class="col" id="correlationImputation">
+                                                </div>
+                                            </div>
+
+                                            <div class="row row-spacer"></div>
+
+                                            <div class="row">
                                                 <div class="col">
                                                     <button id="btnDownloadCorrelationData" type="button" class="btn btn-sm btn-flat btn-primary">
                                                         <i class="fas fa-download"></i> {{ config.CORRELATION_BUTTON_DOWNLOAD_TEXT|safe }}</button>
@@ -646,15 +653,15 @@
     <!-- Loading app //-->
     <script>
 
-HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
-    return function(type, attrs) {
-        attrs = attrs || {};
-        if (type === 'webgl2') {
-            attrs.preserveDrawingBuffer = true;
-        }
-        return oldGetContextFn.call(this, type, attrs);
-    };
-}(HTMLCanvasElement.prototype.getContext));
+    HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
+        return function(type, attrs) {
+            attrs = attrs || {};
+            if (type === 'webgl2') {
+                attrs.preserveDrawingBuffer = true;
+            }
+            return oldGetContextFn.call(this, type, attrs);
+        };
+    }(HTMLCanvasElement.prototype.getContext));
 
 
     function downloadGenomeSpy(parentId, imageName, bgRGB = null){
@@ -932,14 +939,15 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
             logDebug('value=', value);
             let fileSize = niceBytes(value.fileSize);
             htmlBody += `
-            <tr>
-                <td data-order="${value.fileName}">
-                    <a href="#" fileName="${value.fileName}">${value.fileName}</a>
-                </td>
-                <td>
-                    ${fileSize}
-                </td>
-                <td>`;
+                <tr>
+                    <td data-order="${value.fileName}">
+                        <a href="#" fileName="${value.fileName}">${value.fileName}</a>
+                    </td>
+                    <td>
+                        ${fileSize}
+                    </td>
+                    <td>
+            `;
 
             if(typeof value.elements === 'string') {
                 htmlBody += value.elements;
@@ -1233,6 +1241,7 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                     }
 
                     g.ENSIMPL = new ensimpl({
+                        greedy: true,
                         search_limit: 100,
                         search_release: g.DATASETS[g.dataSetID].ensembl_release,
                         search_species: g.DATASETS[g.dataSetID].ensembl_species,
@@ -1279,8 +1288,6 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
 
                             logDebug('Hiding loading screen');
                             window.loading_screen.finish();
-
-
                         });
 
                     // download all the other load peaks from all the datasets except the current one
@@ -2219,7 +2226,6 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
         }
 
         async function correlationTooltipHandler(datum, mark, props) {
-            logDebug(datum);
             const itemTemplates = [];
 
             $.each(datum.map, function(k, v) {
@@ -2228,6 +2234,11 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                 `);
             });
 
+            if (datum.imputed) {
+                itemTemplates.push(genomeSpyEmbed.html`
+                    <i>Imputed</i>
+                `);
+            }
 
             return genomeSpyEmbed.html`
                 <div class="title">
@@ -2834,7 +2845,6 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                         "axis": null
                     }
                 },
-
                 "layer": [{
                         "name": "transcripts",
 
@@ -2927,106 +2937,88 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                         ],
 
                         "layer": [{
-                                "name": "labels",
-                                "mark": {
-                                    "type": "text",
-                                    "dynamicData": true,
-                                    "size": 11,
-                                    "yOffset": 7,
-                                    "tooltip": {
-                                        "handler": "ensimplTooltipHandler"
-                                    }
-                                },
-                                "encoding": {
-                                    "x": {
-                                        "field": "_centroid",
-                                        "type": "locus"
-                                    },
-                                    "text": {
-                                        "field": "symbol",
-                                        "type": "nominal"
-                                    }
+                            "name": "labels",
+                            "mark": {
+                                "type": "text",
+                                "dynamicData": true,
+                                "size": 11,
+                                "yOffset": 7,
+                                "tooltip": {
+                                    "handler": "ensimplTooltipHandler"
                                 }
                             },
-                            {
-                                "name": "arrows",
-                                "opacity": {
-                                    "unitsPerPixel": [100000, 40000],
-                                    "values": [0, 1]
+                            "encoding": {
+                                "x": {
+                                    "field": "_centroid",
+                                    "type": "locus"
                                 },
-                                "mark": {
-                                    "type": "point",
-                                    "dynamicData": true,
-                                    "yOffset": 7,
-                                    "size": 50,
-                                    "tooltip": null
+                                "text": {
+                                    "field": "symbol",
+                                    "type": "nominal"
+                                }
+                            }
+                        },
+                        {
+                            "name": "arrows",
+                            "opacity": {
+                                "unitsPerPixel": [100000, 40000],
+                                "values": [0, 1]
+                            },
+                            "mark": {
+                                "type": "point",
+                                "dynamicData": true,
+                                "yOffset": 7,
+                                "size": 50,
+                                "tooltip": null
+                            },
+                            "encoding": {
+                                "x": {
+                                    "field": "_centroid",
+                                    "type": "locus"
                                 },
-                                "encoding": {
-                                    "x": {
-                                        "field": "_centroid",
-                                        "type": "locus"
-                                    },
-                                    "dx": {
-                                        "expr": "(datum._textWidth / 2 + 5) * (datum.strand == '-' ? -1 : 1)",
-                                        "type": "quantitative",
-                                        "scale": null
-                                    },
-                                    "color": {
-                                        "value": "black"
-                                    },
-                                    "shape": {
-                                        "field": "strand",
-                                        "type": "nominal",
-                                        "scale": {
-                                            "domain": ["-", "+"],
-                                            "range": ["triangle-left", "triangle-right"]
-                                        }
+                                "dx": {
+                                    "expr": "(datum._textWidth / 2 + 5) * (datum.strand == '-' ? -1 : 1)",
+                                    "type": "quantitative",
+                                    "scale": null
+                                },
+                                "color": {
+                                    "value": "black"
+                                },
+                                "shape": {
+                                    "field": "strand",
+                                    "type": "nominal",
+                                    "scale": {
+                                        "domain": ["-", "+"],
+                                        "range": ["triangle-left", "triangle-right"]
                                     }
                                 }
                             }
-                        ]
+                        }]
                     }
                 ]
             };
 
             tracksAll.push(trackGenes);
 
-            /*
+            const spec = {
+                "description":[
+                    "Put a description....",
+                    "Here if you would like to!"
+                ],
 
-            if ((covar !== null) && (covar !== 'additive')) {
-                let colors = ["#ed3215", "#7cb5ec"];
-                let legend = calcLegend(["LOD", "LOD " + covar], colors);
-                tracksAll.push(legend);
-            }
+                "genome": {
+                    "name": g.DATASETS[g.dataSetID].ensembl_species + " " + g.DATASETS[g.dataSetID].ensembl_release,
+                    "contigs": g.DATASETS[g.dataSetID].chromosomes.contigs
+                },
 
-            */
+                "resolve": {
+                    "scale": {
+                        "x": "shared",
+                    }
+                },
 
-
-            const spec =
-                {
-                    "description":[
-                        "Put a description....",
-                        "Here if you would like to!"
-                    ],
-
-
-                    "genome": {
-                        "name": g.DATASETS[g.dataSetID].ensembl_species + " " + g.DATASETS[g.dataSetID].ensembl_release,
-                        "contigs": g.DATASETS[g.dataSetID].chromosomes.contigs
-                    },
-
-                    "resolve": {
-                        "scale": {
-                            "x": "shared",
-                        }
-                    },
-
-                    "vconcat": tracksAll
-
-                };
-
-            // logDebug('spec=', spec);
-
+                "vconcat": tracksAll
+            };
 
             $('#snpWindowMenuShift').html(`
                 <div class="col">
@@ -3090,11 +3082,6 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                     }
                 }
             );
-
-
-                //genomeSpyObj.addEventListener("click", function(evt) {
-                //    console.log(evt);
-                //});
         }
 
         /**
@@ -3628,7 +3615,6 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                 }
             });
 
-
             if (g.DATASETS[dsMediateAgainst].datatype === 'mrna') {
                 // ["ENSMUSG00000000001", "Gnai3", "3", 108.1267, 140.1666]
                 $.each(mediationData, function(index, element) {
@@ -3819,15 +3805,14 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                     "name": g.DATASETS[g.dataSetID].ensembl_species + " " + g.DATASETS[g.dataSetID].ensembl_release,
                     "contigs": g.DATASETS[g.dataSetID].chromosomes.contigs
                 },
-
                 "vconcat": tracks
             };
 
             logDebug("g.DATASETS[g.dataSetID].chromosomes.contigs=", g.DATASETS[g.dataSetID].chromosomes.contigs);
             logDebug('SPEC=', spec);
 
-            $("#plotMediation").html('<div class="row"><div class="col" id="plotMediationMenu"></div></div><div class="row"><div class="col" id="plotMediationChart"></div></div>');
-            $("#plotMediationChart").html('');
+            $('#plotMediation').html('<div class="row"><div class="col" id="plotMediationMenu"></div></div><div class="row"><div class="col" id="plotMediationChart"></div></div>');
+            $('#plotMediationChart').html('');
             $('#plotMediationMenu').html('');
             $('#plotMediationChart').height('500');
 
@@ -4035,7 +4020,6 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
             });
         }
 
-
         /**
          * Update the status of the downloading effect data.
          *
@@ -4093,7 +4077,6 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                                                        data.response_data.lodSamples.response.result,
                                                        chromosome, covar);
                                     }
-
                                     stopTask();
                                 }
                             }
@@ -4117,7 +4100,6 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                 });
             }
         }
-
 
         function updateCorrelateDataSet(groupID) {
             // send GET request to status URL
@@ -4309,6 +4291,7 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
             $('#lodPlotChartCovariateFull').html('');
             $('#lodPlotChartCovariateDiff').html('');
             $('#correlationCovariateSelectionText').addClass('hidden').removeClass('visible');
+            $('#correlationImputation').html('');
 
             resetSecondaryPlots();
 
@@ -4768,7 +4751,8 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
             let options = {
                 species: g.DATASETS[g.dataSetID].ensembl_species,
                 release: g.DATASETS[g.dataSetID].ensembl_release,
-                limit: 100
+                limit: 100,
+                greedy: true
             };
 
             logDebug(options);
@@ -5366,6 +5350,7 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
 
                 $('#correlationCovariateSelectionText').addClass('hidden').removeClass('visible');
                 $('#correlationCovariateSelection').html('<input type="hidden" id="interactiveCovarCorrelation" value="additive"/>');
+                $('#correlationImputation').html('');
 
 
                 return;
@@ -5610,17 +5595,17 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
 
                     if (g.DATASETS[g.correlationDatasetID].datatype === 'mrna') {
                         csvContent = '"id","symbol","chr","start","end","correlation"\n';
-                        $.each(g.correlationData, function (k, v) {
+                        $.each(g.correlationData.correlations, function (k, v) {
                             csvContent += `"${v.id}","${v.symbol}","${v.chr}",${v.start},${v.end},${v.cor}\n`;
                         });
                     } else if (g.DATASETS[g.correlationDatasetID].datatype === 'protein') {
                         csvContent = '"id","symbol","chr","start","end","correlation"\n';
-                        $.each(g.correlationData, function (k, v) {
+                        $.each(g.correlationData.correlations, function (k, v) {
                             csvContent += `"${v.id}","${v.symbol}","${v.chr}",${v.start},${v.end},${v.cor}\n`;
                         });
                     } else if (g.DATASETS[g.correlationDatasetID].datatype === 'pheno') {
                         csvContent = '"id","correlation"\n';
-                        $.each(g.correlationData, function (k, v) {
+                        $.each(g.correlationData.correlations, function (k, v) {
                             csvContent += `"${v.id}",${v.cor}\n`;
                         });
                     } else {
@@ -5658,7 +5643,7 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
 
             if (g.DATASETS[g.correlationDatasetID].datatype === 'mrna') {
                 htmlBody += '<thead><th>Value</th><th>Symbol</th><th>Location</th></thead>';
-                $.each(correlationData, function(idx, value) {
+                $.each(correlationData.correlations, function(idx, value) {
                     if (idx < 1000) {
                         {% if config.IS_CC_VIEWER %}
                         htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.symbol}</td><td>${value.chr}:${value.start.toLocaleString()}-${value.end.toLocaleString()}</td></tr>`;
@@ -5669,7 +5654,7 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                 });
             } else if (g.DATASETS[g.correlationDatasetID].datatype === 'protein') {
                 htmlBody += '<thead><th>Value</th><th>Symbol</th><th>Location</th></thead>';
-                $.each(correlationData, function(idx, value) {
+                $.each(correlationData.correlations, function(idx, value) {
                     if (idx < 1000) {
                         {% if config.IS_CC_VIEWER %}
                         htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.symbol}</td><td>${value.chr}:${value.start.toLocaleString()}-${value.end.toLocaleString()}</td></tr>`;
@@ -5680,7 +5665,7 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                 });
             } else if (g.DATASETS[g.correlationDatasetID].datatype === 'pheno') {
                 htmlBody += '<thead><th>Value</th><th>ID</th></thead>';
-                $.each(correlationData, function(idx, value) {
+                $.each(correlationData.correlations, function(idx, value) {
                     if (idx < 1000) {
                         {% if config.IS_CC_VIEWER %}
                         htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.id}</td></tr>`;
@@ -5712,6 +5697,11 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                 }]
             });
 
+            $('#correlationImputation').html('');
+
+            if ((correlationData.imputed_samples != null) && (correlationData.imputed_samples.length > 0)){
+                $('#correlationImputation').html('<span style="color:red">* Some missing values were imputed to calculate the correlations.</span>');
+            }
 
             $('#corTable a').click(function(evt) {
                 evt.preventDefault();
@@ -5753,7 +5743,6 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
 
             downloadCSV(csvContent, `${id}_${idCorrelate}_CORRELATION.csv`, 'text/csv;encoding:utf-8');
         }
-
 
         function plotCorrelationChart() {
             let data = g.correlationChartData;
@@ -5919,6 +5908,11 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                         "data": {
                             "values": newData
                         },
+
+                        "transform": [
+                            { "type": "formula", "expr": "datum.imputed ? 'diamond' : 'point'", "as": "myShape" }
+                        ],
+
                         "title": "Correlation",
                         "mark": {
                             "type": "point",
@@ -5933,11 +5927,18 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                             "strokeOpacity": 0.8
                         },
                         "encoding": {
+                            "shape": {
+                                "field": "myShape",
+                                "type":"nominal"
+                            },
                             "x": {
                                 "title": xAxis,
                                 "field": "x",
                                 "type": "quantitative",
-                                "scale": { "domain": [minValue, maxValue] },
+                                "scale": {
+                                    "zoom": true,
+                                    "domain": [minValue, maxValue]
+                                },
                                 "axis": {
                                     "values": axisTicks
                                 },
@@ -5946,7 +5947,10 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                                 "title": yAxis,
                                 "field": "y",
                                 "type": "quantitative",
-                                "scale": { "domain": [minValue, maxValue] },
+                                "scale": {
+                                    "zoom": true,
+                                    "domain": [minValue, maxValue]
+                                },
                                 "axis": {
                                     "values": axisTicks
                                 },
@@ -6093,9 +6097,9 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                     g.chartCorrelation = null;
                     $('#correlationDataTable').html('');
                     $('#plotCorrelation').html('');
+                    $('#correlationImputation');
                 });
             }
-
         }
 
         function generateCorrelationPlot(currentDataset, currentID, correlateDataset, correlateID, correlateSymbol, interactiveCovariate) {
@@ -6112,7 +6116,8 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                 urls:[{
                     url_id: 'correlationPlot',
                     url: urlCorrelationPlot
-                }]};
+                }]
+            };
 
             startTask();
 
@@ -6136,12 +6141,10 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
             });
         }
 
-
         function resetSecondaryPlots() {
             g.chartMediation = null;
             g.chartEffect = {};
             g.chartSNPAssoc = null;
-
             $('#plotMediation').html('');
             $('#allEffectPlots').html('');
             $('#plotSNPAssociation').html('');
@@ -6149,11 +6152,11 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
             $('#snpWindowMenu').html('');
         }
 
-        function updateGeneSelect(groupID, geneID, proteinID, dataSetID, covar) {
+        function updateGeneSelect(groupID, submitData, geneID, proteinID, dataSetID, covar) {
             // send GET request to status URL
             logDebug('update progress, calling .ajax');
-
             logDebug(groupID);
+            logDebug("updateGeneSelect submitData=", submitData);
 
             if (g.runningTask) {
                 let statusURL = `{{ url_for('api.api_status', group_id='', _external=False) }}${groupID}`;
@@ -6254,7 +6257,7 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                             // rerun in 1 seconds
                             logDebug('Not done, keep checking...');
                             setTimeout(function () {
-                                updateGeneSelect(groupID, geneID, proteinID, dataSetID, covar);
+                                updateGeneSelect(groupID, submitData, geneID, proteinID, dataSetID, covar);
                             }, 1000);
                         }
                     }
@@ -6277,7 +6280,6 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
             let urlLOD = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=${phenotypeID}`;
             let urlLODCovar = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=${phenotypeID}`;
             let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${dataSetID}&id=${phenotypeID}`;
-
 
             // TODO: make reset function
             g.gene = null;
@@ -6328,7 +6330,8 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                 }, {
                     url_id: 'lod',
                     url: urlLOD
-                }]};
+                }]
+            };
 
             if (urlLODCovar !== null) {
                 submitData.urls.push({
@@ -6354,6 +6357,7 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
             g.chartCorrelation = null;
             $('#plotCorrelation').html('');
             $('#correlationDataTable').html('');
+            $('#correlationImputation').html('');
 
             // The following line fires a change event which we do not want
             // $('#correlationDatasetSelect').selectpicker('val', g.dataSetID);
@@ -6361,7 +6365,6 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
             // Do this instead
             $('#correlationDatasetSelect').val(g.dataSetID);
             $('#correlationDatasetSelect').selectpicker('render');
-
             $('#fact-svg-chart').html('');
 
             resetSecondaryPlots();
@@ -6412,7 +6415,7 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                                  </div>`;
             }
 
-            swal({
+            Swal.fire({
                   allowEnterKey: false,
                   allowEscapeKey: false,
                   allowOutsideClick: false,
@@ -6425,11 +6428,9 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
             });
         }
 
-
         function updatePhenotypeSelect(groupID, datasetID, covar) {
             // send GET request to status URL
             logDebug('update progress, calling .ajax');
-
             logDebug(groupID);
 
             if (g.runningTask) {
@@ -6603,21 +6604,26 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
             let submitData = {
                 urls:[{
                     url_id: 'geneData',
+                    url_description: 'Gene Data',
                     url: urlGeneData
                 }, {
                     url_id: 'expression',
+                    url_description: 'Expression Data',
                     url: urlExpression
                 }, {
                     url_id: 'correlation',
+                    url_description: 'Correlation Data',
                     url: urlCorrelation
                 }, {
                     url_id: 'lod',
+                    url_description: 'LOD Scan Data',
                     url: urlLOD
                 }]};
 
             if (urlLODCovar !== null) {
                 submitData.urls.push({
                     url_id: 'lodCovar',
+                    url_description: 'Covariate LOD Scan Data',
                     url: urlLODCovar
                 });
             }
@@ -6639,6 +6645,7 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
             g.chartCorrelation = null;
             $('#plotCorrelation').html('');
             $('#correlationDataTable').html('');
+            $('#correlationImputation').html('');
 
             // The following line fires a change event which we do not want
             // $('#correlationDatasetSelect').selectpicker('val', g.dataSetID);
@@ -6646,7 +6653,7 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
             // Do this instead
             $('#correlationDatasetSelect').val(g.dataSetID);
             $('#correlationDatasetSelect').selectpicker('render');
-
+            $('#correlationImputation').html('');
 
             $('#fact-svg-chart').html('');
 
@@ -6664,10 +6671,8 @@ HTMLCanvasElement.prototype.getContext = (function(oldGetContextFn) {
                     logDebug('data=', data);
                     logDebug('status=', status);
                     logDebug('request=', request);
-                    //let status_url = request.getResponseHeader('Location');
-                    //logDebug('status_url=', status_url);
                     logDebug('data.group_id=', data.group_id);
-                    updateGeneSelect(data.group_id, geneID, proteinID, dataSetID, covar);
+                    updateGeneSelect(data.group_id, submitData, geneID, proteinID, dataSetID, covar);
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     showErrorMessage(errorThrown, textStatus);

@@ -1,6 +1,7 @@
 FROM alpine:3.9.3
 
-LABEL maintainer="Matt Vincent <matt.vincent@jax.org>"
+LABEL maintainer="Matt Vincent <matt.vincent@jax.org>" \
+	  version="1.1.0"
 
 # install what we need
 RUN apk add --no-cache \
