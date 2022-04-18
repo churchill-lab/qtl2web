@@ -3,6 +3,15 @@
  * @fileoverview A collection of utility functions.
  */
 
+
+function isEmpty(obj) {
+    if (obj === null) {
+        return true;
+    }
+
+    return Object.keys(obj).length === 0;
+}
+
 /**
  * Simple compare function.
  * @param {Object} a The first object to compare.

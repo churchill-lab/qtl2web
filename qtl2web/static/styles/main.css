@@ -319,6 +319,9 @@ body.pg-loaded > .inner {
     transition: all 0.3s 1s ease-out; /* Chrome 26, Firefox 16+, iOS 7+, IE 10+, Opera, Safari 6.1+  */
 }
 
+.hidden {
+    visibility: hidden;
+}
 
 
 
