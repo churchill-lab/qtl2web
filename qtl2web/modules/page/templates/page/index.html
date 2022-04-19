@@ -1480,7 +1480,7 @@
                 //     0         1       2        3       4         5          6        7
                 // ["1_100007442","1",100.0074,"ENSMUSG00000028028","Alpk1","3",127.7255,6.1147]
                 $.each(peaks, function(k, v) {
-                    let line = `"${v[3]}","${v[4]}","${v[5]}",${v[6]},"${v[0]}","${v[1]}",${v[2]},"${v[7]}"`;
+                    let line = `"${v[3]}","${v[4]}","${v[5]}",${v[6]},"${v[0]}","${v[1]}",${v[2]},${v[7]}`;
                     if (peaks[0].length === 16) {
                         line += `,${v[8]},${v[9]},${v[10]},${v[11]},${v[12]},${v[13]},${v[14]},${v[15]}`;
                     }
@@ -1498,9 +1498,26 @@
                 //     0         1       2          3          4        5         6        7        8
                 // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
                 $.each(peaks, function(k, v) {
-                    let line = `"${v[3]}","${v[4]}","${v[5]}","${v[6]}",${v[7]},"${v[0]}","${v[1]}",${v[2]},"${v[8]}"`;
+                    let line = `"${v[3]}","${v[4]}","${v[5]}","${v[6]}",${v[7]},"${v[0]}","${v[1]}",${v[2]},${v[8]}`;
                     if (peaks[0].length === 17) {
                         line += `,${v[9]},${v[10]},${v[11]},${v[12]},${v[13]},${v[14]},${v[15]},${v[16]}`;
+                    }
+                    line += '\n';
+                    csvContent += line;
+                });
+            } else if (g.DATASETS[g.dataSetID].datatype === 'phos') {
+                csvContent = '"phos_id","protein_id","gene_id","symbol","gene_chrom","gene_mid","marker_id","marker_chrom","marker_position","lod"';
+                if (peaks[0].length === 18) {
+                    csvContent += ',"A","B","C","D","E","F","G","H"';
+                }
+                csvContent += '\n';
+                // [marker_id, chrom, position, phos_id, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
+                //     0         1       2          3          4        5         6        7        8        9
+                // ["1_106129060","1",106.12906,"PHOS_ID","ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
+                $.each(peaks, function(k, v) {
+                    let line = `"${v[3]}","${v[4]}","${v[5]}","${v[6]}","${v[7]}",${v[8]},"${v[0]}","${v[1]}",${v[2]},${v[9]}`;
+                    if (peaks[0].length === 18) {
+                        line += `,${v[10]},${v[11]},${v[12]},${v[13]},${v[14]},${v[15]},${v[16]},${v[17]}`;
                     }
                     line += '\n';
                     csvContent += line;
@@ -1632,6 +1649,9 @@
                 // protein
                 // [marker_id, chrom, position, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
                 // ["1_106129060","1",106.12906,"ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
+                // phos
+                // [marker_id, chrom, position, phos_id, protein_id, gene_id, symbol, gene_chrom, gene_mid, lod
+                // ["1_106129060","1",106.12906,"PHOS_ID","ENSMUSP00000108356","ENSMUSG00000009907","Vps4b","1",106.7804,8.2928352859],
 
                 $('#plotLodPeaks').width('400');
 
@@ -1641,6 +1661,7 @@
                 let idxGenePos = 6;
                 let idxLODPos = 7;
                 let isProtein = false;
+                let isPhos = false;
 
                 if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                     idxGeneID = 4;
@@ -1649,6 +1670,13 @@
                     idxGenePos = 7;
                     idxLODPos = 8;
                     isProtein = true;
+                } else if (g.DATASETS[g.dataSetID].datatype === 'phos') {
+                    idxGeneID = 5;
+                    idxGeneSymbol = 6;
+                    idxGeneChr = 7;
+                    idxGenePos = 8;
+                    idxLODPos = 9;
+                    isPhos = true;
                 }
 
                 logDebug('idxGeneChr=', idxGeneChr);
@@ -1678,9 +1706,10 @@
                                 markerID: element[0],
                                 geneID: element[idxGeneID],
                                 geneSymbol: element[idxGeneSymbol],
-                                proteinID: isProtein ? element[3] : null,
+                                proteinID: isPhos ? element[4] : isProtein ? element[3] : null,
+                                phosID: isPhos ? element[3] : null,
                                 covar: covar,
-                                phenotype: true
+                                phenotype: false
                             };
 
                             if (element.length > idxLODPos + 1) {
@@ -2291,8 +2320,16 @@
 
         async function mediationTooltipHandler(datum, mark, props) {
             logDebug(datum);
-            /*
             let protein = '';
+            let phos = '';
+
+            if (('phos_id' in datum) &&
+                (datum['phos_id'] != null) &&
+                (datum['phos_id'] !== '')) {
+                phos = genomeSpyEmbed.html`
+                    <strong>Phos ID</strong> ${datum.phos_id}
+                    <br/>`;
+            }
 
             if (('protein_id' in datum) &&
                 (datum['protein_id'] != null) &&
@@ -2301,13 +2338,14 @@
                     <strong>Protein ID</strong> ${datum.protein_id}
                     <br/>`;
             }
-            */
 
             return genomeSpyEmbed.html`
                 <div class="title">
                     <strong>${datum.LOD}</strong>
                 </div>
                 <p class="summary">
+                    ${phos}
+                    ${protein}
                     <strong>Gene ID</strong> ${datum.gene_id}
                     <br/>
                     <strong>Symbol</strong> ${datum.symbol}
@@ -2322,12 +2360,21 @@
             logDebug(datum, mark, props);
             let AH = '';
             let protein = ''
+            let phos = ''
 
             if (('proteinID' in datum) &&
                 (datum['proteinID'] != null) &&
                 (datum['proteinID'] !== '')) {
                 protein = genomeSpyEmbed.html`
                     <strong>Protein ID</strong> ${datum.proteinID}
+                    <br/>`;
+            }
+
+            if (('phosID' in datum) &&
+                (datum['phosID'] != null) &&
+                (datum['phosID'] !== '')) {
+                phos = genomeSpyEmbed.html`
+                    <strong>Phos ID</strong> ${datum.phosID}
                     <br/>`;
             }
 
@@ -2351,6 +2398,7 @@
                     <strong>${datum.lod}</strong>
                 </div>
                 <p class="summary">
+                    ${phos}
                     ${protein}
                     <strong>Gene ID</strong> ${datum.geneID}
                     <br/>
@@ -3362,6 +3410,7 @@
             logDebug('renderTo=', renderTo);
 
             let allEffectValues = [];
+            let val = null;
 
             $.each(effectData, function(index, element) {
                 //{"A":-0.1224,..."H":1.45,"chr":"4","id":"4_156339889","pos":156.3399}
@@ -3374,8 +3423,11 @@
                 {#- allEffectValues.push(element.{{ s['key'] }}); -#}
 
                 {#- when data is collapsed #}
-                strainInfo['{{ s['key'] }}'].data.push([position, element[{{ loop.index0 + 3}}]]);
-                allEffectValues.push(element[{{ loop.index0 + 3}}]);
+                val = element[{{ loop.index0 + 3}}];
+                if (!isNaN(+val))  {
+                    strainInfo['{{ s['key'] }}'].data.push([position, val]);
+                    allEffectValues.push(val);
+                }
             {%- endfor %}
             });
 
@@ -3698,7 +3750,7 @@
             } else if (g.DATASETS[dsMediateAgainst].datatype === 'phos') {
                 // ["ENSMUSP00000024849_DSRTGDSMEASGF_636", "ENSMUSP00000000001", "ENSMUSG00000000001", "Gnai3", "3", 108.126713, 7.1102046955]
                 $.each(mediationData, function(index, element) {
-                    if (element[3] in g.DATASETS[g.dataSetID].chromosomes.chr) {
+                    if (element[4] in g.DATASETS[g.dataSetID].chromosomes.chr) {
                         newData.push({
                             phos_id: element[0],
                             protein_id: element[1],
@@ -4344,7 +4396,7 @@
                 return;
             }
 
-            if (isEmpty(g.DATASETS[g.dataSetID].lodpeaks)) {
+            if (!isEmpty(g.DATASETS[g.dataSetID].lodpeaks)) {
                 generateLODPeaksHTML();
             }
 
@@ -4408,7 +4460,7 @@
                 // phenotype data can only mediate against mrna or protein (not itself)
                 let showMed = false;
                 $.each(QTL.g.DATASETS, function(k, v) {
-                    if ((v.datatype === 'mrna') || (v.datatype === 'protein')) {
+                    if ((v.datatype === 'mrna') || (v.datatype === 'protein') || (v.datatype === 'phos')) {
                         showMed = true;
                     }
                 });
@@ -5511,52 +5563,208 @@
                 // configure the profile plot covariate selections
 
                 let profilePlotOptionsHTML = `
-                      <div class="col">
-                        <div class="row">
-                            <div class="col font-weight-bold">
-                                Select your factors
+                    <div class="col">
+                    <div class="row">
+                        <div class="col font-weight-bold">
+                            Select your factors
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div id="factor-view-select-wrapper">
+                                <select id="factor-view-select" multiple="multiple">
+                                </select>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="row">
-                            <div class="col">
-                                <div id="factor-view-select-wrapper">
-                                    <select id="factor-view-select" multiple="multiple">
-                                    </select>
-                                </div>
-                            </div>
+                    <div class="row row-spacer"></div>
+
+                    <div class="row">
+                        <div class="col font-weight-bold">
+                            Select a series to color
                         </div>
+                    </div>
 
-                        <div class="row row-spacer"></div>
-
-                        <div class="row">
-                            <div class="col font-weight-bold">
-                                Select a series to color
-                            </div>
+                    <div class="row">
+                        <div class="col" id="divFactorSeries">
                         </div>
+                    </div>
 
-                        <div class="row">
-                            <div class="col" id="divFactorSeries">
-                            </div>
-                        </div>
+                    <div class="row row-spacer"></div>
+                    </div>
+                `;
 
-                        <div class="row row-spacer"></div>
-                        </div>`;
+                $('#divProfilePlotOptions').html(profilePlotOptionsHTML);
 
-            $('#divProfilePlotOptions').html(profilePlotOptionsHTML);
+                g.orderCount = ds['covar_info'].length;
+                logDebug('g.orderCount=', g.orderCount);
 
-            g.orderCount = ds['covar_info'].length;
-            logDebug('g.orderCount=', g.orderCount);
+                $('#factor-view-select').multiselect({
+                    onChange: function (option, checked) {
+                        if (checked) {
+                            g.orderCount++;
+                            $(option).attr('order', g.orderCount);
+                        } else {
+                            $(option).attr('order', '');
+                        }
 
-            $('#factor-view-select').multiselect({
-                onChange: function (option, checked) {
-                    if (checked) {
-                        g.orderCount++;
-                        $(option).attr('order', g.orderCount);
-                    } else {
-                        $(option).attr('order', '');
+                        if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
+                            plotProfile(g.geneID);
+                        } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
+                            plotProfile(g.proteinID);
+                        } else if (g.DATASETS[g.dataSetID].datatype === 'phos') {
+                            plotProfile(g.phosID);
+                        } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
+                            plotProfile(g.phenotypeID);
+                        } else {
+                            // TODO: major error
+                            logError('MAJOR ERROR');
+                        }
+
+                    },
+                    maxHeight: 400,
+                    dropUp: false,
+                    buttonWidth: '100%',
+                    buttonClass: 'text-left btn btn-sm btn-secondary',
+                    buttonText: function (options) {
+                        if (options.length === 0) {
+                            return 'None selected';
+                        } else {
+                            let selected = [];
+
+                            options.each(function () {
+                                selected.push([$(this).text(), $(this).attr('order')]);
+                            });
+
+                            selected.sort(function (a, b) {
+                                return a[1] - b[1];
+                            });
+
+                            let text = '';
+                            for (let i = 0; i < selected.length; i++) {
+                                text += (selected[i][0] + ', ');  // without numbers
+                            }
+
+                            return text.substr(0, text.length - 2);
+                        }
+                    }
+                });
+
+                // show the correlation color select
+                $("#divCorrelationCovars").addClass('visible').removeClass('hidden');
+
+                let selectOptions = [];
+                let html = '<select id="factorSeries" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">';
+                let htmlCorrelation = '<select id="factorSeriesCorrelation" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">';
+                let htmlInteractiveCovariatesLOD = `<div class="row">
+                                                        <div class="col-auto align-self-center font-weight-bold">
+                                                            <span>Plots</span>
+                                                        </div>
+                                                        <div class="col">
+                                                            <select id="interactiveCovarLODS" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">
+                                                    `;
+                let htmlInteractiveCovariatesPeaks = `<div class="row">
+                                                          <div class="col-auto align-self-center">
+                                                            <span>Plot type</span>
+                                                          </div>
+                                                          <div class="col">
+                                                              <select id="interactiveCovarPeaks" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">
+                                                `;
+
+                let htmlInteractiveCovariatesCorrelation = `<select id="interactiveCovarCorrelation" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">`;
+
+                g.interactiveCovariates = [];
+
+                htmlInteractiveCovariatesLOD += `<option value="additive">Additive</option>`;
+                htmlInteractiveCovariatesPeaks += `<option value="additive">Additive</option>`;
+                htmlInteractiveCovariatesCorrelation += `<option value="none">None</option>`;
+
+                $.each(ds['covar_info'], function (index, element) {
+                    selectOptions.push({
+                        label: element['display_name'],
+                        order: index,
+                        selected: element.primary,
+                        title: element['display_name'],
+                        value: element['sample_column'],
+                    });
+
+                    html += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
+                    htmlCorrelation += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
+
+                    // interactive covariates
+                    if (element.interactive) {
+                        g.interactiveCovariates.push(element);
+                        htmlInteractiveCovariatesLOD += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
+                        htmlInteractiveCovariatesPeaks += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
+                        htmlInteractiveCovariatesCorrelation += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
+                    }
+                });
+
+                html += '</select>';
+                htmlCorrelation += '</select>';
+                htmlInteractiveCovariatesLOD += '</select></div></div>';
+                htmlInteractiveCovariatesPeaks += '</select></div></div>';
+                htmlInteractiveCovariatesCorrelation += '</select>';
+
+                $('#factor-view-select').multiselect('dataprovider', selectOptions);
+
+                $('#divFactorSeries').html(html);
+                $('#divFactorSeriesCorrelation').html(htmlCorrelation);
+
+
+                logDebug('g.interactiveCovariates=', g.interactiveCovariates);
+
+                // display a selection if we have interactive covariates, nothing if not
+                if (g.interactiveCovariates.length > 0) {
+                    $('#divInteractiveCovariatesLOD').html(htmlInteractiveCovariatesLOD);
+
+                    $('#interactiveCovarLODS').selectpicker();
+
+                    $('#interactiveCovarLODS').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+                        console.log('CHANGING COVAR=',e.target.value);
+                        changeCovariate(e.target.value);
+                    });
+
+                    // add Covariate adjustment for correlation
+                    $('#correlationCovariateSelectionText').addClass('visible').removeClass('hidden');
+                    $('#correlationCovariateSelection').html(htmlInteractiveCovariatesCorrelation);
+                    $('#interactiveCovarCorrelation').selectpicker();
+
+                    $('#interactiveCovarCorrelation').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+                        let selected = $(this).find(':selected').val();
+                        let dataset = $('#correlationDatasetSelect').find(':selected').val();
+                        switchCorrelationDataSet(dataset, selected);
+                    });
+
+
+                    if (resetPeaks) {
+                        $('#divInteractiveCovariatesPeaks').html(htmlInteractiveCovariatesPeaks);
+
+                        $('#interactiveCovarPeaks').selectpicker();
+
+                        $('#interactiveCovarPeaks').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+                            generateLODPeaksHTML();
+                        });
                     }
 
+
+                } else {
+                    $('#divInteractiveCovariatesLOD').html(`<input type="hidden" id="interactiveCovarLODS" value="additive"/>`);
+
+                    // remove Covariate adjustment for correlation
+                    $('#correlationCovariateSelectionText').addClass('hidden').removeClass('visible');
+                    $('#correlationCovariateSelection').html('<input type="hidden" id="interactiveCovarCorrelation" value="additive"/>');
+
+                    if (resetPeaks) {
+                        $('#divInteractiveCovariatesPeaks').html(`<input type="hidden" id="interactiveCovarPeaks" value="additive"/>`);
+                    }
+                }
+
+                $('#factorSeries').selectpicker();
+
+                $('#factorSeries').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
                     if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
                         plotProfile(g.geneID);
                     } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
@@ -5569,170 +5777,17 @@
                         // TODO: major error
                         logError('MAJOR ERROR');
                     }
-
-                },
-                maxHeight: 400,
-                dropUp: false,
-                buttonWidth: '100%',
-                buttonClass: 'text-left btn btn-sm btn-secondary',
-                buttonText: function (options) {
-                    if (options.length === 0) {
-                        return 'None selected';
-                    } else {
-                        let selected = [];
-
-                        options.each(function () {
-                            selected.push([$(this).text(), $(this).attr('order')]);
-                        });
-
-                        selected.sort(function (a, b) {
-                            return a[1] - b[1];
-                        });
-
-                        let text = '';
-                        for (let i = 0; i < selected.length; i++) {
-                            text += (selected[i][0] + ', ');  // without numbers
-                        }
-
-                        return text.substr(0, text.length - 2);
-                    }
-                }
-            });
-
-            // show the correlation color select
-                $("#divCorrelationCovars").addClass('visible').removeClass('hidden');
-
-            let selectOptions = [];
-            let html = '<select id="factorSeries" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">';
-            let htmlCorrelation = '<select id="factorSeriesCorrelation" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">';
-            let htmlInteractiveCovariatesLOD = `<div class="row">
-                                                    <div class="col-auto align-self-center font-weight-bold">
-                                                        <span>Plots</span>
-                                                    </div>
-                                                    <div class="col">
-                                                        <select id="interactiveCovarLODS" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">
-                                                `;
-            let htmlInteractiveCovariatesPeaks = `<div class="row">
-                                                      <div class="col-auto align-self-center">
-                                                        <span>Plot type</span>
-                                                      </div>
-                                                      <div class="col">
-                                                          <select id="interactiveCovarPeaks" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">
-                                            `;
-
-            let htmlInteractiveCovariatesCorrelation = `<select id="interactiveCovarCorrelation" data-style="btn-secondary btn-sm" data-width="100%" class="selectpicker">`;
-
-            g.interactiveCovariates = [];
-
-            htmlInteractiveCovariatesLOD += `<option value="additive">Additive</option>`;
-            htmlInteractiveCovariatesPeaks += `<option value="additive">Additive</option>`;
-            htmlInteractiveCovariatesCorrelation += `<option value="none">None</option>`;
-
-            $.each(ds['covar_info'], function (index, element) {
-                selectOptions.push({
-                    label: element['display_name'],
-                    order: index,
-                    selected: element.primary,
-                    title: element['display_name'],
-                    value: element['sample_column'],
                 });
 
-                html += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
-                htmlCorrelation += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
+                $('#factorSeriesCorrelation').selectpicker();
 
-                // interactive covariates
-                if (element.interactive) {
-                    g.interactiveCovariates.push(element);
-                    htmlInteractiveCovariatesLOD += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
-                    htmlInteractiveCovariatesPeaks += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
-                    htmlInteractiveCovariatesCorrelation += `<option value="${element['sample_column']}">${element['display_name']}</option>`;
-                }
-            });
-
-            html += '</select>';
-            htmlCorrelation += '</select>';
-            htmlInteractiveCovariatesLOD += '</select></div></div>';
-            htmlInteractiveCovariatesPeaks += '</select></div></div>';
-            htmlInteractiveCovariatesCorrelation += '</select>';
-
-            $('#factor-view-select').multiselect('dataprovider', selectOptions);
-
-            $('#divFactorSeries').html(html);
-            $('#divFactorSeriesCorrelation').html(htmlCorrelation);
-
-
-            logDebug('g.interactiveCovariates=', g.interactiveCovariates);
-
-            // display a selection if we have interactive covariates, nothing if not
-            if (g.interactiveCovariates.length > 0) {
-                $('#divInteractiveCovariatesLOD').html(htmlInteractiveCovariatesLOD);
-
-                $('#interactiveCovarLODS').selectpicker();
-
-                $('#interactiveCovarLODS').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
-                    changeCovariate(e.target.value);
+                $('#factorSeriesCorrelation').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+                    plotCorrelationChart();
                 });
 
-                // add Covariate adjustment for correlation
-                $('#correlationCovariateSelectionText').addClass('visible').removeClass('hidden');
-                $('#correlationCovariateSelection').html(htmlInteractiveCovariatesCorrelation);
-                $('#interactiveCovarCorrelation').selectpicker();
-
-                $('#interactiveCovarCorrelation').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
-                    let selected = $(this).find(':selected').val();
-                    let dataset = $('#correlationDatasetSelect').find(':selected').val();
-                    switchCorrelationDataSet(dataset, selected);
-                });
-
-
-                if (resetPeaks) {
-                    $('#divInteractiveCovariatesPeaks').html(htmlInteractiveCovariatesPeaks);
-
-                    $('#interactiveCovarPeaks').selectpicker();
-
-                    $('#interactiveCovarPeaks').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
-                        generateLODPeaksHTML();
-                    });
-                }
-
-
-            } else {
-                $('#divInteractiveCovariatesLOD').html(`<input type="hidden" id="interactiveCovarLODS" value="additive"/>`);
-
-                // remove Covariate adjustment for correlation
-                $('#correlationCovariateSelectionText').addClass('hidden').removeClass('visible');
-                $('#correlationCovariateSelection').html('<input type="hidden" id="interactiveCovarCorrelation" value="additive"/>');
-
-                if (resetPeaks) {
-                    $('#divInteractiveCovariatesPeaks').html(`<input type="hidden" id="interactiveCovarPeaks" value="additive"/>`);
-                }
             }
 
-            $('#factorSeries').selectpicker();
-
-            $('#factorSeries').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
-                if (g.DATASETS[g.dataSetID].datatype === 'mrna') {
-                    plotProfile(g.geneID);
-                } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
-                    plotProfile(g.proteinID);
-                } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
-                    plotProfile(g.phenotypeID);
-                } else if (g.DATASETS[g.dataSetID].datatype === 'phos') {
-                    plotProfile(g.phosID);
-                } else {
-                    // TODO: major error
-                    logError('MAJOR ERROR');
-                }
-            });
-
-            $('#factorSeriesCorrelation').selectpicker();
-
-            $('#factorSeriesCorrelation').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
-                plotCorrelationChart();
-            });
-
-        }
-
+            $('#btnDownloadCorrelationData').off('click');
             $('#btnDownloadCorrelationData').on('click', function(evt) {
                 logDebug('Downloading correlation data');
                 if (g.correlationData) {
@@ -5743,28 +5798,28 @@
                         id = g.geneID;
                     } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                         id = g.proteinID;
-                    } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
-                        id = g.phenotypeID;
                     } else if (g.DATASETS[g.dataSetID].datatype === 'phos') {
                         id = g.phosID;
+                    } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
+                        id = g.phenotypeID;
                     } else {
                         logError('MAJOR ERROR');
                     }
 
                     if (g.DATASETS[g.correlationDatasetID].datatype === 'mrna') {
-                        csvContent = '"id","symbol","chr","start","end","correlation"\n';
+                        csvContent = '"gene_id","symbol","chr","start","end","correlation"\n';
                         $.each(g.correlationData.correlations, function (k, v) {
                             csvContent += `"${v.id}","${v.symbol}","${v.chr}",${v.start},${v.end},${v.cor}\n`;
                         });
                     } else if (g.DATASETS[g.correlationDatasetID].datatype === 'protein') {
-                        csvContent = '"id","symbol","chr","start","end","correlation"\n';
+                        csvContent = '"gene_id","protein_id","symbol","chr","start","end","correlation"\n';
                         $.each(g.correlationData.correlations, function (k, v) {
-                            csvContent += `"${v.id}","${v.symbol}","${v.chr}",${v.start},${v.end},${v.cor}\n`;
+                            csvContent += `"${v.gene_id}","${v.id}","${v.symbol}","${v.chr}",${v.start},${v.end},${v.cor}\n`;
                         });
                     } else if (g.DATASETS[g.correlationDatasetID].datatype === 'phos') {
-                        csvContent = '"id","symbol","chr","start","end","correlation"\n';
+                        csvContent = '"gene_id","protein_id","phos_id","symbol","chr","start","end","correlation"\n';
                         $.each(g.correlationData.correlations, function (k, v) {
-                            csvContent += `"${v.id}","${v.symbol}","${v.chr}",${v.start},${v.end},${v.cor}\n`;
+                            csvContent += `"${v.gene_id}","${v.protein_id}","${v.id}","${v.symbol}","${v.chr}",${v.start},${v.end},${v.cor}\n`;
                         });
                     } else if (g.DATASETS[g.correlationDatasetID].datatype === 'pheno') {
                         csvContent = '"id","correlation"\n';
@@ -5781,7 +5836,6 @@
                     logDebug('no correlation data?');
                 }
             });
-
         }
 
         function formatStrToNum(val, decimals) {
@@ -5805,25 +5859,17 @@
             let htmlBody = '<table id="corTable" class="table table-striped table-bordered table-sm table-sm-text">';
 
             if (g.DATASETS[g.correlationDatasetID].datatype === 'mrna') {
-                htmlBody += '<thead><th>Value</th><th>Symbol</th><th>Location</th></thead>';
+                htmlBody += '<thead><th>Value</th><th>Symbol</th><th>ID</th></thead>';
                 $.each(correlationData.correlations, function(idx, value) {
                     if (idx < 1000) {
-                        {% if config.IS_CC_VIEWER %}
-                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.symbol}</td><td>${value.chr}:${value.start.toLocaleString()}-${value.end.toLocaleString()}</td></tr>`;
-                        {% else %}
-                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}:${value.start.toLocaleString()}-${value.end.toLocaleString()}</td></tr>`;
-                        {% endif %}
+                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.symbol}</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.id}</a></td></tr>`;
                     }
                 });
             } else if (g.DATASETS[g.correlationDatasetID].datatype === 'protein') {
-                htmlBody += '<thead><th>Value</th><th>Symbol</th><th>Location</th></thead>';
+                htmlBody += '<thead><th>Value</th><th>Symbol</th><th>ID</th></thead>';
                 $.each(correlationData.correlations, function(idx, value) {
                     if (idx < 1000) {
-                        {% if config.IS_CC_VIEWER %}
-                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.symbol}</td><td>${value.chr}:${value.start.toLocaleString()}-${value.end.toLocaleString()}</td></tr>`;
-                        {% else %}
-                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.symbol}</a></td><td>${value.chr}:${value.start.toLocaleString()}-${value.end.toLocaleString()}</td</tr>`;
-                        {% endif %}                        
+                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.symbol}</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${value.id}</a></td</tr>`;
                     }
                 });
             } else if (g.DATASETS[g.correlationDatasetID].datatype === 'phos') {
@@ -5831,22 +5877,14 @@
                 $.each(correlationData.correlations, function(idx, value) {
                     if (idx < 1000) {
                         let ph_id = value.id.split('_')[1];
-                        {% if config.IS_CC_VIEWER %}
-                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.symbol}</td><td>${ph_id}</td></tr>`;
-                        {% else %}
                         htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.symbol}</td><td><a href="#" dSymbol="${value.symbol}" dID="${value.id}">${ph_id}</a></td</tr>`;
-                        {% endif %}
                     }
                 });
             } else if (g.DATASETS[g.correlationDatasetID].datatype === 'pheno') {
                 htmlBody += '<thead><th>Value</th><th>ID</th></thead>';
                 $.each(correlationData.correlations, function(idx, value) {
                     if (idx < 1000) {
-                        {% if config.IS_CC_VIEWER %}
-                        htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td>${value.id}</td></tr>`;
-                        {% else %}
                         htmlBody += '<tr><td data-order="' + Math.abs(formatStrToNum(value.cor, 4)) + '">' + formatStrToNum(value.cor, 4) + `</td><td><a href="#" dSymbol="" dID="${value.id}">${value.id}</a></td></tr>`;
-                        {% endif %}
                     }
                 });
             } else {
@@ -5942,6 +5980,10 @@
             } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                 plotTitle = g.proteinID;
                 currentID = g.proteinID;
+                xAxis = plotTitle;
+            } else if (g.DATASETS[g.dataSetID].datatype === 'phos') {
+                plotTitle = g.phosID;
+                currentID = g.phosID;
                 xAxis = plotTitle;
             } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                 plotTitle = g.phenotypeID;
@@ -7015,6 +7057,8 @@
                     urlLOD += `${g.geneID}`;
                 } else if (g.DATASETS[g.dataSetID].datatype === 'protein') {
                     urlLOD += `${g.proteinID}`;
+                } else if (g.DATASETS[g.dataSetID].datatype === 'phos') {
+                    urlLOD += `${g.phosID}`;
                 } else if (g.DATASETS[g.dataSetID].datatype === 'pheno') {
                     urlLOD += `${g.phenotypeID}`;
                 } else {
