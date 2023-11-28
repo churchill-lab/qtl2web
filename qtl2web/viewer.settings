@@ -1,0 +1,9 @@
+{'key':'A', 'color':"#F0E442", 'name':"A/J"},
+    {'key':'B', 'color':"#555555", 'name':"C57BL/6J"},
+    {'key':'C', 'color':"#E69F00", 'name':"129S1/SvImJ"},
+    {'key':'D', 'color':"#0072B2", 'name':"NOD/ShiLtJ"},
+    {'key':'E', 'color':"#56B4E9", 'name':"NZO/H1LtJ"},
+    {'key':'F', 'color':"#009E73", 'name':"CAST/EiJ"},
+    {'key':'G', 'color':"#D55E00", 'name':"PWK/PhJ"},
+    {'key':'H', 'color':"#CC79A7", 'name':"WSB/EiJ"}
+]

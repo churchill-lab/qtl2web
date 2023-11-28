@@ -68,6 +68,12 @@ def api_get(url):
 
     print('new_url=', new_url)
 
+    # hack introduced in Apache httpd upgrade
+    if new_url[:6] == 'http:/' and new_url[6] != '/':
+        new_url = 'http://' + new_url[6:]
+    elif new_url[:7] == 'https:/' and new_url[7] != '/':
+        new_url = 'https://' + new_url[7:]
+
     r = requests.get(new_url)  # , params=_params)
     request_end_time = time.time()
     roundtrip = r.elapsed.total_seconds()

@@ -14,7 +14,7 @@ TECHNOLOGIES = [
   {
     "category": "html",
     "name": "GenomeSpy",
-    "version": "0.17.0",
+    "version": "0.19.0",
     "url": "https://genomespy.app/"
   },
   {
@@ -56,7 +56,7 @@ TECHNOLOGIES = [
   {
     "category": "R",
     "name": "qtl2api",
-    "version": "0.1.0",
+    "version": "0.3.0",
     "url": "https://github.com/churchill-lab/qtl2api"
   },
   {
@@ -80,7 +80,7 @@ TECHNOLOGIES = [
   {
     "category": "docker",
     "name": "mattjvincent/qtl2rest",
-    "version": "0.1.0",
+    "version": "0.3.0",
     "url": "https://github.com/churchill-lab/qtl2rest"
   },
   {

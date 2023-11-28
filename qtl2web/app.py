@@ -74,6 +74,7 @@ def create_app():
         env_settings = os.environ['CONTAINER_FILE_QTL2WEB_SETTINGS']
         app.logger.info('Using CONTAINER_FILE_QTL2WEB_SETTINGS: {}'.format(env_settings))
 
+    app.logger.info(app.config)
     app.logger.setLevel(app.config['LOG_LEVEL'])
 
     app.logger.info('App instantiated')

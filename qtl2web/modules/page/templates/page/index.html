@@ -15,7 +15,7 @@
           href="//cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css"/>
 
     <link rel="stylesheet"
-          href="//unpkg.com/@genome-spy/core@0.17.0/dist/style.css"/>
+          href="//unpkg.com/@genome-spy/core@0.19.0/dist/style.css"/>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='vendor/please-wait-0.0.5/please-wait.css') }}"/>
@@ -95,7 +95,6 @@
 
                     <div class="row">
                         <div class="col">
-
 
                             <!-- Gene/Protein/Pheno selection //-->
                             <div class="card h-100">
@@ -343,6 +342,11 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="col" id="divGenome">
+                        </div>
+                    </div>
+
                     <div class="row invisible" id="divItemInfo">
                         <div class="col">
                             <div class="card">
@@ -423,6 +427,18 @@
                                 <div class="card-body">
                                     <div class="tab-content">
                                         <div role="tabpanel" class="tab-pane active" id="tabPlotEffect">
+
+
+                                        {% if 'EFFECT_PLOT_OPTIONS' in config %}
+                                            {% set EFFECT_PLOT_OPTIONS = config.EFFECT_PLOT_OPTIONS %}
+                                        {% else %}
+                                            {% set EFFECT_PLOT_OPTIONS = 'NB' %}
+                                        {% endif %}
+
+
+                                        <input type="hidden" id="effect_plot_options" value="{{EFFECT_PLOT_OPTIONS}}"/>
+
+                                        {% if EFFECT_PLOT_OPTIONS == 'NB' %}
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="custom-control custom-switch">
@@ -431,6 +447,36 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                        {% elif EFFECT_PLOT_OPTIONS == 'N' %}
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input" disabled id="performBLUP">
+                                                        <label class="custom-control-label" for="performBLUP">{{ config.SWITCH_BLUP_TEXT|safe }}</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% elif EFFECT_PLOT_OPTIONS == 'B' %}
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input" disabled checked id="performBLUP">
+                                                        <label class="custom-control-label" for="performBLUP">{{ config.SWITCH_BLUP_TEXT|safe }}</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input" id="performBLUP">
+                                                        <label class="custom-control-label" for="performBLUP">{{ config.SWITCH_BLUP_TEXT|safe }}</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+
+
                                             <div class="row no-gutters">
                                                 <div class="col" id="allEffectPlots">
                                                 </div>
@@ -741,7 +787,7 @@
     <script src="//d3js.org/d3-request.v1.min.js"></script>
 
     <!-- Genome Spy //-->
-    <script src="//unpkg.com/@genome-spy/core@0.17.0/dist/index.js"></script>
+    <script src="//unpkg.com/@genome-spy/core@0.19.0/dist/index.js"></script>
 
     <!-- Font Awesome, user: matt.vincent@jax.org //-->
     <script src="//kit.fontawesome.com/56d0cfd040.js" crossorigin="anonymous"></script>
@@ -796,7 +842,7 @@
                       '" version="1.1" xmlns="http://www.w3.org/2000/svg">' + svgArr.join('') + '</svg>');
                 }
                 charts[i].getSVGForLocalExport(options, {}, function () {
-                    console.log("Failed to get SVG");
+                    logDebug("Failed to get SVG");
                 }, function (svg) {
                     addSVG(svg);
                     return exportChart(i + 1); // Export next only when this SVG is received
@@ -810,17 +856,17 @@
      * and exporting options as the second argument
      */
     Highcharts.exportCharts = function (charts, options) {
-        console.log('options a', options);
+        logDebug('options a', options);
         options = Highcharts.merge(Highcharts.getOptions().exporting, options);
-        console.log('options b', options);
+        logDebug('options b', options);
 
         // Get SVG asynchronously and then download the resulting SVG
         Highcharts.getSVG(charts, options, function (svg) {
 
             Highcharts.downloadSVGLocal(svg, options, function (a,b,c) {
-                console.log('downloadSVGLocal',options);
-                console.log("Failed to export on client side");
-                console.log(a,b,c);
+                logDebug('downloadSVGLocal',options);
+                logDebug("Failed to export on client side");
+                logDebug(a,b,c);
             });
         });
     };
@@ -1117,6 +1163,7 @@
 
                         // change the case so we don't have to throughout
                         ds.datatype = ds.datatype.toLowerCase();
+                        logDebug('ds.datatype=', ds.datatype);
 
                         if (ds.datatype === 'mrna') {
                             // convert array to object (hash)
@@ -1169,6 +1216,9 @@
                             });
                         } else if ((ds.datatype === 'pheno') || (ds.datatype === 'phenotype')) {
                             ds.datatype = 'pheno';
+                            logDebug(ds.id);
+                            logDebug(ds.annotations);
+
 
                             $.each(ds.annotations, function(index, element) {
                                 ds.phenotypes[element['data_name']] = element;
@@ -1299,6 +1349,15 @@
                                 'contigs':[]
                             };
 
+
+                            g.DATASETS[g.dataSetID].ensembl = {
+                                'species': chromosomes.meta.species,
+                                'assembly': chromosomes.meta.assembly,
+                                'assembly_patch': chromosomes.meta.assembly_patch,
+                                'release': chromosomes.meta.release,
+                                'url': chromosomes.meta.url
+                            };
+
                             let configChromosomes = {{ config.CHROMOSOMES|safe }};
                             let start = 1;
                             let end = 0;
@@ -1353,6 +1412,14 @@
                                     'idx': [],
                                     'chr': {},
                                     'contigs': []
+                                };
+
+                                g.DATASETS[_id].ensembl = {
+                                    'species': value.meta.species,
+                                    'assembly': value.meta.assembly,
+                                    'assembly_patch': value.meta.assembly_patch,
+                                    'release': value.meta.release,
+                                    'url': value.meta.url
                                 };
 
                                 let configChromosomes = {{ config.CHROMOSOMES|safe }};
@@ -1430,7 +1497,6 @@
                 if (url !== '') {
                     htmlBody += ` <small><a target="_newwin" href="${url}">${urlDesc} <i class="fas fa-external-link-alt" aria-hidden="true"></i></small></a>`;
                 }
-
             });
 
             htmlBody += '</td></tr>';
@@ -1446,7 +1512,11 @@
                 htmlBody += `<tr><td><strong>Description</strong></td><td>${geneData.name}</td></tr>`;
             }
 
+           /*
+            let ensembl = g.DATASETS[g.dataSetID].ensembl;
+            htmlBody += `<tr><td><strong>Source</strong></td><td><a target="_newwin" href="${ensembl.url}">Ensembl ${ensembl.release}<i class="fas fa-external-link-alt" aria-hidden="true"></i>, ${ensembl.assembl_patch}</td></tr>`;
             htmlBody += '</table>';
+            */
 
             $('#div_current_item_information_header').html(htmlHeader);
             $('#div_current_item_information_body').html(htmlBody);
@@ -1859,8 +1929,13 @@
                     let markerPos = element[2];
 
                     // lookup the phenotype
+                    //logDebug('element=', element);
+                    //logDebug('g.datasetID=', g.dataSetID);
+                    //logDebug(g.DATASETS[g.dataSetID].phenotypes);
+
                     let phenotype = g.DATASETS[g.dataSetID].phenotypes[element[3]];
 
+                    //logDebug(phenotype);
                     seriesData.add(phenotype.category);
 
                     data.push({
@@ -3119,14 +3194,14 @@
                 </div>`);
 
             $('#snpShiftLeft').button().on('click', function(event) {
-                console.log(location);
-                console.log(id, chromosome, location - 2000000, covar);
+                logDebug(location);
+                logDebug(id, chromosome, location - 2000000, covar);
                 generateSNPAssocPlot(id, chromosome, location - 2000000, covar);
             });
 
             $('#snpShiftRight').button().on('click', function(event) {
-                console.log(location);
-                console.log(id, chromosome, location + 2000000, covar);
+                logDebug(location);
+                logDebug(id, chromosome, location + 2000000, covar);
                 generateSNPAssocPlot(id, chromosome, location + 2000000, covar);
             });
 
@@ -4403,6 +4478,8 @@
 
             let ds = g.DATASETS[dataSetID];
             g.dataSetID = dataSetID;
+
+            $('#divGenome').html(`<b>${ds.display_name}</b> is utilizing Ensembl Release <b>${ds.ensembl.release}</b>, Genome <b>${ds.ensembl.assembly_patch}</b> <div style='height: 10px'></div>`);
 
             // clear LOD Plot
             // TODO: clear LOD PLOT, Profile PLOT
@@ -5723,7 +5800,6 @@
                     $('#interactiveCovarLODS').selectpicker();
 
                     $('#interactiveCovarLODS').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
-                        console.log('CHANGING COVAR=',e.target.value);
                         changeCovariate(e.target.value);
                     });
 
