@@ -763,14 +763,17 @@
 
     <!-- Highcharts/Highstock //-->
     {% if debug %}
-    <script src="//code.highcharts.com/9.3/highcharts.src.js"></script>
+    <script src="//code.highcharts.com/11.4/highcharts.src.js"></script>
+    <!--
+    <script src="//code.highcharts.com/11.4/modules/debugger.js"></script>
+    //-->
     {% else %}
-    <script src="//code.highcharts.com/9.3/highcharts.js"></script>
+    <script src="//code.highcharts.com/11.4/highcharts.js"></script>
     {% endif %}
-    <script src="//code.highcharts.com/9.3/highcharts-more.js"></script>
-    <script src="//code.highcharts.com/9.3/modules/boost.js"></script>
-    <script src="//code.highcharts.com/9.3/modules/exporting.js"></script>
-    <script src="//code.highcharts.com/9.3/modules/offline-exporting.js"></script>
+    <script src="//code.highcharts.com/11.4/highcharts-more.js"></script>
+    <script src="//code.highcharts.com/11.4/modules/boost.js"></script>
+    <script src="//code.highcharts.com/11.4/modules/exporting.js"></script>
+    <script src="//code.highcharts.com/11.4/modules/offline-exporting.js"></script>
 
     <!-- DataTables //-->
     {% if debug %}
@@ -1351,6 +1354,13 @@
                         $('#correlationDatasetSelect').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
                             let selected = $(this).find(':selected').val();
                             let interactiveCovariate = $('#interactiveCovarCorrelation').find(':selected').val();
+
+                            if ((selected == undefined) ||
+                                (selected == null) ||
+                                (selected === 'none')) {
+                                selected = g.dataSetID;
+                            }
+
                             switchCorrelationDataSet(selected, interactiveCovariate);
                         });
                     }
@@ -2612,7 +2622,7 @@
         }
 
         async function snpHandler(datum, mark, props) {
-            logDebug(datum, mark, props);
+            //logDebug(datum, mark, props);
             let sdp = sdpn_to_sdpD(datum.sdpn);
             let csq = parseCSQ(datum.csq);
 
@@ -3370,7 +3380,7 @@
             logDebug('minPos=', minPos);
             logDebug('maxPos=', maxPos);
 
-            let snpAssocURL = `{{ config.API_R_BASE }}/snpassoc?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&location=${locationMb}&window_size=${zoomWindow}`;
+            let snpAssocURL = `{{ config.API_R_BASE }}/snpassocmapping?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&location=${locationMb}&window_size=${zoomWindow}`;
             let genesInfoURL = `${g.PROTOCOL}//churchilllab.jax.org/ensimpl/api/exon_info?release=${g.DATASETS[g.dataSetID].ensembl_release}&species=${g.DATASETS[g.dataSetID].ensembl_species}&chrom=${chromosome}`;
 
             if (covar !== 'additive') {
@@ -3548,6 +3558,10 @@
             }
         }
 
+        function roundToX(num, decimals) {
+            return +(Math.round(num + "e" + decimals) + "e-" + decimals);
+        }
+
         function plotEffectChart(effectData, lodData, covar, category, chromosome) {
             logDebug('plotEffectChart() ', effectData, lodData, covar, category);
 
@@ -3594,7 +3608,8 @@
                 {#- allEffectValues.push(element.{{ s['key'] }}); -#}
 
                 {#- when data is collapsed #}
-                val = element[{{ loop.index0 + 3}}];
+                //val = roundToX(element[{{ loop.index0 + 3}}], 4);
+                val = element[{{ loop.index0 + 3}}]
                 if (!isNaN(+val))  {
                     strainInfo['{{ s['key'] }}'].data.push([position, val]);
                     allEffectValues.push(val);
@@ -3632,10 +3647,10 @@
                     animation: 0,
                     color: value.color,
                     data: value.data,
-                    lineWidth: 1,
-                    marker: {
-                        symbol: 'circle',
-                    },
+                    lineWidth: 3,
+                  //  marker: {
+                 //       symbol: 'circle',
+                   // },
                     name: value.name,
                     showInLegend: true,
                     stack: 0,
@@ -3646,7 +3661,7 @@
                             return `<br>Effect: ${this.y}<br>Position: ${this.x.toLocaleString()}`;
                         }
                     },
-                    turboThreshold: 0,
+                    //turboThreshold: 0,
                     type: 'line',
                     yAxis:'axisEffect',
                 };
@@ -3700,10 +3715,10 @@
                         x: x,
                         y: y,
                         id: element[0],
-                        text: element[3],
-                        chr: chr.chromosome,
-                        chrPos: element[2],
-                        covar: covar
+                        //text: y,
+                        //chr: chr.chromosome,
+                        //chrPos: element[2],
+                        //covar: covar
                     };
                     newLodData.push(d);
                     lodMinValue = Math.min(element.y, lodMinValue);
@@ -3718,15 +3733,19 @@
                 lineWidth: 1,
                 name: 'LOD',
                 showInLegend: false,
-                stack: 0,
+                //stack: 0,
                 tooltip: {
                     shared: false,
                     headerFormat: '',
                     pointFormatter: function() {
-                        return `<br>LOD: ${this.y}<br>Position: ${this.x.toLocaleString()}`;
+                        if (this.id !== '') {
+                            return `<b>${this.id}</b><br>LOD: ${this.y}<br>Position: ${this.x.toLocaleString()}`;
+                        } else {
+                            return `<br>LOD: ${this.y}<br>Position: ${this.x.toLocaleString()}`;
+                        }
                     }
                 },
-                turboThreshold: 1000000, // TODO: what should this value be
+                turboThreshold: 10000000, // TODO: what should this value be
                 yAxis: 'axisLOD',
             });
 
@@ -3763,6 +3782,7 @@
                     useGPUTranslations: true
                 },
                 chart: {
+                    //displayErrors: true,
                     renderTo: renderTo,
                     zoomType: 'x'
                 },
@@ -3790,6 +3810,15 @@
                         }
                     }]
                 },
+
+                plotOptions: {
+        series: {
+            marker: {
+                enabled: false
+            }
+        }
+    },
+
                 series: series,
                 subtitle: {
                     text: 'Chromosome ' + chromosome,
@@ -4338,10 +4367,10 @@
          *
          */
         function generateEffectPlot(id, chromosome, covar) {
-            let effectURL = `{{ config.API_R_BASE }}/foundercoefs?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&intcovar=${covar}`;
+            let effectURL = `{{ config.API_R_BASE }}/foundercoefficients?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&intcovar=${covar}`;
             effectURL += '&blup=' + $('#performBLUP').is(':checked');
 
-            let lodURL = `{{ config.API_R_BASE }}/lodscansamples?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&intcovar=${covar}`;
+            let lodURL = `{{ config.API_R_BASE }}/lodscoresbycovar?dataset=${g.dataSetID}&id=${id}&chrom=${chromosome}&intcovar=${covar}`;
 
             {% if config.API_R_NUM_CORES %}
             effectURL += '&cores={{ config.API_R_NUM_CORES }}';
@@ -5334,9 +5363,13 @@
                     cfMap[elem['sample_column']] = elem['display_name'];
                 });
 
+                logDebug('cfMap=', cfMap);
+
                 let title = [];
 
                 let covarPermutations = [];
+
+                logDebug('data=', data);
 
                 $.each(selectedCovars, function (idx, elem) {
                     covarPermutations.push(data.datatypes[elem]);
@@ -5349,26 +5382,27 @@
                 logDebug('covarPermutations=', covarPermutations);
 
                 let covarCategories = [];
-                let covarCategoriesMap = {};
-                let categoryData = {};  // for box plot
+                let covarCategoriesMap = new OrderedDict();
+                let categoryData = new OrderedDict();  // for box plot
 
                 $.each(covarPermutations, function (idx, elem) {
+                    logDebug(idx, elem);
                     let catName = elem.join(':');
+                    logDebug(catName);
                     covarCategories.push(catName);
-                    covarCategoriesMap[catName] = idx;
-                    categoryData[catName] = [];
+                    covarCategoriesMap.set(catName, idx);
+                    categoryData.set(catName, []);
                 });
 
                 logDebug('covarCategories=', covarCategories);
                 logDebug('covarCategoriesMap=', covarCategoriesMap);
 
-                let seriesData = {};
+                let seriesData = new OrderedDict();
 
                 $.each(data.datatypes[seriesToColor], function (idx, val) {
-                    seriesData[val] = {values: []};
+                    console.log('seriesData', val);
+                    seriesData.set(val, {values: []});
                 });
-
-
 
                 $.each(data.data, function (idx, val) {
                     if (val.expression !== undefined) {
@@ -5380,13 +5414,19 @@
 
                         let catName = t.join(':');
 
-                        seriesData[val[seriesToColor]].values.push({
-                            x: covarCategoriesMap[catName],
+                        let bb = seriesData.get(val[seriesToColor]);
+                        bb.values.push({
+                            x: covarCategoriesMap.get(catName),
                             y: val.expression,
                             obj: val
                         });
+                        seriesData.set(val[seriesToColor], bb);
 
-                        categoryData[catName].push(val.expression);
+                        //seriesData[].values.push();
+
+                        let dd = categoryData.get(catName);
+                        dd.push(val.expression);
+                        categoryData.set(catName, dd);
                     }
                 });
 
@@ -5395,12 +5435,31 @@
                 // convert from object, to array
 
                 let series = [];
-                let colors = ['#7cb5ec', '#ed3215', '#8085e9', '#f7a35c', '#90ed7d',
-                    '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
+                let colors = ['#8B8682', '#87CEEB', '#27408B', '#FFA500', '#B22222', '#f7a35c', '#90ed7d', '#e4d354', '#2b908f', '#f45b5b'];
 
                 let boxSeries = [];
 
+                seriesData.forEach((value, key) => {
+                    logDebug('using color', colors[series.length % colors.length]);
+                    logDebug('using color', series.length % colors.length);
+                    series.push({
+                        data: value.values,
+                        name: key,
+                        marker: {
+                            radius: 2
+                        },
+                        color: colors[series.length % colors.length],
+                        jitter: {
+                            x: 0.24
+                        },
+                        zIndex: 10
+                    });
+                });
+
+/*
                 $.each(seriesData, function (key, val) {
+                    logDebug('using color', colors[series.length % colors.length]);
+                    logDebug('using color', series.length % colors.length);
                     series.push({
                         data: val.values,
                         name: key,
@@ -5414,18 +5473,30 @@
                         zIndex: 10
                     });
                 });
+   */
+                categoryData.forEach((value, key) => {
+                    if (value.length > 0) {
+                        let boxValues = getBoxValues(value);
 
-                $.each(categoryData, function (key, val) {
-                    if (val.length > 0) {
-                        let boxValues = getBoxValues(val);
-
-                        boxValues.x = covarCategoriesMap[key];
+                        boxValues.x = covarCategoriesMap.get(key);
                         boxValues.name = key;
                         boxValues.enableMouseTracking = false;
                         boxSeries.push(boxValues);
                     }
                 });
 
+/*
+                $.each(categoryData, function (key, val) {
+                    if (val.length > 0) {
+                        let boxValues = getBoxValues(val);
+
+                        boxValues.x = covarCategoriesMap.get(key);
+                        boxValues.name = key;
+                        boxValues.enableMouseTracking = false;
+                        boxSeries.push(boxValues);
+                    }
+                });
+*/
                 series.push({
                     type: 'boxplot',
                     data: boxSeries,
@@ -6183,6 +6254,8 @@
                 ordered.push(selected[i][0]);
             }
 
+            logDebug('getFactorOrder() returning: ', ordered);
+
             return ordered;
         }
 
@@ -6406,6 +6479,13 @@
                     $('#interactiveCovarCorrelation').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
                         let selected = $(this).find(':selected').val();
                         let dataset = $('#correlationDatasetSelect').find(':selected').val();
+
+                        if ((dataset == undefined) ||
+                            (dataset == null) ||
+                            (dataset === 'none')) {
+                            dataset = g.dataSetID;
+                        }
+
                         switchCorrelationDataSet(dataset, selected);
                     });
 
@@ -6781,9 +6861,7 @@
                 })
             });
 
-            let colors = ['#7cb5ec', '#ed3215', '#8085e9', '#f7a35c', '#90ed7d',
-                '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
-
+            let colors = ['#8B8682', '#87CEEB', '#27408B', '#FFA500', '#B22222', '#f7a35c', '#90ed7d', '#e4d354', '#2b908f', '#f45b5b'];
 
             let correlationColorDomain = Array.from(seriesData);
             //let correlationColorRange = g.PLOT_COLORS.slice(0, correlationColorDomain.length);
@@ -7245,8 +7323,8 @@
          */
         function selectPhenotype(phenotypeID, dataSetID, covar) {
             let urlExpression = `{{ config.API_R_BASE }}/expression?dataset=${dataSetID}&id=${phenotypeID}`;
-            let urlLOD = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=${phenotypeID}`;
-            let urlLODCovar = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=${phenotypeID}`;
+            let urlLOD = `{{ config.API_R_BASE }}/lodscores?dataset=${dataSetID}&id=${phenotypeID}`;
+            let urlLODCovar = `{{ config.API_R_BASE }}/lodscores?dataset=${dataSetID}&id=${phenotypeID}`;
             let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${dataSetID}&id=${phenotypeID}`;
 
             // TODO: make reset function
@@ -7602,8 +7680,8 @@
             urlGeneData += ('&species=' + g.DATASETS[datasetID].ensembl_species);
 
             let urlExpression = `{{ config.API_R_BASE }}/expression?dataset=${g.dataSetID}&id=${uniprotID}`;
-            let urlLOD = `{{ config.API_R_BASE }}/lodscan?dataset=${g.dataSetID}&id=${uniprotID}`;
-            let urlLODCovar = `{{ config.API_R_BASE }}/lodscan?dataset=${g.dataSetID}&id=${uniprotID}`;
+            let urlLOD = `{{ config.API_R_BASE }}/lodscores?dataset=${g.dataSetID}&id=${uniprotID}`;
+            let urlLODCovar = `{{ config.API_R_BASE }}/lodscores?dataset=${g.dataSetID}&id=${uniprotID}`;
             let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${g.dataSetID}&id=${uniprotID}`;
 
             // TODO: make reset function
@@ -7750,8 +7828,8 @@
 
 
             let urlExpression = `{{ config.API_R_BASE }}/expression?dataset=${datasetID}&id=${elementID}`;
-            let urlLOD = `{{ config.API_R_BASE }}/lodscan?dataset=${datasetID}&id=${elementID}`;
-            let urlLODCovar = `{{ config.API_R_BASE }}/lodscan?dataset=${datasetID}&id=${elementID}`;
+            let urlLOD = `{{ config.API_R_BASE }}/lodscores?dataset=${datasetID}&id=${elementID}`;
+            let urlLODCovar = `{{ config.API_R_BASE }}/lodscores?dataset=${datasetID}&id=${elementID}`;
             let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${datasetID}&id=${elementID}`;
 
             // TODO: make reset function
@@ -8036,8 +8114,8 @@
             urlGeneData += ('&species=' + g.DATASETS[dataSetID].ensembl_species);
 
             let urlExpression = `{{ config.API_R_BASE }}/expression?dataset=${dataSetID}&id=`;
-            let urlLOD = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=`;
-            let urlLODCovar = `{{ config.API_R_BASE }}/lodscan?dataset=${dataSetID}&id=`;
+            let urlLOD = `{{ config.API_R_BASE }}/lodscores?dataset=${dataSetID}&id=`;
+            let urlLODCovar = `{{ config.API_R_BASE }}/lodscores?dataset=${dataSetID}&id=`;
             let urlCorrelation = `{{ config.API_R_BASE }}/correlation?dataset=${dataSetID}&id=`;
 
             g.gene = null;
@@ -8219,8 +8297,8 @@
                             response_data: {
                                 lod: {
                                     error: "Connection Error"
-                                    error_message: "HTTPConnectionPool(host='myapiisawesome', port=8000): Max retries exceeded with url: /lodscan?dataset=dataset.islet.rnaseq&nCores=2&id=ENSMUSG00000023224 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f861126ce48>: Failed to establish a new connection: [Errno -5] No address associated with hostname',))"
-                                    url: "http://myapiisawesome:8000/lodscan?dataset=dataset.islet.rnaseq&nCores=2&id=ENSMUSG00000023224"
+                                    error_message: "HTTPConnectionPool(host='myapiisawesome', port=8000): Max retries exceeded with url: /lodscores?dataset=dataset.islet.rnaseq&nCores=2&id=ENSMUSG00000023224 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f861126ce48>: Failed to establish a new connection: [Errno -5] No address associated with hostname',))"
+                                    url: "http://myapiisawesome:8000/lodscores?dataset=dataset.islet.rnaseq&nCores=2&id=ENSMUSG00000023224"
                                     url_id: "lod"
                                 }
                             },
@@ -8330,7 +8408,7 @@
                 }
             } else {
                 logDebug('covar NOT in g.LODChartData, so go get it');
-                let urlLOD = `{{ config.API_R_BASE }}/lodscan?dataset=${g.dataSetID}&id=`;
+                let urlLOD = `{{ config.API_R_BASE }}/lodscores?dataset=${g.dataSetID}&id=`;
 
                 g.secondaryPlotMarkerID = null;
                 g.secondaryPlotChromosome = null;

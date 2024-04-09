@@ -76,8 +76,7 @@ def create_app():
 
     app.logger.info(app.config)
     app.logger.setLevel(app.config['LOG_LEVEL'])
-    app.logger.info(app.config['EFFECT_PLOT_OPTIONS'])
-
+    #app.logger.info(app.config['EFFECT_PLOT_OPTIONS'])
 
     app.logger.info('App instantiated')
 

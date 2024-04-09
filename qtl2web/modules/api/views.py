@@ -183,7 +183,7 @@ def api_status(group_id):
             done = True
 
         except Exception as exc:
-            print('Major Error: ', str(exc))
+            print('Major Error (api_status): ', str(exc))
             attempts -= 1
             if attempts <= 0:
                 done = True
@@ -244,7 +244,7 @@ def api_cancel(group_id):
         rs = current_app.GroupResult.restore(group_id)
         rs.revoke(terminate=True)
     except Exception as exc:
-        print('Major Error: ', str(exc))
+        print('Major Error (api_cancel): ', str(exc))
     return jsonify({'status': 'revoked?'})
 
 
