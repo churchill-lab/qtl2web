@@ -160,7 +160,7 @@
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="input-group">
-                                                        <input type="text" id="searchTerm" name="searchTerm" class="form-control" placeholder="{{ config.SEARCH_BOX_TEXT|safe }}">
+                                                        <input type="text" id="searchTerm" name="searchTerm" value="{{ search_term }}" class="form-control" placeholder="{{ config.SEARCH_BOX_TEXT|safe }}">
                                                         <span class="input-group-append">
                                                             <button id="btnGo" class="btn btn-primary"><i class="fas fa-search"></i></button>
                                                         </span>
@@ -428,13 +428,11 @@
                                     <div class="tab-content">
                                         <div role="tabpanel" class="tab-pane active" id="tabPlotEffect">
 
-
                                         {% if 'EFFECT_PLOT_OPTIONS' in config %}
                                             {% set EFFECT_PLOT_OPTIONS = config.EFFECT_PLOT_OPTIONS %}
                                         {% else %}
                                             {% set EFFECT_PLOT_OPTIONS = 'NB' %}
                                         {% endif %}
-
 
                                         <input type="hidden" id="effect_plot_options" value="{{EFFECT_PLOT_OPTIONS}}"/>
 
@@ -1047,6 +1045,28 @@
             g.CHROMOSOMES = null;      // all chromosome information
 
             g.PLOT_COLORS = [
+                '#e6194b',
+                '#4363d8',
+                '#3cb44b',
+                '#ffe119',
+                '#f58231',
+                '#911eb4',
+                '#46f0f0',
+                '#f032e6',
+                '#bcf60c',
+                '#fabebe',
+                '#008080',
+                '#e6beff',
+                '#9a6324',
+                '#fffac8',
+                '#800000',
+                '#aaffc3',
+                '#808000',
+                '#ffd8b1',
+                '#000075',
+                '#808080'
+            ];
+            /*
                 "#3d7cb9",
                 "#c50004",
                 "#38be2f",
@@ -1057,7 +1077,7 @@
                 "#deca00",
                 "#2b908f",
                 "#434348"
-            ];
+            */
 
             /*
              * current selected information
@@ -1486,8 +1506,33 @@
                                 g.DATASETS[value.parameters.dataset].lodpeaks = value.result;
                             }
                         });
+
+                        logDebug('end awaitall');
+                        // this is where the final stuff is
+                        console.log('{{ search_term }}');
+                        if (($('#navPheno').is(':hidden')) && ($('#searchTerm').val() !== '')) {
+                            console.log($('#searchTerm').val());
+                            $('#btnGo').click();
+                        }
+
+
+                        if (($('#navGene').is(':hidden')) && ($('#searchTermPheno').val() !== '')) {
+                            console.log($('#searchTermPheno').val());
+                            $("#searchTermPheno").trigger('keyup');
+
+
+                            if ($('#phenotypesTable tbody a').length === 1) {
+                                $('#phenotypesTable tbody a')[0].click();
+                            }
+
+                        }
                     });
+
+                    logDebug('end await');
                 });
+
+
+                logDebug('end init');
             }
 
         /**
@@ -1669,73 +1714,6 @@
             downloadCSV(csvContent, `${id}_LODPEAKS.csv`, 'text/csv;encoding:utf-8');
         }
 
-
-        function calcLegend(elems, colors, name) {
-            let height = 12;
-            let legendData = [];
-            let xDomain = [0, 2];
-
-            if (elems.length === 1) {
-                xDomain = [0, 1];
-                legendData.push({
-                    "x": 1,
-                    "y": 1,
-                    "text": elems[0],
-                    "color": colors[0]
-                });
-            } else {
-                height = Math.ceil(elems.length / 2) * 12;
-                elems = elems.reverse();
-                let g = 0;
-                for(let i = elems.length - 1; i >=0 ; i--) {
-                    let x = g % 2;
-                    let y = ((elems.length % 2) === 1) ? Math.ceil(i / 2) : Math.floor(i / 2);
-                    let d = {
-                        "x": x,
-                        "y": y,
-                        "text": elems[i],
-                        "color": colors[g]
-                    };
-                    legendData.push(d);
-                    g++;
-                }
-            }
-
-            let legend =
-                {
-                    "name": name,
-                    "height": height,
-                    "data": {
-                        "values": legendData
-                    },
-                    "mark": {
-                        "type": "text",
-                        "align": "left",
-
-                        "tooltip": {
-                            "handler": "nullHandler"
-                        },
-                    },
-                    "encoding": {
-                        "x": { "axis": null, "title": null, "field": "x", "type": "quantitative", "scale": {"domain": xDomain} },
-                        "y": { "axis": null, "title": null,  "field": "y", "type": "quantitative"},
-                        "color": {
-                            "field": "color",
-                            "type": "nominal" ,
-                            "scale": {
-                                "domain": elems,
-                                "range": colors,
-                            }
-                        },
-                        "text": { "field": "text", "type": "nominal" },
-                        "size": { "value": 11 }
-                    }
-                };
-
-            return legend;
-
-        }
-
         /**
          * Plot LOD Peaks as a scatter plot.
          */
@@ -1746,7 +1724,6 @@
 
             let data = [];
             let tracks = null;
-            let legend = null;
             let handlers = null;
             let minLOD = Infinity;
             let maxLOD = -Infinity;
@@ -1956,6 +1933,7 @@
                 // ["5_137006393","5",137.0064,"MEcyan","MEcyan","MEcyan",9.1161],[
 
                 let seriesData = new Set();
+                let seriesDataAll = new Set();
                 let data = [];
                 let rects = [];
 
@@ -1970,6 +1948,11 @@
                     }
                 });
 
+                let checkedVals = $("#divLODPeaks").find(":input:checked").map(function () {
+                    return this.value;
+                }).get();
+                console.log(checkedVals);
+
                 $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
                     // element[0] = marker_id
                     let markerChr = chrs[element[1]].chromosome;
@@ -1983,24 +1966,27 @@
                     let phenotype = g.DATASETS[g.dataSetID].phenotypes[element[3]];
 
                     //logDebug(phenotype);
-                    seriesData.add(phenotype.category);
+                    seriesDataAll.add(phenotype.category);
+                    if (checkedVals.includes(phenotype.category)) {
+                        seriesData.add(phenotype.category);
 
-                    data.push({
-                        lod: element[6],
-                        phenoDataName: element[3],
-                        phenoShortName: element[4],
-                        phenoDescription: element[5],
-                        phenoCategory: phenotype.category,
-                        markerPosOrig: element[2],
-                        markerChr: markerChr,
-                        markerPos: markerPos,
-                        markerID: element[0],
-                        covar: covar,
-                        phenotype: true
-                    });
+                        data.push({
+                            lod: element[6],
+                            phenoDataName: element[3],
+                            phenoShortName: element[4],
+                            phenoDescription: element[5],
+                            phenoCategory: phenotype.category,
+                            markerPosOrig: element[2],
+                            markerChr: markerChr,
+                            markerPos: markerPos,
+                            markerID: element[0],
+                            covar: covar,
+                            phenotype: true
+                        });
 
-                    minLOD = Math.min(minLOD, element[6]);
-                    maxLOD = Math.max(maxLOD, element[6]);
+                        minLOD = Math.min(minLOD, element[6]);
+                        maxLOD = Math.max(maxLOD, element[6]);
+                    }
                 });
 
                 minLOD = Math.max(0, Math.floor(minLOD) - 1);
@@ -2016,13 +2002,16 @@
                     })
                 });
 
-
                 let phenotypeColorDomain = Array.from(seriesData);
-                let phenotypeColorRange = g.PLOT_COLORS.slice(0, phenotypeColorDomain.length);
-                let revColors = [];
+                let allCategories = Array.from(seriesDataAll);
+                let phenotypeColorRange = [];
 
-                for (let x = phenotypeColorRange.length - 1; x >= 0; x--) {
-                    revColors.push(phenotypeColorRange[x]);
+                for (let a = 0; a < allCategories.length; a++) {
+                    for (let b = 0; b < phenotypeColorDomain.length; b++) {
+                        if (allCategories[a] === phenotypeColorDomain[b]) {
+                            phenotypeColorRange.push(g.PLOT_COLORS[a]);
+                        }
+                    }
                 }
 
                 logDebug('phenotype lod=', data);
@@ -2030,7 +2019,6 @@
                 logDebug('maxLOD=', maxLOD);
                 logDebug('phenotypeColorDomain=', phenotypeColorDomain);
                 logDebug('phenotypeColorRange=', phenotypeColorRange);
-                logDebug('revColors=', revColors);
 
                 trackPeakLOD = {
                     "name": "lod",
@@ -2100,7 +2088,7 @@
                                 "inwardStroke": true,
                                 "stroke": "#222222",
                                 "strokeWidth": 0.7,
-                                "fillOpacity": 0.6,
+                                "fillOpacity": 0.9,
                                 "strokeOpacity": 0.8
                             },
                             "encoding": {
@@ -2124,7 +2112,7 @@
                                     "field": "phenoCategory",
                                     "scale": {
                                         "domain": phenotypeColorDomain,
-                                        "range": revColors,
+                                        "range": phenotypeColorRange,
                                     }
                                 },
                                 "size": {
@@ -2137,8 +2125,8 @@
                         }
                     ]
                 };
-                legend = calcLegend(phenotypeColorDomain, phenotypeColorRange, "peaksLegend");
-                tracks = [trackPeakLOD, legend];
+
+                tracks = [trackPeakLOD];
                 handlers = {
                     nullHandler: nullHandler,
                     lodPeakPhenotypeTooltipHandler: lodPeakPhenotypeTooltipHandler
@@ -2294,7 +2282,75 @@
                     plotLODPeaks(g.DATASETS[g.dataSetID].lodpeaks[covar], +$('#lodSliderValue').val());
                 });
             } else {
-                $('#divLODPeaks').html(html);
+                //let checkedVals = $("#divLODPeaks").find(":input:checked").map(function () {
+                //    return this.value;
+                //}).get();
+                //console.log('checkedVals=', checkedVals);
+
+                let seriesData = new Set();
+
+                $.each(g.DATASETS[g.dataSetID].lodpeaks[covar], function(index, element) {
+                    let phenotype = g.DATASETS[g.dataSetID].phenotypes[element[3]];
+
+                    //if (checkedVals.includes(phenotype.category)) {
+                        seriesData.add(phenotype.category);
+                    //}
+                });
+
+                let phenotypeColorDomain = Array.from(seriesData);
+                let phenotypeColorRange = g.PLOT_COLORS.slice(0, phenotypeColorDomain.length);
+
+                //logDebug('phenotypeColorDomain=', phenotypeColorDomain);
+                //logDebug('phenotypeColorRange=', phenotypeColorRange);
+
+                html = html + `
+                    <div class="row justify-content-center">
+                        <div class="col text-right">
+                            <table border="0" cellspacing="0" cellpadding="1" align="center">
+                                <tbody>
+                `;
+
+            for (c in phenotypeColorDomain) {
+                //console.log('c=', c);
+                //console.log('phenotypeColorDomain[c]=', phenotypeColorDomain[c]);
+                //console.log('phenotypeColorRange[c]=', phenotypeColorRange[c]);
+
+                if (c % 2 === 0) {
+                    html += `<tr style="color: black;" align="left">`;
+                }
+
+                html += `<td>
+                            <div class="form-check">
+                                <input class="checkbox-round-${phenotypeColorRange[c].slice(1)}"
+                                       type="checkbox"
+                                       value="${phenotypeColorDomain[c]}"
+                                       id="${phenotypeColorDomain[c]}"
+                                       checked>
+                                <label class="small form-check-label" for="${phenotypeColorDomain[c]}">
+                                    ${phenotypeColorDomain[c]}
+                                </label>
+                            </div>
+                        </td>`;
+
+                if (c % 2 === 1) {
+                    html += `</tr>`;
+                }
+            }
+
+            html += `    </tbody>
+    </table>`;
+
+            $('#divLODPeaks').html(html);
+
+            $("#divLODPeaks").find(":input").on('change', function () {
+                let checkedVals = $("#divLODPeaks").find(":input:checked").map(function () {
+                    return this.value;
+                }).get();
+                //console.log(checkedVals);
+
+                plotLODPeaks(g.DATASETS[g.dataSetID].lodpeaks[covar]);
+            });
+
             }
 
             plotLODPeaks(g.DATASETS[g.dataSetID].lodpeaks[covar], maxLOD);
@@ -4777,7 +4833,7 @@
                 if (categories.size === 0) {
                     logError('No categories - ERROR');
                 } else {
-                    $('#searchPheno').html('<input type="text" id="searchTermPheno" name="searchTermPheno" class="form-control" placeholder="Please enter a phenotype to filter results...">');
+                    $('#searchPheno').html('<input type="text" id="searchTermPheno" name="searchTermPheno" value="{{ search_term }}" class="form-control" placeholder="Please enter a phenotype to filter results...">');
 
                     // build the phenotypes table
                     $('#searchPhenoResultsDiv').html(`<table id="phenotypesTable" class="table table-striped table-hover table-sm table-bordered">
@@ -4847,6 +4903,7 @@
                             $('#phenotypesTable tbody a').on('click', function (evt) {
                                 evt.preventDefault();
                                 let that = $(this);
+                                logDebug('click from categories > 1');
                                 selectPhenotype(that.attr('phenotypeid'), g.dataSetID, $('#interactiveCovarLODS').val());
                                 return false;
                             });
@@ -4875,6 +4932,7 @@
                         $('#phenotypesTable tbody a').on('click', function (evt) {
                             evt.preventDefault();
                             let that = $(this);
+                            logDebug('click from keyup');
                             selectPhenotype(that.attr('phenotypeid'), g.dataSetID, $('#interactiveCovarLODS').val());
                             return false;
                         });
@@ -4884,6 +4942,7 @@
                     $('#phenotypesTable tbody a').on('click', function (evt) {
                         evt.preventDefault();
                         let that = $(this);
+                        logDebug('click from datatype is pheno');
                         selectPhenotype(that.attr('phenotypeid'), g.dataSetID, $('#interactiveCovarLODS').val());
                         return false;
                     });
@@ -4935,7 +4994,7 @@
                 if (categories.size === 0) {
                     logError('No categories - ERROR');
                 } else {
-                    $('#searchPheno').html('<input type="text" id="searchTermPheno" name="searchTermPheno" class="form-control" placeholder="Please enter text to filter results...">');
+                    $('#searchPheno').html('<input type="text" id="searchTermPheno" value="{{ search_term }}" name="searchTermPheno" class="form-control" placeholder="Please enter text to filter results...">');
 
                     // build the phenotypes table
                     $('#searchPhenoResultsDiv').html(`<table id="phenotypesTable" class="table table-striped table-hover table-sm table-bordered">
@@ -5043,7 +5102,7 @@
                             $('#phenotypesTable tbody a').on('click', function (evt) {
                                 evt.preventDefault();
                                 let that = $(this);
-                                console.log('click on tbody a', that.attr('ptmid'), that.attr('peptideid'), that.attr('proteinid'), that.attr('geneid'));
+                                console.log('click on tbody a selectPTMPeptide cat > 1', that.attr('ptmid'), that.attr('peptideid'), that.attr('proteinid'), that.attr('geneid'));
                                 selectPTMPeptide(that.attr('ptmid'), that.attr('peptideid'), that.attr('proteinid'), that.attr('geneid'), g.dataSetID, $('#interactiveCovarLODS').val());
                                 return false;
                             });
@@ -5051,9 +5110,11 @@
                     }
 
                     $('#searchTermPheno').keyup(function (event) {
-                        if ( event.which === 13 ) {
-                            event.preventDefault();
-                        }
+                        logDebug('event=', event);
+                        logDebug('event.which=', event.which);
+                        //if ( event.which === 13 ) {
+                        //    event.preventDefault();
+                        //}
                         let q = $(this).val();
 
 
@@ -5073,7 +5134,7 @@
                         $('#phenotypesTable tbody a').on('click', function (evt) {
                             evt.preventDefault();
                             let that = $(this);
-                            console.log('click on tbody a', that.attr('ptmid'), that.attr('peptideid'), that.attr('proteinid'), that.attr('geneid'));
+                            console.log('click on tbody a selectPTMPeptide keyup', that.attr('ptmid'), that.attr('peptideid'), that.attr('proteinid'), that.attr('geneid'));
                             selectPTMPeptide(that.attr('ptmid'), that.attr('peptideid'), that.attr('proteinid'), that.attr('geneid'), g.dataSetID, $('#interactiveCovarLODS').val());
                             return false;
                         });
@@ -5083,7 +5144,7 @@
                     $('#phenotypesTable tbody a').on('click', function (evt) {
                         evt.preventDefault();
                         let that = $(this);
-                        console.log('click on tbody a', that.attr('ptmid'), that.attr('peptideid'), that.attr('proteinid'), that.attr('geneid'));
+                        console.log('click on tbody a selectPTMPeptide all', that.attr('ptmid'), that.attr('peptideid'), that.attr('proteinid'), that.attr('geneid'));
                         selectPTMPeptide(that.attr('ptmid'), that.attr('peptideid'), that.attr('proteinid'), that.attr('geneid'), g.dataSetID, $('#interactiveCovarLODS').val());
                         return false;
                     });
@@ -5126,7 +5187,7 @@
                 if (categories.size === 0) {
                     logError('No categories - ERROR');
                 } else {
-                    $('#searchPheno').html('<input type="text" id="searchTermPheno" name="searchTermPheno" class="form-control" placeholder="Please enter text to filter results...">');
+                    $('#searchPheno').html('<input type="text" id="searchTermPheno" value="{{ search_term }}" name="searchTermPheno" class="form-control" placeholder="Please enter text to filter results...">');
 
                     // build the phenotypes table
                     $('#searchPhenoResultsDiv').html(`<table id="phenotypesTable" class="table table-striped table-hover table-sm table-bordered">
@@ -5230,7 +5291,6 @@
                             event.preventDefault();
                         }
                         let q = $(this).val();
-
 
                         if (q === '') {
                             q = undefined;
@@ -6426,11 +6486,21 @@
                 htmlInteractiveCovariatesPeaks += `<option value="additive">Additive</option>`;
                 htmlInteractiveCovariatesCorrelation += `<option value="none">None</option>`;
 
+                {% if 'FACTOR_VIEW_SELECT_INITIAL_ALL' in config %}
+                    {% set FACTOR_VIEW_SELECT_INITIAL_ALL = config.FACTOR_VIEW_SELECT_INITIAL_ALL %}
+                {% else %}
+                    {% set FACTOR_VIEW_SELECT_INITIAL_ALL = False %}
+                {% endif %}
+
                 $.each(ds['covar_info'], function (index, element) {
                     selectOptions.push({
                         label: element['display_name'],
                         order: index,
+                    {% if FACTOR_VIEW_SELECT_INITIAL_ALL %}
+                        selected: true,
+                    {% else %}
                         selected: element.primary,
+                    {% endif %}
                         title: element['display_name'],
                         value: element['sample_column'],
                     });
@@ -8533,6 +8603,7 @@
            $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
         });
 
+        logDebug('end ready');
     });
     </script>
 
