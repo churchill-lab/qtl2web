@@ -26,13 +26,13 @@ TECHNOLOGIES = [
   {
     "category": "python",
     "name": "Python",
-    "version": 3.6,
+    "version": 3.10,
     "url": "https://www.python.org/"
   },
   {
     "category": "python",
     "name": "Flask",
-    "version": "1.0.2",
+    "version": "2.0.3",
     "url": "https://flask.palletsprojects.com/"
   },
   {
@@ -44,43 +44,43 @@ TECHNOLOGIES = [
   {
     "category": "R",
     "name": "R",
-    "version": 4.1,
+    "version": 4.4,
     "url": "https://www.r-project.org/"
   },
   {
     "category": "R",
     "name": "R/qtl2",
-    "version": 0.28,
+    "version": 0.34,
     "url": "https://kbroman.org/qtl2/"
   },
   {
     "category": "R",
     "name": "qtl2api",
-    "version": "0.3.0",
+    "version": "0.6.0",
     "url": "https://github.com/churchill-lab/qtl2api"
   },
   {
     "category": "R",
     "name": "RestRserve",
-    "version": "0.4.1",
+    "version": "1.2.2",
     "url": "https://restrserve.org/"
   },
   {
     "category": "docker",
     "name": "Docker",
-    "version": "18.09.3",
+    "version": "25.0.5",
     "url": "https://www.docker.com/"
   },
   {
     "category": "docker",
     "name": "rocker/r-ver",
-    "version": 4.1,
+    "version": 4.4,
     "url": "https://hub.docker.com/r/rocker/r-ver"
   },
   {
     "category": "docker",
     "name": "mattjvincent/qtl2rest",
-    "version": "0.3.0",
+    "version": "0.6.0",
     "url": "https://github.com/churchill-lab/qtl2rest"
   },
   {
