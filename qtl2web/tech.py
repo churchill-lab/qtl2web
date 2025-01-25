@@ -26,7 +26,7 @@ TECHNOLOGIES = [
   {
     "category": "python",
     "name": "Python",
-    "version": 3.10,
+    "version": "3.10",
     "url": "https://www.python.org/"
   },
   {

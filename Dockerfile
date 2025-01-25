@@ -1,4 +1,4 @@
-FROM python:3.10-bookworm
+FROM python:3.10-slim
 
 LABEL maintainer="Matt Vincent <matt.vincent@jax.org>"
 
@@ -13,7 +13,7 @@ RUN apt-get update; \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
-ENV INSTALL_PATH /app
+ENV INSTALL_PATH=/app
 RUN mkdir -p $INSTALL_PATH/cache && \
     chmod a+w $INSTALL_PATH/cache
 WORKDIR $INSTALL_PATH
@@ -37,7 +37,7 @@ COPY ./conf/supervisord.conf /etc/supervisord.conf
 
 # Copy the OpenSSL config
 COPY ./conf/openssl.conf /etc/openssl.conf
-ENV OPENSSL_CONF /etc/openssl.conf
+ENV OPENSSL_CONF=/etc/openssl.conf
 
 # copy python requirements file
 COPY requirements.txt /tmp/requirements.txt

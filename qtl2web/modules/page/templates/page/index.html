@@ -160,7 +160,7 @@
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="input-group">
-                                                        <input type="text" id="searchTerm" name="searchTerm" value="{{ search_term }}" class="form-control" placeholder="{{ config.SEARCH_BOX_TEXT|safe }}">
+                                                        <input type="text" id="searchTerm" name="searchTerm" class="form-control" placeholder="{{ config.SEARCH_BOX_TEXT|safe }}">
                                                         <span class="input-group-append">
                                                             <button id="btnGo" class="btn btn-primary"><i class="fas fa-search"></i></button>
                                                         </span>
@@ -1508,8 +1508,23 @@
                         });
 
                         logDebug('end awaitall');
+
                         // this is where the final stuff is
-                        console.log('{{ search_term }}');
+                        /**
+                        TDOD: Depending on how long something takes to download,
+                              on load, the search term might be filled out or might
+                              not be.  The correct graph will be displayed, but
+                              it all depends on the timing.  Should fix this.
+
+                            setDataSet(g.dataSetID, true); DOESN'T FIX THIS
+                        */
+                        if ($('#navPheno').is(':hidden')) {
+                            $('#searchTerm').val('{{ search_term }}');
+                        }
+                        if ($('#navGene').is(':hidden')) {
+                            $('#searchTermPheno').val('{{ search_term }}');
+                        }
+
                         if (($('#navPheno').is(':hidden')) && ($('#searchTerm').val() !== '')) {
                             console.log($('#searchTerm').val());
                             $('#btnGo').click();
@@ -1520,11 +1535,9 @@
                             console.log($('#searchTermPheno').val());
                             $("#searchTermPheno").trigger('keyup');
 
-
                             if ($('#phenotypesTable tbody a').length === 1) {
                                 $('#phenotypesTable tbody a')[0].click();
                             }
-
                         }
                     });
 
@@ -4758,6 +4771,10 @@
             // make tabs invisible
             $('#navGene').hide();
             $('#navPheno').hide();
+            $('#searchTerm').val('');
+            $('#searchTermPheno').val('');
+            logDebug('CLEARING SEARCH TERMS');
+
             if (isEmpty(g.DATASETS[g.dataSetID].lodpeaks)) {
                 $('#navLodPeaks').hide();
             } else {
@@ -4833,7 +4850,7 @@
                 if (categories.size === 0) {
                     logError('No categories - ERROR');
                 } else {
-                    $('#searchPheno').html('<input type="text" id="searchTermPheno" name="searchTermPheno" value="{{ search_term }}" class="form-control" placeholder="Please enter a phenotype to filter results...">');
+                    $('#searchPheno').html('<input type="text" id="searchTermPheno" name="searchTermPheno" class="form-control" placeholder="Please enter a phenotype to filter results...">');
 
                     // build the phenotypes table
                     $('#searchPhenoResultsDiv').html(`<table id="phenotypesTable" class="table table-striped table-hover table-sm table-bordered">
@@ -4994,7 +5011,7 @@
                 if (categories.size === 0) {
                     logError('No categories - ERROR');
                 } else {
-                    $('#searchPheno').html('<input type="text" id="searchTermPheno" value="{{ search_term }}" name="searchTermPheno" class="form-control" placeholder="Please enter text to filter results...">');
+                    $('#searchPheno').html('<input type="text" id="searchTermPheno" name="searchTermPheno" class="form-control" placeholder="Please enter text to filter results...">');
 
                     // build the phenotypes table
                     $('#searchPhenoResultsDiv').html(`<table id="phenotypesTable" class="table table-striped table-hover table-sm table-bordered">
@@ -5187,7 +5204,7 @@
                 if (categories.size === 0) {
                     logError('No categories - ERROR');
                 } else {
-                    $('#searchPheno').html('<input type="text" id="searchTermPheno" value="{{ search_term }}" name="searchTermPheno" class="form-control" placeholder="Please enter text to filter results...">');
+                    $('#searchPheno').html('<input type="text" id="searchTermPheno" name="searchTermPheno" class="form-control" placeholder="Please enter text to filter results...">');
 
                     // build the phenotypes table
                     $('#searchPhenoResultsDiv').html(`<table id="phenotypesTable" class="table table-striped table-hover table-sm table-bordered">
