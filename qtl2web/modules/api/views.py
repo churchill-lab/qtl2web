@@ -5,10 +5,13 @@ from flask import current_app as app
 from flask import Blueprint
 from flask import jsonify
 from flask import request
+from flask import Response
 
 import json
+import logging
 import time
 import requests
+import requests_cache
 
 from qtl2web.utils import format_time
 
@@ -66,15 +69,14 @@ def api_get(url):
     else:
         new_url = url
 
-    print('new_url=', new_url)
-
     # hack introduced in Apache httpd upgrade
     if new_url[:6] == 'http:/' and new_url[6] != '/':
         new_url = 'http://' + new_url[6:]
     elif new_url[:7] == 'https:/' and new_url[7] != '/':
         new_url = 'https://' + new_url[7:]
 
-    r = requests.get(new_url)  # , params=_params)
+    r = requests.get(new_url)
+
     request_end_time = time.time()
     roundtrip = r.elapsed.total_seconds()
     request_time = format_time(0, roundtrip)
@@ -88,6 +90,36 @@ def api_get(url):
         print('Error in JSON: ', str(e))
 
     return jsonify(response_data)
+
+
+@api.route('/getp/<path:url>', methods=['GET'])
+def api_getp(url):
+    request_start_time = time.time()
+    elems = request.url.split(url)
+
+    if len(elems) > 1:
+        new_url = '{}{}'.format(url, elems[1])
+    else:
+        new_url = url
+
+    # hack introduced in Apache httpd upgrade
+    if new_url[:6] == 'http:/' and new_url[6] != '/':
+        new_url = 'http://' + new_url[6:]
+    elif new_url[:7] == 'https:/' and new_url[7] != '/':
+        new_url = 'https://' + new_url[7:]
+
+    print('param new_url=', new_url)
+    try:
+        response = requests.get(new_url, stream=True)
+        response.raise_for_status()  # Raise an exception for bad status codes
+        if response.from_cache:
+            return Response(response.content, content_type=response.headers.get('content-type'))
+        else:
+            return Response(response.raw, content_type=response.headers.get('content-type'))
+
+    except requests.exceptions.RequestException as e:
+        return f"Error fetching image: {e}", 500
+
 
 
 @api.route('/submit', methods=['POST'])
